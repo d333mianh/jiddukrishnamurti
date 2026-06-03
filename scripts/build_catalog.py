@@ -642,13 +642,19 @@ def init_db(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_items_series_order ON items(series_order);
         CREATE INDEX IF NOT EXISTS idx_series_pdf_order ON series(pdf_order);
 
-        -- Reserved for phase 2 downloads (YouTube / KFT URLs)
+        -- Phase 2: streaming links (populated by scripts/discover_links.py)
         CREATE TABLE IF NOT EXISTS item_links (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             item_id INTEGER NOT NULL REFERENCES items(id),
             url TEXT NOT NULL,
             link_kind TEXT NOT NULL DEFAULT 'primary',
             source TEXT,
+            video_id TEXT,
+            remote_title TEXT,
+            media_format TEXT,
+            match_score REAL,
+            discovered_at TEXT,
+            notes TEXT,
             UNIQUE(item_id, url)
         );
         """

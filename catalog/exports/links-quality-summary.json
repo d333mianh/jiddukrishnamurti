@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-06-03",
+  "method": "PDF hyperlink extraction + global oEmbed title/structural matching (no downloads)",
+  "sources": {
+    "kft_pdf_youtube": {
+      "label": "KFT official (2026 Directory PDF → youtu.be)",
+      "quality_tier": 1,
+      "notes": "Canonical links from Krishnamurti Foundation Trust Full-Length Directory 2026. Primary choice for full-length audio/video."
+    },
+    "youtube_playlist_kft": {
+      "label": "KFT YouTube section playlists (kfoundation.org/video)",
+      "quality_tier": 1,
+      "notes": "Section-level playlists; see catalog/kft_playlists.json"
+    },
+    "archive_org": {
+      "label": "Internet Archive",
+      "quality_tier": 3,
+      "notes": "Variable format/bitrate; useful when no KFT link exists. Search is fuzzy."
+    }
+  },
+  "comparison_guidance": {
+    "prefer": ["kft_pdf_youtube"],
+    "audio_vs_video": "PDF link + oEmbed title prefix (Audio| / Video|) indicates stream type; video usually higher resolution but larger.",
+    "alternates": "When multiple URLs exist per code, compare media_format and match_score in links-comparison.csv"
+  }
+}

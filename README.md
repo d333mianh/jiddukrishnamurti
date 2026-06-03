@@ -20,6 +20,18 @@ python3 scripts/build_catalog.py
 
 Requires `pdftotext` (poppler).
 
+## Link discovery (no downloads)
+
+Scrape official KFT YouTube URLs from PDF hyperlinks and optional Archive.org alternates:
+
+```bash
+apt install python3-pypdf   # if needed
+python3 scripts/discover_links.py
+python3 scripts/discover_links.py --archive --archive-limit 100
+```
+
+Outputs: `catalog/exports/links-comparison.csv`, `catalog/link_cache.json`, `item_links` in SQLite.
+
 ## License
 
 Catalog metadata © Krishnamurti Foundation Trust. This repo is a personal indexing tool; recordings remain property of KFT / rights holders.
