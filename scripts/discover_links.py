@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 """
-Discover streaming links for catalog items (no downloads).
+Discover streaming links from KFT Full-Length Directory PDF only (no downloads).
 
-Sources:
-  - kft_pdf_youtube: youtu.be links embedded in KFT Full-Length Directory PDF
-  - youtube_playlist: section playlists from kfoundation.org/video page
-  - archive_org: Internet Archive search (alternate / often lower quality)
-  - youtube_kft_extracts: @kft channel (extracts only; flagged separately)
+Populates item_links exclusively with youtu.be hyperlinks embedded in the PDF.
+On each run: DELETE all rows in item_links, then insert fresh primary links.
+
+Optional: --archive for Internet Archive alternates (off by default).
 
 Outputs:
-  - catalog/krishnamurti.db item_links (+ metadata columns)
-  - catalog/link_cache.json
+  - catalog/krishnamurti.db item_links
+  - catalog/link_cache.json (oEmbed cache, gitignored)
   - catalog/exports/links-comparison.csv
 """
 
@@ -47,6 +46,12 @@ KFT_VIDEO_PAGE = "https://kfoundation.org/video/"
 
 USER_AGENT = "krishnamurti-catalog-research/1.0 (+local indexing; no downloads)"
 
+YEAR_IN_TITLE_RE = re.compile(r"\b((?:19|20)\d{2})\b")
+YEAR_SLASH_RE = re.compile(r"\b(\d{2})/(\d{2})\b")
+GENERIC_QA_TITLE_RE = re.compile(
+    r"^\d+(?:st|nd|rd|th)\s+question\s+and\s+answer\s+meeting$", re.I
+)
+
 
 @dataclass
 class YouTubeLink:
@@ -72,6 +77,65 @@ def yt_tail(title: str) -> str:
     t = title.replace("–", "-").replace("—", "-")
     parts = [p.strip() for p in t.split("-") if p.strip()]
     return norm_title(parts[-1] if parts else t)
+
+
+def is_generic_catalog_title(title: str) -> bool:
+    return bool(GENERIC_QA_TITLE_RE.match(norm_title(title)))
+
+
+def years_in_youtube_title(yt_title: str) -> set[int]:
+    years = {int(y) for y in YEAR_IN_TITLE_RE.findall(yt_title)}
+    for a, b in YEAR_SLASH_RE.findall(yt_title):
+        years.add(1900 + int(a))
+        years.add(1900 + int(b))
+    return {y for y in years if 1900 <= y <= 2035}
+
+
+def catalog_match_years(code: str, year: int | None, places: dict[str, str]) -> set[int]:
+    years: set[int] = set()
+    if year and 1900 <= year <= 2035:
+        years.add(year)
+    parsed = parse_code(code, places)
+    py = parsed.get("year")
+    if py and 1900 <= py <= 2035:
+        years.add(py)
+    m = re.match(r"^[A-Z]{2,3}(\d{2,4})", code)
+    if m:
+        digits = m.group(1)
+        if len(digits) == 2:
+            yi = int(digits)
+            years.add(1900 + yi if yi > 30 else 2000 + yi)
+        elif len(digits) == 4:
+            years.add(1900 + int(digits[:2]))
+            years.add(1900 + int(digits[2:]))
+    return {y for y in years if 1900 <= y <= 2035}
+
+
+def year_overlap(
+    code: str, year: int | None, yt_title: str, places: dict[str, str]
+) -> bool:
+    cat = catalog_match_years(code, year, places)
+    yt = years_in_youtube_title(yt_title)
+    if not cat:
+        return True
+    if not yt:
+        return False
+    return bool(cat & yt)
+
+
+def place_overlap(
+    code: str,
+    place_name: str | None,
+    yt_title: str,
+    places: dict[str, str],
+) -> bool:
+    parsed = parse_code(code, places)
+    pc = parsed.get("place_code")
+    place_kws = _place_keywords(place_name or parsed.get("place_name_catalog"), pc)
+    if not place_kws:
+        return True
+    ytn = norm_title(yt_title)
+    return any(kw in ytn for kw in place_kws if len(kw) >= 4)
 
 
 def titles_match(db_title: str, yt_title: str) -> bool:
@@ -126,12 +190,9 @@ def _event_patterns(event_type: str | None, event_number: str | None) -> list[st
     return [p for p in patterns if p.strip()]
 
 
-def structural_match(
+def event_type_matches(
     *,
     code: str,
-    title: str,
-    year: int | None,
-    place_name: str | None,
     event_type: str | None,
     event_number: str | None,
     yt_title: str,
@@ -139,39 +200,14 @@ def structural_match(
 ) -> bool:
     ytn = norm_title(yt_title)
     parsed = parse_code(code, places)
-    yr = year or parsed.get("year")
-    if yr and str(yr) not in yt_title:
-        return False
-    pc = parsed.get("place_code")
-    place_kws = _place_keywords(place_name or parsed.get("place_name_catalog"), pc)
-    if place_kws and not any(kw in ytn for kw in place_kws if len(kw) >= 4):
-        return False
     et = event_type or parsed.get("event_type")
     en = event_number if event_number is not None else parsed.get("event_number")
-    if et:
-        pats = _event_patterns(et, str(en) if en is not None else None)
-        if pats and not any(norm_title(p) in ytn for p in pats):
-            return False
-    if titles_match(title, yt_title):
+    if not et:
         return True
-    return bool(yr and et)
-
-
-def item_matches_yt(row: tuple, yt_title: str, places: dict[str, str]) -> bool:
-    _id, code, title, media_type, year, place_name, pdf_order, event_type, event_number = row
-    parsed = parse_code(code, places)
-    if titles_match(title, yt_title):
+    pats = _event_patterns(et, str(en) if en is not None else None)
+    if not pats:
         return True
-    return structural_match(
-        code=code,
-        title=title,
-        year=year,
-        place_name=place_name,
-        event_type=event_type or parsed.get("event_type"),
-        event_number=event_number or parsed.get("event_number"),
-        yt_title=yt_title,
-        places=places,
-    )
+    return any(norm_title(p) in ytn for p in pats)
 
 
 def infer_format(yt_title: str, db_media: str | None) -> str:
@@ -270,13 +306,14 @@ def scrape_kft_video_playlists() -> list[dict]:
 
 def match_score(row: tuple, yt_title: str, places: dict[str, str]) -> float:
     _id, code, title, media_type, year, place_name, pdf_order, event_type, event_number = row
-    if titles_match(title, yt_title):
+    if not year_overlap(code, year, yt_title, places):
+        return 0.0
+    if not place_overlap(code, place_name, yt_title, places):
+        return 0.0
+    if not is_generic_catalog_title(title) and titles_match(title, yt_title):
         return 1.0
-    if structural_match(
+    if event_type_matches(
         code=code,
-        title=title,
-        year=year,
-        place_name=place_name,
         event_type=event_type,
         event_number=event_number,
         yt_title=yt_title,
@@ -491,6 +528,16 @@ def main() -> None:
         help="Max items to query on archive.org",
     )
     parser.add_argument("--no-export", action="store_true")
+    parser.add_argument(
+        "--fresh",
+        action="store_true",
+        help="Clear oEmbed cache before run (re-fetches all YouTube metadata)",
+    )
+    parser.add_argument(
+        "--save-playlists",
+        action="store_true",
+        help="Also scrape kfoundation.org/video playlists into kft_playlists.json",
+    )
     args = parser.parse_args()
 
     if not args.db.exists():
@@ -498,16 +545,22 @@ def main() -> None:
     if not args.pdf.exists():
         raise SystemExit(f"PDF not found: {args.pdf}")
 
+    if args.fresh and CACHE_PATH.exists():
+        CACHE_PATH.unlink()
+        print("Cleared oEmbed cache (--fresh)")
+
     cache = load_cache()
     now = datetime.now(timezone.utc).isoformat()
 
     print("Extracting YouTube links from KFT PDF…")
     yt_links, pdf_playlists = extract_pdf_youtube(args.pdf)
-    print(f"  {len(yt_links)} video links, {len(pdf_playlists)} playlist annotations")
+    print(f"  {len(yt_links)} youtu.be links in PDF")
 
-    print("Scraping kfoundation.org/video playlists…")
-    web_playlists = scrape_kft_video_playlists()
-    print(f"  {len(web_playlists)} playlists on video page")
+    web_playlists: list[dict] = []
+    if args.save_playlists:
+        print("Scraping kfoundation.org/video playlists…")
+        web_playlists = scrape_kft_video_playlists()
+        print(f"  {len(web_playlists)} playlists on video page")
 
     places = json.loads(PLACES_FILE.read_text(encoding="utf-8"))
 
@@ -522,30 +575,31 @@ def main() -> None:
     if args.limit:
         items = items[: args.limit]
 
-    print(f"Aligning PDF links to {len(items)} catalog items…")
+    print(f"Matching PDF links to {len(items)} catalog items (year/place validated)…")
     primary = align_pdf_links_to_items(
         [tuple(r) for r in items], yt_links, cache, places
     )
-    print(f"  matched {len(primary)} / {len(items)} via KFT PDF YouTube")
+    print(f"  matched {len(primary)} / {len(items)}")
 
     all_rows: list[dict] = list(primary)
 
-    # Playlist links attached to first item in each series (for navigation)
-    playlist_meta_path = ROOT / "catalog" / "kft_playlists.json"
-    playlist_meta_path.write_text(
-        json.dumps(
-            {
-                "pdf_playlists": pdf_playlists,
-                "video_page_playlists": web_playlists,
-                "imported_at": now,
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
+    if args.save_playlists:
+        playlist_meta_path = ROOT / "catalog" / "kft_playlists.json"
+        playlist_meta_path.write_text(
+            json.dumps(
+                {
+                    "pdf_playlists": pdf_playlists,
+                    "video_page_playlists": web_playlists,
+                    "imported_at": now,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
     matched_ids = {r["item_id"] for r in primary}
 
+    print("Removing all previous item_links and writing PDF YouTube links only…")
     if args.archive:
         archive_items = items[: args.archive_limit]
         if not getattr(args, "archive_all", False):
@@ -570,7 +624,12 @@ def main() -> None:
     if not args.no_export:
         export_comparison_csv(conn, EXPORT_PATH)
 
-    # Summary stats
+    other = conn.execute(
+        "SELECT COUNT(*) FROM item_links WHERE source != 'kft_pdf_youtube'"
+    ).fetchone()[0]
+    if other:
+        print(f"WARNING: {other} non-PDF links present (unexpected)")
+
     by_source = conn.execute(
         "SELECT source, link_kind, COUNT(*) FROM item_links GROUP BY source, link_kind"
     ).fetchall()
