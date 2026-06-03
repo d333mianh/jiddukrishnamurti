@@ -1,7 +1,7 @@
 ---
 tags: [krishnamurti, mega-group, group-09]
 mega_group: 09
-layout: series-grouped
+layout: series-combined
 ---
 # Films and documentaries
 
@@ -11,19 +11,11 @@ layout: series-grouped
 
 ## Series
 
-### US66FRR1-8 — The real revolution
-*8 recordings*
+*1 series* (one row per series).
 
-| Code | Title | Media | Min | Year | Place |
-|------|-------|-------|-----|------|-------|
-| US66FRR1 | Where are we going? | video | 29 | 1966 | Ojai, California |
-| US66FRR2 | Observing ourselves | video | 29 | 1966 | Ojai, California |
-| US66FRR3 | Freedom from fear | video | 29 | 1966 | Ojai, California |
-| US66FRR4 | Meditation | video | 29 | 1966 | Ojai, California |
-| US66FRR5 | What is love? | video | 29 | 1966 | Ojai, California |
-| US66FRR6 | Questioning | video | 29 | 1966 | Ojai, California |
-| US66FRR7 | Living and death | video | 29 | 1966 | Ojai, California |
-| US66FRR8 | The end of conflict | video | 29 | 1966 | Ojai, California |
+| Series | Title | Ep. | Media | Min | Year | Place |
+|--------|-------|-----|-------|-----|------|-------|
+| US66FRR1-8 | The real revolution | 8 | video | 232 | 1966 | Ojai, California |
 
 ## Standalone
 

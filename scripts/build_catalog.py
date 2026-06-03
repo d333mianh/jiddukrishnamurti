@@ -625,6 +625,11 @@ def init_db(conn: sqlite3.Connection) -> None:
             mega_group TEXT NOT NULL,
             pdf_order INTEGER NOT NULL,
             episode_count INTEGER NOT NULL,
+            minutes_total INTEGER,
+            year_from INTEGER,
+            year_to INTEGER,
+            place_name TEXT,
+            media_types TEXT,
             PRIMARY KEY (series_code, mega_group)
         );
 
@@ -730,13 +735,24 @@ def save_db(
 
     conn.execute(
         """
-        INSERT INTO series (series_code, series_title, mega_group, pdf_order, episode_count)
+        INSERT INTO series (
+            series_code, series_title, mega_group, pdf_order, episode_count,
+            minutes_total, year_from, year_to, place_name, media_types
+        )
         SELECT
             series_code,
             MAX(series_title),
             mega_group,
             MIN(series_order),
-            COUNT(*)
+            COUNT(*),
+            SUM(duration_minutes),
+            MIN(year),
+            MAX(year),
+            CASE
+                WHEN COUNT(DISTINCT place_name) = 1 THEN MAX(place_name)
+                ELSE NULL
+            END,
+            GROUP_CONCAT(DISTINCT media_type)
         FROM items
         WHERE series_code IS NOT NULL AND trim(series_code) != ''
         GROUP BY series_code, mega_group
@@ -808,23 +824,46 @@ def export_csv(conn: sqlite3.Connection) -> None:
 def export_csv_compact(conn: sqlite3.Connection) -> None:
     import csv
 
-    rows = conn.execute(
+    headers = [
+        "mega_group", "kind", "series_code", "episodes", "section",
+        "title", "media_type", "minutes", "place_name", "year", "future_path",
+    ]
+    rows: list[list] = []
+
+    for mega in [g["id"] for g in MEGA_GROUPS]:
+        for s in fetch_series_aggregates(conn, mega):
+            rows.append(
+                [
+                    mega,
+                    "series",
+                    s["series_code"],
+                    s["episodes"],
+                    s["section"],
+                    s["series_title"],
+                    s["media_type"],
+                    s["minutes"],
+                    s["place_name"],
+                    s["year"],
+                    "",
+                ]
+            )
+
+    standalone = conn.execute(
         """
         SELECT
-            i.mega_group, i.code, s.code AS section_code, i.title,
-            i.media_type, i.duration_minutes, i.place_code, i.place_name,
-            i.year, i.event_date, i.event_type_label, i.media_kind,
-            i.series_code, i.future_path
+            i.mega_group, i.code, s.code, i.title, i.media_type,
+            i.duration_minutes, i.place_name, i.year, i.future_path
         FROM items i
         JOIN sections s ON s.id = i.section_id
-        ORDER BY i.mega_group, s.sort_order, i.code
+        WHERE i.series_code IS NULL OR trim(i.series_code) = ''
+        ORDER BY i.pdf_order
         """
     ).fetchall()
-    headers = [
-        "mega_group", "code", "section", "title", "media_type", "minutes",
-        "place_code", "place_name", "year", "event_date", "type", "media_kind",
-        "series_code", "future_path",
-    ]
+    for r in standalone:
+        rows.append(
+            [r[0], "recording", r[1], 1, r[2], r[3], r[4], r[5], r[6], r[7], r[8]]
+        )
+
     with open(EXPORTS_DIR / "catalog-compact.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(headers)
@@ -861,18 +900,37 @@ def export_xlsx(conn: sqlite3.Connection) -> None:
         conn,
     )
 
-    compact_df = pd.read_sql_query(
+    compact_rows = []
+    for mega in [g["id"] for g in MEGA_GROUPS]:
+        for s in fetch_series_aggregates(conn, mega):
+            compact_rows.append(
+                {
+                    "mega_group": mega,
+                    "kind": "series",
+                    "series_code": s["series_code"],
+                    "episodes": s["episodes"],
+                    "title": s["series_title"],
+                    "media_type": s["media_type"],
+                    "minutes": s["minutes"],
+                    "year": s["year"],
+                    "place_name": s["place_name"],
+                }
+            )
+    standalone_df = pd.read_sql_query(
         """
-        SELECT
-            i.mega_group, i.code, s.code AS section, i.title, i.media_type,
-            i.duration_minutes AS minutes, i.place_code, i.place_name, i.year,
-            i.event_type_label AS type, i.media_kind, i.series_code, i.future_path
-        FROM items i
-        JOIN sections s ON s.id = i.section_id
-        ORDER BY i.mega_group, i.pdf_order
+        SELECT mega_group, code AS series_code, title, media_type,
+               duration_minutes AS minutes, place_name, year
+        FROM items
+        WHERE series_code IS NULL OR trim(series_code) = ''
+        ORDER BY pdf_order
         """,
         conn,
     )
+    compact_df = pd.DataFrame(compact_rows)
+    if not standalone_df.empty:
+        standalone_df.insert(1, "kind", "recording")
+        standalone_df["episodes"] = 1
+        compact_df = pd.concat([compact_df, standalone_df], ignore_index=True)
     series_df = pd.read_sql_query(
         """
         SELECT
@@ -903,7 +961,116 @@ def md_cell(value) -> str:
     return str(value).replace("|", "\\|").replace("\n", " ")
 
 
+def codes_range_label(codes: list[str]) -> str:
+    """LO61T1 … LO61T12 → LO61T1–LO61T12"""
+    if not codes:
+        return "—"
+    if len(codes) == 1:
+        return codes[0]
+    return f"{codes[0]}–{codes[-1]}"
+
+
+def range_label(values: list) -> str:
+    vals = [v for v in values if v is not None and v != ""]
+    if not vals:
+        return "—"
+    if len(set(vals)) == 1:
+        return str(vals[0])
+    return f"{min(vals)}–{max(vals)}"
+
+
+def total_minutes(durations: list) -> str | int:
+    vals = [v for v in durations if v is not None]
+    if not vals:
+        return "—"
+    return sum(vals)
+
+
+def aggregate_episode_rows(episodes: list[tuple]) -> tuple:
+    """Aggregate episode tuples into one combined row."""
+    media = sorted({e[2] for e in episodes if e[2]})
+    durations = [e[3] for e in episodes]
+    years = [e[5] for e in episodes]
+    places = [e[4] for e in episodes if e[4]]
+    return (
+        len(episodes),
+        ", ".join(media) if media else "—",
+        total_minutes(durations),
+        range_label(years),
+        places[0] if len(set(places)) == 1 else range_label(places),
+    )
+
+
+def fetch_series_aggregates(
+    conn: sqlite3.Connection, mega_group: str | None = None
+) -> list[dict]:
+    """One combined row per series (PDF order), from `series` + `items` tables."""
+    where = "WHERE s.mega_group = ?" if mega_group else ""
+    params: tuple = (mega_group,) if mega_group else ()
+    rows = conn.execute(
+        f"""
+        SELECT
+            s.series_code, s.series_title, s.mega_group, s.episode_count,
+            s.minutes_total, s.media_types, s.year_from, s.year_to, s.place_name,
+            (SELECT sec.code FROM items i
+             JOIN sections sec ON sec.id = i.section_id
+             WHERE i.series_code = s.series_code AND i.mega_group = s.mega_group
+             ORDER BY i.pdf_order LIMIT 1) AS section_code
+        FROM series s
+        {where}
+        ORDER BY s.pdf_order, s.series_code
+        """,
+        params,
+    ).fetchall()
+
+    results = []
+    for row in rows:
+        sc, title, mega, ep_count, mins, media, y_from, y_to, place, section = row
+        year = str(y_from) if y_from == y_to or y_to is None else f"{y_from}–{y_to}"
+        results.append(
+            {
+                "series_code": sc,
+                "series_title": title or sc,
+                "mega_group": mega,
+                "episodes": ep_count,
+                "media_type": media or "—",
+                "minutes": mins if mins is not None else "—",
+                "year": year if y_from else "—",
+                "place_name": place or "—",
+                "section": section or "",
+            }
+        )
+    return results
+
+
+def render_combined_series_table(series_rows: list[dict]) -> list[str]:
+    lines = [
+        "| Series | Title | Ep. | Media | Min | Year | Place |",
+        "|--------|-------|-----|-------|-----|------|-------|",
+    ]
+    for row in series_rows:
+        title = row["series_title"]
+        title_short = title[:60] + ("…" if len(title) > 60 else "")
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    md_cell(row["series_code"]),
+                    md_cell(title_short),
+                    md_cell(row["episodes"]),
+                    md_cell(row["media_type"]),
+                    md_cell(row["minutes"]),
+                    md_cell(row["year"]),
+                    md_cell(row["place_name"]),
+                ]
+            )
+            + " |"
+        )
+    return lines
+
+
 def render_episode_table(rows: list[tuple]) -> list[str]:
+    """One row per recording (standalone)."""
     lines = [
         "| Code | Title | Media | Min | Year | Place |",
         "|------|-------|-------|-----|------|-------|",
@@ -930,37 +1097,33 @@ def render_episode_table(rows: list[tuple]) -> list[str]:
 def export_series_csv(conn: sqlite3.Connection) -> None:
     import csv
 
-    rows = conn.execute(
+    out_rows = conn.execute(
         """
         SELECT
-            MIN(i.series_order) AS pdf_order,
-            i.series_code,
-            MAX(i.series_title) AS series_title,
-            i.mega_group,
-            COUNT(*) AS episodes,
-            GROUP_CONCAT(DISTINCT s.code) AS sections,
-            MIN(i.year) AS year_from,
-            MAX(i.year) AS year_to
-        FROM items i
-        JOIN sections s ON s.id = i.section_id
-        WHERE i.series_code IS NOT NULL AND trim(i.series_code) != ''
-        GROUP BY i.series_code, i.mega_group
-        ORDER BY MIN(i.series_order), i.series_code
+            s.pdf_order, s.series_code, s.series_title, s.mega_group,
+            s.episode_count,
+            (SELECT GROUP_CONCAT(DISTINCT sec.code)
+             FROM items i JOIN sections sec ON sec.id = i.section_id
+             WHERE i.series_code = s.series_code AND i.mega_group = s.mega_group),
+            s.year_from, s.year_to, s.minutes_total
+        FROM series s
+        ORDER BY s.pdf_order, s.series_code
         """
     ).fetchall()
+
     with open(EXPORTS_DIR / "catalog-series.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(
             [
-                "pdf_order", "series_code", "series_title", "mega_group", "episodes",
-                "sections", "year_from", "year_to",
+                "pdf_order", "series_code", "series_title", "mega_group",
+                "episodes", "sections", "year_from", "year_to", "minutes_total",
             ]
         )
-        w.writerows(rows)
+        w.writerows(out_rows)
 
 
 def build_obsidian_series(conn: sqlite3.Connection) -> int:
-    """Series-grouped vault: index + 8 mega-group notes (series blocks + standalone)."""
+    """Compact vault: one combined row per series + standalone recordings."""
     import shutil
 
     if OBSIDIAN_DIR.exists():
@@ -984,12 +1147,12 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
     index_lines = [
         "---",
         "tags: [krishnamurti, index]",
-        "layout: series-grouped",
+        "layout: series-combined",
         "---",
         "# Krishnamurti Recordings Library",
         "",
-        "Series-grouped catalog — **9 notes** (index + 8 groups). Recordings are listed "
-        "under their **series** when available; the rest are under *Standalone*.",
+        "Compact catalog — **9 notes** (index + 8 groups). Each **series** is one row "
+        "(e.g. `LO61T1-12`); **Min** = total minutes in the series.",
         "",
         f"**{total}** recordings · **{series_total}** series · **{standalone_total}** standalone.",
         "",
@@ -1033,7 +1196,7 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
             "---",
             f"tags: [krishnamurti, mega-group, group-{gid}]",
             f"mega_group: {gid}",
-            "layout: series-grouped",
+            "layout: series-combined",
             "---",
             f"# {title}",
             "",
@@ -1043,37 +1206,13 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
             "",
         ]
 
-        series_list = conn.execute(
-            """
-            SELECT series_code, MAX(series_title) AS series_title, COUNT(*) AS n
-            FROM items
-            WHERE mega_group = ? AND series_code IS NOT NULL AND trim(series_code) != ''
-            GROUP BY series_code
-            ORDER BY MIN(series_order), series_code
-            """,
-            (gid,),
-        ).fetchall()
-
-        if series_list:
-            lines.extend(["## Series", ""])
-            for series_code, series_title, ep_count in series_list:
-                series_title = series_title or series_code
-                lines.append(f"### {series_code} — {series_title}")
-                lines.append(f"*{ep_count} recording{'s' if ep_count != 1 else ''}*")
-                lines.append("")
-
-                episodes = conn.execute(
-                    """
-                    SELECT i.code, i.title, i.media_type, i.duration_minutes,
-                           i.place_name, i.year
-                    FROM items i
-                    WHERE i.mega_group = ? AND i.series_code = ?
-                    ORDER BY i.pdf_order
-                    """,
-                    (gid, series_code),
-                ).fetchall()
-                lines.extend(render_episode_table(episodes))
-                lines.append("")
+        series_agg = fetch_series_aggregates(conn, gid)
+        if series_agg:
+            lines.extend(
+                ["## Series", "", f"*{len(series_agg)} series* (one row per series).", ""]
+            )
+            lines.extend(render_combined_series_table(series_agg))
+            lines.append("")
 
         standalone = conn.execute(
             """
@@ -1125,25 +1264,23 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
         (OBSIDIAN_DIR / filename).write_text("\n".join(lines), encoding="utf-8")
         file_count += 1
 
-    series_index_rows = [
-        f"| {code} | {md_cell((title or code)[:50])} | "
-        f"[[{mega_filename[mega]}#{code}|{mega}]] | {n} |"
-        for code, title, mega, n in conn.execute(
-            """
-            SELECT series_code, series_title, mega_group, episode_count
-            FROM series
-            ORDER BY pdf_order
-            """
+    series_index_rows = []
+    for s in fetch_series_aggregates(conn):
+        mega_id = s.get("mega_group", "")
+        fname = mega_filename.get(mega_id, "")
+        link = f"[[{fname}|{mega_id}]]" if fname else mega_id
+        series_index_rows.append(
+            f"| {md_cell(s['series_code'])} | {md_cell(s['series_title'][:50])} | "
+            f"{link} | {s['episodes']} | {md_cell(s['minutes'])} |"
         )
-    ]
 
     index_lines.extend(
         [
             "",
             "## All series (PDF order)",
             "",
-            "| Code | Title | Group | Episodes |",
-            "|------|-------|-------|----------|",
+            "| Series | Title | Group | Ep. | Min |",
+            "|--------|-------|-------|-----|-----|",
             *series_index_rows,
             "",
             "## Lookup summaries",
@@ -1158,7 +1295,7 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
             "| File | Contents |",
             "|------|----------|",
             "| `catalog/exports/catalog-series.csv` | One row per series |",
-            "| `catalog/exports/catalog-compact.csv` | One row per recording |",
+            "| `catalog/exports/catalog-compact.csv` | One row per series + standalone |",
             "| `catalog/exports/catalog.csv` | Full metadata + summaries |",
             "",
             "Rebuild: `python3 scripts/build_catalog.py`",
@@ -1178,7 +1315,7 @@ def write_manifest(pdf_path: Path, pdf_hash: str, sections: int, items: int) -> 
         "imported_at": datetime.now(timezone.utc).isoformat(),
         "sections": sections,
         "items": items,
-        "obsidian_layout": "series-grouped",
+        "obsidian_layout": "series-combined",
         "outputs": {
             "sqlite": str(DB_PATH.relative_to(ROOT)),
             "csv": str((EXPORTS_DIR / "catalog.csv").relative_to(ROOT)),
@@ -1224,7 +1361,7 @@ def main(pdf_path: Path = PDF_DEFAULT) -> None:
     export_xlsx(conn)
     print("Wrote catalog/exports/catalog.xlsx")
     note_count = build_obsidian_series(conn)
-    print(f"Wrote series-grouped Obsidian vault ({note_count} notes)")
+    print(f"Wrote series-combined Obsidian vault ({note_count} notes)")
     conn.close()
 
     write_manifest(pdf_path, pdf_hash, len(sections), len(items))
