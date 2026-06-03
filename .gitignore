@@ -5,3 +5,4 @@ __pycache__/
 .env
 .venv/
 venv/
+catalog/link_cache.json
