@@ -1,0 +1,21 @@
+code,number,letter,title,slug,sort_order
+1A,1,A,Public Meetings (England),1A-public-meetings-england,1
+1B,1,B,Public Meetings (India and Sri Lanka),1B-public-meetings-india-and-sri-lanka,2
+1C,1,C,Public Meetings (USA),1C-public-meetings-usa,3
+1D,1,D,Public Meetings (Switzerland),1D-public-meetings-switzerland,4
+1E,1,E,Public Meetings (Misc.),1E-public-meetings-misc,5
+2A,2,A,Meetings with Young People (USA and Europe),2A-meetings-with-young-people-usa-and-europe,6
+2B,2,B,Meetings with Young People (India),2B-meetings-with-young-people-india,7
+3A,3,A,"Small Group Discussions (Australia, Europe and USA)",3A-small-group-discussions-australia-europe-and-usa,8
+3B,3,B,Small Group Discussions (India and Sri Lanka),3B-small-group-discussions-india-and-sri-lanka,9
+4A,4,A,Conversations (Allan W Anderson),4A-conversations-allan-w-anderson,10
+4B,4,B,Conversations (David Bohm),4B-conversations-david-bohm,11
+4C,4,C,Conversations (Pupul Jayakar),4C-conversations-pupul-jayakar,12
+4D,4,D,Conversations (Misc.),4D-conversations-misc,13
+5A,5,A,Seminars (Europe and USA),5A-seminars-europe-and-usa,14
+5B,5,B,Seminars (India),5B-seminars-india,15
+6A,6,A,K School Discussions (England and Switzerland),6A-k-school-discussions-england-and-switzerland,16
+6B,6,B,K School Discussions (India),6B-k-school-discussions-india,17
+6C,6,C,K School Discussions (USA and Canada),6C-k-school-discussions-usa-and-canada,18
+8A,8,A,Excerpts,8A-excerpts,19
+9A,9,A,Films and Documentaries,9A-films-and-documentaries,20
