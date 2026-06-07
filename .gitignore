@@ -6,3 +6,7 @@ __pycache__/
 .venv/
 venv/
 catalog/link_cache.json
+library/
+*cookies*.txt
+www.youtube.com_cookies.txt
+catalog/.yt-browser-cookies.txt

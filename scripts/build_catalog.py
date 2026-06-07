@@ -491,12 +491,14 @@ def parse_sections_and_items(body: str, places: dict[str, str]) -> tuple[list[Se
         if place_name is None:
             place_name = parsed.get("place_name_catalog")
 
-        ext = "mp4" if media_type == "video" else "mp3" if media_type == "audio" else "bin"
+        ext = "mp4" if media_type == "video" else "m4a" if media_type == "audio" else "bin"
         safe_title = re.sub(r'[<>:"/\\|?*]', "", title)
         safe_title = re.sub(r"\s+", " ", safe_title).strip()[:100]
-        future_path = (
-            f"library/{current_section.slug}/{raw_code} - {safe_title}.{ext}"
-        )
+        filename = f"{raw_code} - {safe_title}.{ext}"
+        if series_code and series_code.strip():
+            future_path = f"library/{current_section.slug}/{series_code}/{filename}"
+        else:
+            future_path = f"library/{current_section.slug}/{filename}"
 
         item = Item(
             code=raw_code,
@@ -560,6 +562,21 @@ def assign_series_order(items: list[Item]) -> None:
     for item in items:
         sc = (item.series_code or "").strip()
         item.series_order = series_first.get(sc) if sc else None
+
+
+def apply_series_folder_paths(items: list[Item]) -> None:
+    """Prefix series folders with PDF order (e.g. 0000-LO61T1-12) for Finder sort."""
+    from download_series import ordered_series_future_path
+
+    for item in items:
+        sc = (item.series_code or "").strip()
+        if not sc:
+            continue
+        item.future_path = ordered_series_future_path(
+            item.future_path,
+            series_code=sc,
+            series_order=item.series_order,
+        )
 
 
 def init_db(conn: sqlite3.Connection) -> None:
@@ -657,6 +674,23 @@ def init_db(conn: sqlite3.Connection) -> None:
             notes TEXT,
             UNIQUE(item_id, url)
         );
+
+        CREATE TABLE IF NOT EXISTS item_subtitles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+            language TEXT NOT NULL,
+            kind TEXT NOT NULL DEFAULT 'manual',
+            format TEXT NOT NULL DEFAULT 'vtt',
+            future_path TEXT NOT NULL,
+            file_size INTEGER,
+            status TEXT NOT NULL,
+            error_message TEXT,
+            probed_at TEXT,
+            downloaded_at TEXT,
+            UNIQUE(item_id, language, kind)
+        );
+        CREATE INDEX IF NOT EXISTS idx_item_subtitles_item ON item_subtitles(item_id);
+        CREATE INDEX IF NOT EXISTS idx_item_subtitles_status ON item_subtitles(status);
         """
     )
 
@@ -1347,6 +1381,7 @@ def main(pdf_path: Path = PDF_DEFAULT) -> None:
     sections, raw_items = parse_sections_and_items(body, places)
     items = dedupe_items(raw_items)
     assign_series_order(items)
+    apply_series_folder_paths(items)
 
     print(f"Sections: {len(sections)}")
     print(f"Items (unique codes): {len(items)}")
