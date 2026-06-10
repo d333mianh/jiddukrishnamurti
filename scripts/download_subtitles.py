@@ -15,13 +15,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "catalog" / "krishnamurti.db"
-CACHED_BROWSER_COOKIES = ROOT / "catalog" / ".yt-browser-cookies.txt"
-
 from download_series import (  # noqa: E402
-    export_browser_cookies,
+    CACHED_BROWSER_COOKIES,
     media_root,
     output_path,
-    resolve_cookies_file,
+    resolve_yt_auth,
     yt_auth_args,
 )
 from subtitle_schema import ensure_subtitle_schema  # noqa: E402
@@ -326,7 +324,7 @@ def main() -> None:
         "--library-root",
         type=Path,
         default=None,
-        help="Media root (default: iCloud …/Krishnamurti)",
+        help="Media root (default: iCloud …/00-cod3/jiddu-krishnamurti)",
     )
     parser.add_argument("--cookies", type=Path, default=None)
     parser.add_argument(
@@ -352,16 +350,11 @@ def main() -> None:
         or os.environ.get("KRISHNAMURTI_YT_COOKIES_BROWSER")
         or "chrome"
     )
-    cookies_file: Path | None = None
-    cookies_browser: str | None = None
-    if args.cookies:
-        cookies_file = resolve_cookies_file(args.cookies)
-    else:
-        exported = export_browser_cookies(browser, CACHED_BROWSER_COOKIES)
-        if exported:
-            cookies_file = exported
-        else:
-            cookies_browser = browser
+    cookies_file, cookies_browser = resolve_yt_auth(
+        cookies_file_arg=args.cookies,
+        browser=browser,
+        prefer_live=False,
+    )
 
     root = media_root(args.library_root)
     conn = sqlite3.connect(DB_PATH)

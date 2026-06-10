@@ -161,7 +161,7 @@ def main() -> None:
         "--library-root",
         type=Path,
         default=None,
-        help="Media root (default: iCloud Krishnamurti)",
+        help="Media root (default: iCloud …/00-cod3/jiddu-krishnamurti)",
     )
     parser.add_argument(
         "--section",

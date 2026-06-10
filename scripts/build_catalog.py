@@ -25,6 +25,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+from footage_schema import footage_type_from_media_type  # noqa: E402
+
 PDF_DEFAULT = ROOT / "Krishnamurti-Foundation-Trust-–-Full-Length-Directory-2026.pdf"
 PLACES_FILE = Path(__file__).resolve().parent / "places.json"
 CATALOG_DIR = ROOT / "catalog"
@@ -612,6 +614,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             section_id INTEGER NOT NULL REFERENCES sections(id),
             title TEXT NOT NULL,
             media_type TEXT,
+            footage_type TEXT,
             duration_minutes INTEGER,
             place_name TEXT,
             place_code TEXT,
@@ -650,6 +653,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             PRIMARY KEY (series_code, mega_group)
         );
 
+        CREATE INDEX IF NOT EXISTS idx_items_footage_type ON items(footage_type);
         CREATE INDEX IF NOT EXISTS idx_items_section ON items(section_id);
         CREATE INDEX IF NOT EXISTS idx_items_year ON items(year);
         CREATE INDEX IF NOT EXISTS idx_items_place ON items(place_code);
@@ -736,19 +740,20 @@ def save_db(
         conn.execute(
             """
             INSERT INTO items (
-                code, section_id, title, media_type, duration_minutes,
+                code, section_id, title, media_type, footage_type, duration_minutes,
                 place_name, place_code, event_date, year,
                 event_type, event_number, event_type_label, suffix,
                 media_kind, summary, series_code, series_title, notes,
                 future_path, mega_group, pdf_order, series_order,
                 obsidian_path, source_pdf, updated_at
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """,
             (
                 item.code,
                 section_ids[item.section.code],
                 item.title,
                 item.media_type,
+                footage_type_from_media_type(item.media_type),
                 item.duration_minutes,
                 item.place_name,
                 item.place_code,

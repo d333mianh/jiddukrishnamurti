@@ -1,0 +1,10 @@
+2026-06-09T14:42:07Z Waiting for active download (SA81T1, yt-dlp 65913) to finish...
+2026-06-09T14:45:54Z yt-dlp exited
+2026-06-09T14:45:54Z SA81T1 finished (see log tail)
+2026-06-09T14:45:56Z Stopping batch (PIDs 57686, 56841)
+2026-06-09T14:45:56Z Done — safe to restart PC
+2026-06-10T00:16:37Z Waiting for active download (BR79S4, yt-dlp 87933) to finish...
+2026-06-10T00:17:22Z yt-dlp exited
+2026-06-10T00:17:25Z WARNING: some download processes still running
+romankryzhanovskyi 88114  34.6  0.9 435308896  73168   ??  S     7:17AM   0:00.52 /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /opt/homebrew/bin/yt-dlp --no-update --cookies-from-browser chrome --cookies /Users/romankryzhanovskyi/--grok/krishnamurti/catalog/.yt-browser-cookies.txt --simulate https://www.youtube.com/watch?v=jNQXAC9IVRw
+2026-06-10T00:17:57Z Subtitle batch also stopped — all clear

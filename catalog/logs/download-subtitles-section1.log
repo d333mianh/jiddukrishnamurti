@@ -8096,3 +8096,82 @@ Done: 6 downloaded, 0 skipped, 30 missing manual EN, 2 failed
 Section 1E exit 1
 Continuing after partial failure in 1E
 Section 1 subtitle batch finished 2026-06-07T08:46:23Z
+========== WAITING for section 1 video batch 2026-06-09T15:56:57Z ==========
+========== VIDEO BATCH DONE — starting missing subtitles 2026-06-09T16:59:00Z ==========
+
+========== MISSING SUBS 2026-06-09T16:59:00Z ==========
+Missing subtitles: 3 item(s) in 1
+
+[1/3] MA8182Q1: 1st Question & Answer Meeting
+  subs: no manual English
+
+[2/3] AM81T1: Thought and time are the root of fear
+[youtube] Extracting URL: https://youtu.be/-Z6IYtIEV9w
+[youtube] -Z6IYtIEV9w: Downloading webpage
+[youtube] Extracting URL: https://youtu.be/-Z6IYtIEV9w
+[youtube] -Z6IYtIEV9w: Downloading webpage
+[youtube] -Z6IYtIEV9w: Downloading android vr player API JSON
+[youtube] -Z6IYtIEV9w: Downloading player 69e2a55d-main
+[youtube] -Z6IYtIEV9w: Downloading android vr player API JSON
+[youtube] [jsc:deno] Solving JS challenges using deno
+[youtube] -Z6IYtIEV9w: Downloading player 69e2a55d-main
+[youtube] [jsc:deno] Solving JS challenges using deno
+[youtube] -Z6IYtIEV9w: Downloading m3u8 information
+[youtube] -Z6IYtIEV9w: Downloading m3u8 information
+[info] -Z6IYtIEV9w: Downloading subtitles: en
+[info] -Z6IYtIEV9w: Downloading 1 format(s): 397+251
+[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T1 - Thought and time are the root of fear.en.vtt
+WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
+[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T1 - Thought and time are the root of fear.en.vtt
+[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at  Unknown B/s (00:00:00)[download]    7.00KiB at  Unknown B/s (00:00:00)[download]   15.00KiB at    8.24MiB/s (00:00:00)[download]   31.00KiB at   14.99MiB/s (00:00:00)[download]   57.34KiB at   23.84MiB/s (00:00:00)[download] 100% of   57.34KiB in 00:00:00 at 832.07KiB/s
+  subs OK
+[info] -Z6IYtIEV9w: Downloading subtitles: en
+[info] -Z6IYtIEV9w: Downloading 1 format(s): 397+251
+Deleting existing file /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T1 - Thought and time are the root of fear.en.vtt
+[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T1 - Thought and time are the root of fear.en.vtt
+WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
+[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T1 - Thought and time are the root of fear.en.vtt
+[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at    1.46MiB/s (00:00:00)[download]    7.00KiB at    3.01MiB/s (00:00:00)[download]   15.00KiB at    3.51MiB/s (00:00:00)[download]   31.00KiB at    6.85MiB/s (00:00:00)[download]   57.34KiB at   11.03MiB/s (00:00:00)[download] 100% of   57.34KiB in 00:00:00 at 835.99KiB/s
+
+[3/3] AM81T2: A religious mind is a very factual mind
+[youtube] Extracting URL: https://youtu.be/zAhBZ72nANk
+[youtube] zAhBZ72nANk: Downloading webpage
+[youtube] Extracting URL: https://youtu.be/zAhBZ72nANk
+[youtube] zAhBZ72nANk: Downloading webpage
+[youtube] zAhBZ72nANk: Downloading android vr player API JSON
+[youtube] zAhBZ72nANk: Downloading android vr player API JSON
+[youtube] zAhBZ72nANk: Downloading player 69e2a55d-main
+[youtube] [jsc:deno] Solving JS challenges using deno
+[youtube] zAhBZ72nANk: Downloading player 69e2a55d-main
+[youtube] [jsc:deno] Solving JS challenges using deno
+[youtube] zAhBZ72nANk: Downloading m3u8 information
+[youtube] zAhBZ72nANk: Downloading m3u8 information
+[info] zAhBZ72nANk: Downloading subtitles: en
+[info] zAhBZ72nANk: Downloading 1 format(s): 244+251
+[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T2 - A religious mind is a very factual mind.en.vtt
+WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
+[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T2 - A religious mind is a very factual mind.en.vtt
+[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at  Unknown B/s (00:00:00)[download]    7.00KiB at  Unknown B/s (00:00:00)[download]   15.00KiB at   13.77MiB/s (00:00:00)[download]   31.00KiB at   24.03MiB/s (00:00:00)[download]   41.14KiB at   27.35MiB/s (00:00:00)[download] 100% of   41.14KiB in 00:00:00 at 563.62KiB/s
+[info] zAhBZ72nANk: Downloading subtitles: en
+  subs OK
+[info] zAhBZ72nANk: Downloading 1 format(s): 244+251
+Deleting existing file /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T2 - A religious mind is a very factual mind.en.vtt
+[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T2 - A religious mind is a very factual mind.en.vtt
+WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
+[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti/library/1E-public-meetings-misc/0864-AM81T1-2/AM81T2 - A religious mind is a very factual mind.en.vtt
+[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at  667.25KiB/s (00:00:00)[download]    7.00KiB at    1.44MiB/s (00:00:00)[download]   15.00KiB at    2.96MiB/s (00:00:00)[download]   31.00KiB at    4.62MiB/s (00:00:00)[download]   41.14KiB at    5.89MiB/s (00:00:00)[download] 100% of   41.14KiB in 00:00:00 at 579.60KiB/s
+
+Done: 2 downloaded, 0 skipped, 1 no manual EN, 0 failed
+========== SUBTITLES DONE 2026-06-09T16:59:21Z ==========
+Missing subtitles: 3 item(s) in 1
+
+[1/3] MA8182Q1: 1st Question & Answer Meeting
+  subs: no manual English
+
+[2/3] AM81T1: Thought and time are the root of fear
+  subs OK
+
+[3/3] AM81T2: A religious mind is a very factual mind
+  subs OK
+
+Done: 2 downloaded, 0 skipped, 1 no manual EN, 0 failed
