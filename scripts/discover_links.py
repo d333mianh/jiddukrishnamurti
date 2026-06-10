@@ -3,7 +3,8 @@
 Discover streaming links from KFT Full-Length Directory PDF only (no downloads).
 
 Populates item_links exclusively with youtu.be hyperlinks embedded in the PDF.
-On each run: DELETE all rows in item_links, then insert fresh primary links.
+On each run: DELETE all rows in item_links (except rows whose notes start with
+"Manually verified", which are kept as-is), then insert fresh primary links.
 
 Optional: --archive for Internet Archive alternates (off by default).
 
@@ -446,9 +447,22 @@ def ensure_link_schema(conn: sqlite3.Connection) -> None:
 def write_links(conn: sqlite3.Connection, rows: list[dict], now: str, *, replace: bool = True) -> int:
     ensure_link_schema(conn)
     if replace:
-        conn.execute("DELETE FROM item_links")
+        # Rows marked "Manually verified" fix PDF hyperlink errors (wrong-row
+        # association, season-shifted Q&A links); re-discovery must not undo them.
+        conn.execute(
+            "DELETE FROM item_links WHERE COALESCE(notes,'') NOT LIKE 'Manually verified%'"
+        )
+    manual = {
+        (item_id, link_kind)
+        for item_id, link_kind in conn.execute(
+            "SELECT item_id, link_kind FROM item_links"
+            " WHERE COALESCE(notes,'') LIKE 'Manually verified%'"
+        )
+    }
     n = 0
     for r in rows:
+        if (r["item_id"], r.get("link_kind", "alternate")) in manual:
+            continue
         conn.execute(
             """
             INSERT OR IGNORE INTO item_links (
