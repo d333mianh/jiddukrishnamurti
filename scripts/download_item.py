@@ -93,8 +93,10 @@ def main() -> None:
     root = media_root(args.library_root)
     conn = sqlite3.connect(DB_PATH)
     from footage_schema import FOOTAGE_VIDEO, ensure_footage_schema  # noqa: WPS433
+    from media_schema import ensure_media_schema, record_media_result  # noqa: WPS433
 
     ensure_footage_schema(conn)
+    ensure_media_schema(conn)
     failed = 0
     media_label = "video" if args.video else "audio"
     for code in args.codes:
@@ -113,6 +115,9 @@ def main() -> None:
         print(f"  -> {dest}")
         if dest.is_file() and not args.dry_run:
             print(f"  {media_label} SKIP (already on disk)")
+            record_media_result(
+                conn, item_id=item_id, media=media_label, dest=dest, root=root, rc=None
+            )
         elif args.video:
             rc = download_video(
                 url,
@@ -129,6 +134,10 @@ def main() -> None:
                 failed += 1
             else:
                 print(f"  {media_label} OK")
+            if not args.dry_run:
+                record_media_result(
+                    conn, item_id=item_id, media=media_label, dest=dest, root=root, rc=rc
+                )
         else:
             rc = download_audio(
                 url,
@@ -144,6 +153,10 @@ def main() -> None:
                 failed += 1
             else:
                 print(f"  {media_label} OK")
+            if not args.dry_run:
+                record_media_result(
+                    conn, item_id=item_id, media=media_label, dest=dest, root=root, rc=rc
+                )
 
         if download_subs:
             sub_result = download_subtitle_for_item(

@@ -26,6 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 from footage_schema import footage_type_from_media_type  # noqa: E402
+from media_schema import ITEM_MEDIA_DDL  # noqa: E402
 
 PDF_DEFAULT = ROOT / "Krishnamurti-Foundation-Trust-–-Full-Length-Directory-2026.pdf"
 PLACES_FILE = Path(__file__).resolve().parent / "places.json"
@@ -697,6 +698,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_item_subtitles_status ON item_subtitles(status);
         """
     )
+    # item_media (download tracking) shares its DDL with the download scripts.
+    conn.executescript(ITEM_MEDIA_DDL)
 
 
 # Tables populated by phase-2 scripts (discover_links.py, download_*.py).

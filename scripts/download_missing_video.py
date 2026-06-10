@@ -16,10 +16,9 @@ DOWNLOAD_ITEM = ROOT / "scripts" / "download_item.py"
 from download_series import (  # noqa: E402
     DEFAULT_VIDEO_MAX_SLEEP_INTERVAL,
     DEFAULT_VIDEO_SLEEP_INTERVAL,
-    media_root,
-    output_path,
 )
 from footage_schema import FOOTAGE_VIDEO, ensure_footage_schema  # noqa: E402
+from media_schema import MEDIA_VIDEO, ensure_media_schema  # noqa: E402
 
 
 def section_path_pattern(section_prefix: str | None) -> str:
@@ -30,29 +29,28 @@ def section_path_pattern(section_prefix: str | None) -> str:
     return f"library/{section_prefix}-%"
 
 
-def missing_codes(
-    conn: sqlite3.Connection, section_prefix: str | None, *, root: Path
-) -> list[str]:
+def missing_codes(conn: sqlite3.Connection, section_prefix: str | None) -> list[str]:
+    """Video items not recorded as downloaded in item_media.
+
+    Run scripts/backfill_media.py first if files exist that predate
+    item_media tracking; download_item.py still skips anything already
+    on disk, so a stale row only costs a subprocess spawn.
+    """
     pattern = section_path_pattern(section_prefix)
     rows = conn.execute(
         """
-        SELECT i.code, i.future_path, i.series_code
+        SELECT i.code
         FROM items i
         JOIN item_links l ON l.item_id = i.id
           AND l.source = 'kft_pdf_youtube' AND l.link_kind = 'primary'
+        LEFT JOIN item_media m ON m.item_id = i.id AND m.media = ?
         WHERE i.footage_type = ? AND i.future_path LIKE ?
+          AND COALESCE(m.status, 'missing') != 'downloaded'
         ORDER BY i.pdf_order
         """,
-        (FOOTAGE_VIDEO, pattern),
+        (MEDIA_VIDEO, FOOTAGE_VIDEO, pattern),
     ).fetchall()
-    missing: list[str] = []
-    for code, future_path, series_code in rows:
-        dest = output_path(
-            future_path, "video", root=root, series_code=series_code or ""
-        )
-        if not dest.is_file():
-            missing.append(code)
-    return missing
+    return [r[0] for r in rows]
 
 
 def main() -> None:
@@ -91,10 +89,10 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    root = media_root(args.library_root)
     conn = sqlite3.connect(DB_PATH)
     ensure_footage_schema(conn)
-    codes = missing_codes(conn, args.section, root=root)
+    ensure_media_schema(conn)
+    codes = missing_codes(conn, args.section)
     if not codes:
         scope = args.section or "all"
         print(f"No missing video files for section {scope!r}")

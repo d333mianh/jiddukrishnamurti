@@ -7,6 +7,9 @@ Structured catalog of KFT full-length recordings, built from the **Krishnamurti 
 - `catalog/krishnamurti.db` — SQLite catalog (canonical)
   - `items` — one row per recording (full detail)
   - `series` — one row per series (`minutes_total`, PDF order)
+  - `item_links` / `item_subtitles` / `item_media` — link discovery and
+    download state; preserved across rebuilds (`scripts/backfill_media.py`
+    re-syncs `item_media` from disk)
 - `catalog/exports/` — CSV and Excel exports
 - `obsidian/` — Compact series-grouped vault (9 notes)
 - `scripts/build_catalog.py` — Rebuild catalog from PDF
