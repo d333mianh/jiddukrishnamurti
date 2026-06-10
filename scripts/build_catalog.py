@@ -699,6 +699,74 @@ def init_db(conn: sqlite3.Connection) -> None:
     )
 
 
+# Tables populated by phase-2 scripts (discover_links.py, download_*.py).
+# A rebuild drops the DB, so their rows are carried across keyed by item code.
+PHASE2_TABLES = ("item_links", "item_subtitles", "item_media")
+
+
+def snapshot_phase2_tables(db_path: Path) -> dict[str, tuple[list[str], list[tuple]]]:
+    """Read phase-2 rows from the existing DB as (item code, *columns)."""
+    snapshot: dict[str, tuple[list[str], list[tuple]]] = {}
+    if not db_path.exists():
+        return snapshot
+    conn = sqlite3.connect(db_path)
+    try:
+        existing = {
+            row[0]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+        }
+        if "items" not in existing:
+            return snapshot
+        for table in PHASE2_TABLES:
+            if table not in existing:
+                continue
+            cols = [
+                row[1]
+                for row in conn.execute(f"PRAGMA table_info({table})")
+                if row[1] not in ("id", "item_id")
+            ]
+            col_list = ", ".join(f"t.{c}" for c in cols)
+            rows = conn.execute(
+                f"SELECT i.code, {col_list} FROM {table} t JOIN items i ON i.id = t.item_id"
+            ).fetchall()
+            if rows:
+                snapshot[table] = (cols, rows)
+    finally:
+        conn.close()
+    return snapshot
+
+
+def restore_phase2_tables(
+    conn: sqlite3.Connection,
+    snapshot: dict[str, tuple[list[str], list[tuple]]],
+) -> None:
+    """Re-insert snapshot rows against fresh item ids; orphaned codes are dropped."""
+    if not snapshot:
+        return
+    code_to_id = {row[1]: row[0] for row in conn.execute("SELECT id, code FROM items")}
+    for table, (cols, rows) in snapshot.items():
+        table_cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
+        keep = [c for c in cols if c in table_cols]
+        col_list = ", ".join(keep)
+        placeholders = ", ".join("?" for _ in keep)
+        restored = orphaned = 0
+        for code, *values in rows:
+            item_id = code_to_id.get(code)
+            if item_id is None:
+                orphaned += 1
+                continue
+            by_col = dict(zip(cols, values))
+            conn.execute(
+                f"INSERT OR IGNORE INTO {table} (item_id, {col_list}) VALUES (?, {placeholders})",
+                (item_id, *(by_col[c] for c in keep)),
+            )
+            restored += 1
+        msg = f"  Preserved {table}: {restored} rows"
+        if orphaned:
+            msg += f" ({orphaned} rows dropped: item code no longer in PDF)"
+        print(msg)
+
+
 def save_db(
     sections: list[Section],
     items: list[Item],
@@ -706,6 +774,7 @@ def save_db(
     pdf_hash: str,
 ) -> None:
     CATALOG_DIR.mkdir(parents=True, exist_ok=True)
+    phase2 = snapshot_phase2_tables(DB_PATH)
     if DB_PATH.exists():
         DB_PATH.unlink()
 
@@ -824,6 +893,7 @@ def save_db(
         """,
         (now, str(pdf_path), pdf_hash, len(items), len(sections)),
     )
+    restore_phase2_tables(conn, phase2)
     conn.commit()
     conn.close()
 
