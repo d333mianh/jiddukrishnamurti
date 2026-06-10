@@ -1,612 +1,0 @@
-========== Post S4-6 retries queued 2026-06-07T23:00:49Z ==========
-Waiting for main batch (pid 6477)...
-========== Post S4-6 retries queued 2026-06-07T23:01:01Z ==========
-Waiting for main batch (pid 6477)...
-
---- S3 retry ML70DSG1-8 2026-06-08T01:02:50Z ---
-  Warning: could not export chrome cookies; ignoring www.youtube.com_cookies.txt
-Media root: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti
-Series ML70DSG1-8: 8 episodes (kft_pdf_youtube, audio=best, subs=manual-en)
-  Note: YouTube only offers ~128 kbps AAC for these talks; best = no MP3 loss.
-  Cookies: live browser (chrome) per download
-
-=== ML70DSG1: Living with a sustained seriousness ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG1 - Living with a sustained seriousness.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== ML70DSG2: Can the brain operate without recourse to the past? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG2 - Can the brain operate without recourse to the past.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== ML70DSG3: What makes one control? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.mp4
-Extracting cookies from chrome
-Extracted 1106 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/zvXYMZKzekE
-[youtube] zvXYMZKzekE: Downloading webpage
-[youtube] zvXYMZKzekE: Downloading tv downgraded player API JSON
-[youtube] zvXYMZKzekE: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] zvXYMZKzekE: Downloading m3u8 information
-[info] zvXYMZKzekE: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.m4a has already been downloaded
-
---- S3 retry ML70DSG1-8 2026-06-08T01:03:02Z ---
-  Warning: could not export chrome cookies; ignoring www.youtube.com_cookies.txt
-Media root: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti
-Series ML70DSG1-8: 8 episodes (kft_pdf_youtube, audio=best, subs=manual-en)
-  Note: YouTube only offers ~128 kbps AAC for these talks; best = no MP3 loss.
-  Cookies: live browser (chrome) per download
-
-=== ML70DSG1: Living with a sustained seriousness ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG1 - Living with a sustained seriousness.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== ML70DSG2: Can the brain operate without recourse to the past? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG2 - Can the brain operate without recourse to the past.m4a
-  audio SKIP (already on disk)
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.m4a"
-  audio OK
-  subs SKIP (already on disk)
-
-=== ML70DSG3: What makes one control? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.mp4
-Extracting cookies from chrome
-Extracted 1106 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/zvXYMZKzekE
-[youtube] zvXYMZKzekE: Downloading webpage
-[youtube] zvXYMZKzekE: Downloading tv downgraded player API JSON
-[youtube] zvXYMZKzekE: Downloading player 5cabb421-main
-  subs SKIP (already on disk)
-
-=== ML70DSG4: Being serious without belief ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.mp4
-[youtube] [jsc:deno] Solving JS challenges using deno
-Extracting cookies from chrome
-Extracted 1106 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/EZuBemwP3bI
-[youtube] EZuBemwP3bI: Downloading webpage
-[youtube] zvXYMZKzekE: Downloading m3u8 information
-[info] zvXYMZKzekE: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.m4a has already been downloaded
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG3 - What makes one control.m4a"
-[youtube] EZuBemwP3bI: Downloading tv downgraded player API JSON
-[youtube] EZuBemwP3bI: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-  audio OK
-[youtube] EZuBemwP3bI: Downloading m3u8 information
-[info] EZuBemwP3bI: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a has already been downloaded
-  subs SKIP (already on disk)
-
-=== ML70DSG4: Being serious without belief ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.mp4
-Extracting cookies from chrome
-Extracted 1106 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/EZuBemwP3bI
-[youtube] EZuBemwP3bI: Downloading webpage
-[youtube] EZuBemwP3bI: Downloading tv downgraded player API JSON
-[youtube] EZuBemwP3bI: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] EZuBemwP3bI: Downloading m3u8 information
-[info] EZuBemwP3bI: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a has already been downloaded
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a"
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a"
-WARNING: Cannot update utime of file
-ERROR: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.temp.m4a' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.m4a'
-  audio OK
-  audio FAILED (exit 1)
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 1104 cookies from chrome
-Extracted 1104 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/EZuBemwP3bI
-[youtube] EZuBemwP3bI: Downloading webpage
-[youtube] Extracting URL: https://youtu.be/EZuBemwP3bI
-[youtube] EZuBemwP3bI: Downloading webpage
-[youtube] EZuBemwP3bI: Downloading tv downgraded player API JSON
-[youtube] EZuBemwP3bI: Downloading tv downgraded player API JSON
-[youtube] EZuBemwP3bI: Downloading player 5cabb421-main
-[youtube] EZuBemwP3bI: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] EZuBemwP3bI: Downloading m3u8 information
-[youtube] EZuBemwP3bI: Downloading m3u8 information
-[info] EZuBemwP3bI: Downloading subtitles: en
-[info] EZuBemwP3bI: Downloading 1 format(s): 135+140
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[info] EZuBemwP3bI: Downloading subtitles: en
-[info] EZuBemwP3bI: Downloading 1 format(s): 135+140
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.en.vtt
-[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at 1005.99KiB/s (00:00:00)[download]    7.00KiB at    2.11MiB/s (00:00:00)[download]   15.00KiB at    4.25MiB/s (00:00:00)[download]   31.00KiB at    8.19MiB/s (00:00:00)[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.en.vtt
-[download]   57.50KiB at   13.82MiB/s (00:00:00)[download]    1.00KiB at  Unknown B/s (00:00:00)[download] 100% of   57.50KiB in 00:00:00 at 353.17KiB/s[download]    3.00KiB at  Unknown B/s (00:00:00)[download]    7.00KiB at  Unknown B/s (00:00:00)
-[download]   15.00KiB at   12.66MiB/s (00:00:00)[download]   31.00KiB at   12.58MiB/s (00:00:00)[download]   57.50KiB at   20.29MiB/s (00:00:00)ERROR: Unable to rename file: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.en.vtt.part' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG4 - Being serious without belief.en.vtt'
-[download] 100% of   57.50KiB in 00:00:00 at 589.84KiB/s
-  subs FAILED
-
-=== ML70DSG5: Attention leads to learning ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.mp4
-  subs OK
-
-=== ML70DSG5: Attention leads to learning ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.mp4
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 1104 cookies from chrome
-Extracted 1104 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/RbreoBZxpNc
-[youtube] RbreoBZxpNc: Downloading webpage
-[youtube] Extracting URL: https://youtu.be/RbreoBZxpNc
-[youtube] RbreoBZxpNc: Downloading webpage
-[youtube] RbreoBZxpNc: Downloading tv downgraded player API JSON
-[youtube] RbreoBZxpNc: Downloading tv downgraded player API JSON
-[youtube] RbreoBZxpNc: Downloading player 5cabb421-main
-[youtube] RbreoBZxpNc: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] RbreoBZxpNc: Downloading m3u8 information
-[youtube] RbreoBZxpNc: Downloading m3u8 information
-[info] RbreoBZxpNc: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a has already been downloaded
-[info] RbreoBZxpNc: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a has already been downloaded
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a; file is already in target format m4a
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a"
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a"
-WARNING: Cannot update utime of file
-ERROR: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.temp.m4a' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG5 - Attention leads to learning.m4a'
-  audio OK
-  audio FAILED (exit 1)
-  subs SKIP (already on disk)
-
-=== ML70DSG6: Fear in consciousness ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.mp4
-  subs SKIP (already on disk)
-
-=== ML70DSG6: Fear in consciousness ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.mp4
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 1104 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/NTgFYwuNHyU
-[youtube] NTgFYwuNHyU: Downloading webpage
-Extracted 1104 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/NTgFYwuNHyU
-[youtube] NTgFYwuNHyU: Downloading webpage
-[youtube] NTgFYwuNHyU: Downloading tv downgraded player API JSON
-[youtube] NTgFYwuNHyU: Downloading tv downgraded player API JSON
-[youtube] NTgFYwuNHyU: Downloading player 5cabb421-main
-[youtube] NTgFYwuNHyU: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] NTgFYwuNHyU: Downloading m3u8 information
-[youtube] NTgFYwuNHyU: Downloading m3u8 information
-[info] NTgFYwuNHyU: Downloading 1 format(s): 18
-[info] NTgFYwuNHyU: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a has already been downloaded
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a has already been downloaded
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a; file is already in target format m4a
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a"
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a"
-WARNING: Cannot update utime of file
-ERROR: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.temp.m4a' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG6 - Fear in consciousness.m4a'
-  audio OK
-  audio FAILED (exit 1)
-  subs SKIP (already on disk)
-
-=== ML70DSG7: What is order? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.mp4
-  subs SKIP (already on disk)
-
-=== ML70DSG7: What is order? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.mp4
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 1104 cookies from chrome
-Extracted 1104 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/rPWePImZdXE
-[youtube] rPWePImZdXE: Downloading webpage
-[youtube] Extracting URL: https://youtu.be/rPWePImZdXE
-[youtube] rPWePImZdXE: Downloading webpage
-[youtube] rPWePImZdXE: Downloading tv downgraded player API JSON
-[youtube] rPWePImZdXE: Downloading tv downgraded player API JSON
-[youtube] rPWePImZdXE: Downloading player 5cabb421-main
-[youtube] rPWePImZdXE: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] rPWePImZdXE: Downloading m3u8 information
-[youtube] rPWePImZdXE: Downloading m3u8 information
-[info] rPWePImZdXE: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a has already been downloaded
-[info] rPWePImZdXE: Downloading 1 format(s): 18
-[download] /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a has already been downloaded
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a; file is already in target format m4a
-[ExtractAudio] Not converting audio /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a; file is already in target format m4a
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a"
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a"
-WARNING: Cannot update utime of file
-ERROR: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.temp.m4a' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG7 - What is order.m4a'
-  audio OK
-  audio FAILED (exit 1)
-  subs SKIP (already on disk)
-
-=== ML70DSG8: How is one to be entirely free of fear? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG8 - How is one to be entirely free of fear.mp4
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== ML70DSG8: How is one to be entirely free of fear? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/3A-small-group-discussions-australia-europe-and-usa/0969-ML70DSG1-8/ML70DSG8 - How is one to be entirely free of fear.mp4
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-  subs SKIP (already on disk)
-ML70DSG1-8 exit 1
-ML70DSG1-8 exit 1
-
-
---- S5 missing audio 2026-06-08T01:04:22Z ---
---- S5 missing audio 2026-06-08T01:04:22Z ---
-
-=== BR74S7: The brain, meditation, compassion in science ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.m4a
-
-=== BR74S7: The brain, meditation, compassion in science ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.m4a
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 1104 cookies from chrome
-Extracted 1104 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/35XW_AZSXdU
-[youtube] 35XW_AZSXdU: Downloading webpage
-[youtube] Extracting URL: https://youtu.be/35XW_AZSXdU
-[youtube] 35XW_AZSXdU: Downloading webpage
-[youtube] 35XW_AZSXdU: Downloading tv downgraded player API JSON
-[youtube] 35XW_AZSXdU: Downloading tv downgraded player API JSON
-[youtube] 35XW_AZSXdU: Downloading player 5cabb421-main
-[youtube] 35XW_AZSXdU: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] 35XW_AZSXdU: Downloading m3u8 information
-[youtube] 35XW_AZSXdU: Downloading m3u8 information
-[info] 35XW_AZSXdU: Downloading 1 format(s): 18
-[download] Sleeping 40.73 seconds ...
-[info] 35XW_AZSXdU: Downloading 1 format(s): 18
-[download] Sleeping 38.67 seconds ...
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4
-[download]   0.0% of  190.70MiB at  255.36KiB/s ETA 12:56[download]   0.0% of  190.70MiB at  518.65KiB/s ETA 06:17[download]   0.0% of  190.70MiB at    1.05MiB/s ETA 03:01[download]   0.0% of  190.70MiB at    2.04MiB/s ETA 01:33[download]   0.0% of  190.70MiB at    3.86MiB/s ETA 00:49[download]   0.0% of  190.70MiB at    4.27MiB/s ETA 00:44[download]   0.1% of  190.70MiB at  206.93KiB/s ETA 15:43[download]   0.1% of  190.70MiB at  369.37KiB/s ETA 08:48[download]   0.2% of  190.70MiB at  677.37KiB/s ETA 04:47[download]   0.4% of  190.70MiB at    1.24MiB/s ETA 02:33[download]   0.9% of  190.70MiB at    2.14MiB/s ETA 01:28[download]   1.8% of  190.70MiB at    2.82MiB/s ETA 01:06[download] Resuming download at byte 3519805
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4
-[download]   1.8% of  190.70MiB at  668.41KiB/s ETA 04:56[download]   1.8% of  190.70MiB at  945.73KiB/s ETA 03:23[download]   1.8% of  190.70MiB at    1.80MiB/s ETA 01:44[download]   1.8% of  190.70MiB at    3.41MiB/s ETA 00:55[download]   1.8% of  190.70MiB at    2.15MiB/s ETA 01:27[download]   1.8% of  190.70MiB at    2.34MiB/s ETA 01:20[download]   1.8% of  190.70MiB at    3.10MiB/s ETA 01:00[download]   1.9% of  190.70MiB at    3.78MiB/s ETA 00:49[download]   2.0% of  190.70MiB at    4.68MiB/s ETA 00:39[download]   2.3% of  190.70MiB at    5.15MiB/s ETA 00:36[download]   2.8% of  190.70MiB at    6.57MiB/s ETA 00:28[download]   3.5% of  190.70MiB at    3.47MiB/s ETA 00:52[download]   3.9% of  190.70MiB at    6.42MiB/s ETA 00:28[download]   5.2% of  190.70MiB at    3.38MiB/s ETA 00:53[download]   6.0% of  190.70MiB at    4.72MiB/s ETA 00:37[download]   7.0% of  190.70MiB at    5.46MiB/s ETA 00:32[download]   7.0% of  190.70MiB at  Unknown B/s ETA Unknown[download]   7.0% of  190.70MiB at    1.64MiB/s ETA 01:48  [download]   7.0% of  190.70MiB at    3.11MiB/s ETA 00:57[download]   7.0% of  190.70MiB at    5.70MiB/s ETA 00:31[download]   7.0% of  190.70MiB at    2.85MiB/s ETA 01:02[download]   7.0% of  190.70MiB at    4.67MiB/s ETA 00:37[download]   7.0% of  190.70MiB at    5.04MiB/s ETA 00:35[download]   7.1% of  190.70MiB at    7.06MiB/s ETA 00:25[download]   7.2% of  190.70MiB at    9.48MiB/s ETA 00:18[download]   5.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]   5.2% of  190.70MiB at    2.57MiB/s ETA 01:10  [download]   5.2% of  190.70MiB at    3.94MiB/s ETA 00:46[download]   5.2% of  190.70MiB at  567.24KiB/s ETA 05:26[download]   5.2% of  190.70MiB at  756.38KiB/s ETA 04:04[download]   5.2% of  190.70MiB at  973.86KiB/s ETA 03:10[download]   5.3% of  190.70MiB at    1.25MiB/s ETA 02:24[download]   5.3% of  190.70MiB at    1.88MiB/s ETA 01:35[download]   5.5% of  190.70MiB at    2.92MiB/s ETA 01:01[download]   5.7% of  190.70MiB at    4.71MiB/s ETA 00:38[download]   6.3% of  190.70MiB at    7.14MiB/s ETA 00:25[download]   7.3% of  190.70MiB at   10.35MiB/s ETA 00:17[download]   7.5% of  190.70MiB at  926.84KiB/s ETA 03:14[download]   7.7% of  190.70MiB at    1.13MiB/s ETA 02:35[download]   9.4% of  190.70MiB at    6.28MiB/s ETA 00:27[download]   8.2% of  190.70MiB at    1.64MiB/s ETA 01:46[download]   9.2% of  190.70MiB at    2.70MiB/s ETA 01:04[download]  10.3% of  190.70MiB at    5.70MiB/s ETA 00:30[download]  10.3% of  190.70MiB at  134.79KiB/s ETA 21:41[download]  10.3% of  190.70MiB at  358.95KiB/s ETA 08:08[download]  10.3% of  190.70MiB at  794.83KiB/s ETA 03:40[download]  10.3% of  190.70MiB at    1.60MiB/s ETA 01:46[download]  10.3% of  190.70MiB at    2.95MiB/s ETA 00:58[download]  10.3% of  190.70MiB at    2.29MiB/s ETA 01:14[download]  10.4% of  190.70MiB at    1.70MiB/s ETA 01:40[download]  11.2% of  190.70MiB at    4.15MiB/s ETA 00:40[download]  10.4% of  190.70MiB at    2.56MiB/s ETA 01:06[download]  10.6% of  190.70MiB at    3.78MiB/s ETA 00:45[download]  10.8% of  190.70MiB at    6.16MiB/s ETA 00:27[download]  11.4% of  190.70MiB at    8.98MiB/s ETA 00:18[download]  12.2% of  190.70MiB at    3.10MiB/s ETA 00:53[download]  12.4% of  190.70MiB at    3.05MiB/s ETA 00:54[download]  12.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]  12.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]  12.2% of  190.70MiB at    6.47MiB/s ETA 00:25  [download]  12.2% of  190.70MiB at   10.11MiB/s ETA 00:16[download]  12.2% of  190.70MiB at    2.22MiB/s ETA 01:15[download]  12.2% of  190.70MiB at    2.64MiB/s ETA 01:03[download]  12.2% of  190.70MiB at    3.40MiB/s ETA 00:49[download]  12.3% of  190.70MiB at    4.57MiB/s ETA 00:36[download]  12.4% of  190.70MiB at    6.41MiB/s ETA 00:26[download]  12.7% of  190.70MiB at    9.07MiB/s ETA 00:18[download]  13.2% of  190.70MiB at   11.91MiB/s ETA 00:13[download]  13.4% of  190.70MiB at    3.17MiB/s ETA 00:52[download]  14.3% of  190.70MiB at    5.71MiB/s ETA 00:28[download]  15.2% of  190.70MiB at    4.09MiB/s ETA 00:39[download]  15.3% of  190.70MiB at    4.14MiB/s ETA 00:39[download]  15.3% of  190.70MiB at  Unknown B/s ETA Unknown[download]  15.3% of  190.70MiB at  Unknown B/s ETA Unknown[download]  15.3% of  190.70MiB at    6.42MiB/s ETA 00:25  [download]  15.3% of  190.70MiB at   10.42MiB/s ETA 00:15[download]  15.3% of  190.70MiB at    4.19MiB/s ETA 00:38[download]  15.3% of  190.70MiB at    3.74MiB/s ETA 00:43[download]  15.4% of  190.70MiB at    5.05MiB/s ETA 00:31[download]  15.4% of  190.70MiB at    6.15MiB/s ETA 00:26[download]  15.6% of  190.70MiB at    1.33MiB/s ETA 02:00[download]  15.8% of  190.70MiB at    1.72MiB/s ETA 01:33[download]  16.2% of  190.70MiB at    4.84MiB/s ETA 00:32[download]  16.3% of  190.70MiB at    2.65MiB/s ETA 01:00[download]  17.3% of  190.70MiB at    5.50MiB/s ETA 00:28[download]  17.3% of  190.70MiB at  Unknown B/s ETA Unknown[download]  17.3% of  190.70MiB at  Unknown B/s ETA Unknown[download]  17.3% of  190.70MiB at    6.74MiB/s ETA 00:23  [download]  17.3% of  190.70MiB at    3.41MiB/s ETA 00:46[download]  17.4% of  190.70MiB at    1.56MiB/s ETA 01:40[download]  17.4% of  190.70MiB at    1.58MiB/s ETA 01:39[download]  17.4% of  190.70MiB at    4.20MiB/s ETA 00:37[download]  17.4% of  190.70MiB at    2.23MiB/s ETA 01:10[download]  17.5% of  190.70MiB at    3.14MiB/s ETA 00:50[download]  17.6% of  190.70MiB at    3.97MiB/s ETA 00:39[download]  17.9% of  190.70MiB at    5.30MiB/s ETA 00:29[download]  18.4% of  190.70MiB at    4.79MiB/s ETA 00:32[download]  19.4% of  190.70MiB at    6.01MiB/s ETA 00:25[download]  19.5% of  190.70MiB at    5.06MiB/s ETA 00:30[download]  20.4% of  190.70MiB at    4.66MiB/s ETA 00:32[download]  20.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  20.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  20.4% of  190.70MiB at    6.80MiB/s ETA 00:22  [download]  20.4% of  190.70MiB at    3.84MiB/s ETA 00:39[download]  20.4% of  190.70MiB at    3.71MiB/s ETA 00:40[download]  20.4% of  190.70MiB at    3.48MiB/s ETA 00:43[download]  20.4% of  190.70MiB at    3.68MiB/s ETA 00:41[download]  20.5% of  190.70MiB at    4.42MiB/s ETA 00:34[download]  20.6% of  190.70MiB at    6.19MiB/s ETA 00:24[download]  20.9% of  190.70MiB at    8.46MiB/s ETA 00:17[download]  21.4% of  190.70MiB at    6.58MiB/s ETA 00:22[download]  21.5% of  190.70MiB at    4.04MiB/s ETA 00:37[download]  22.5% of  190.70MiB at    3.97MiB/s ETA 00:37[download]  22.5% of  190.70MiB at    4.14MiB/s ETA 00:35[download]  22.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  22.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  22.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  22.5% of  190.70MiB at   12.43MiB/s ETA 00:11  [download]  22.5% of  190.70MiB at    3.39MiB/s ETA 00:43[download]  22.5% of  190.70MiB at    3.51MiB/s ETA 00:42[download]  22.5% of  190.70MiB at    4.49MiB/s ETA 00:32[download]  22.6% of  190.70MiB at    6.16MiB/s ETA 00:23[download]  22.7% of  190.70MiB at    8.72MiB/s ETA 00:16[download]  23.0% of  190.70MiB at   10.37MiB/s ETA 00:14[download]  23.5% of  190.70MiB at    9.63MiB/s ETA 00:15[download]  24.0% of  190.70MiB at    3.40MiB/s ETA 00:42[download]  24.6% of  190.70MiB at    3.87MiB/s ETA 00:37[download]  25.4% of  190.70MiB at    4.22MiB/s ETA 00:33[download]  25.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  25.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  25.4% of  190.70MiB at    5.38MiB/s ETA 00:26  [download]  25.5% of  190.70MiB at    1.70MiB/s ETA 01:23[download]  25.5% of  190.70MiB at    2.68MiB/s ETA 00:52[download]  25.5% of  190.70MiB at    1.55MiB/s ETA 01:31[download]  25.8% of  190.70MiB at    5.11MiB/s ETA 00:27[download]  25.5% of  190.70MiB at    2.31MiB/s ETA 01:01[download]  25.6% of  190.70MiB at    2.53MiB/s ETA 00:56[download]  25.7% of  190.70MiB at    3.32MiB/s ETA 00:42[download]  26.0% of  190.70MiB at    5.54MiB/s ETA 00:25[download]  26.5% of  190.70MiB at    6.11MiB/s ETA 00:22[download]  27.5% of  190.70MiB at    7.23MiB/s ETA 00:19[download]  27.4% of  190.70MiB at    5.39MiB/s ETA 00:25[download]  27.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  27.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  27.4% of  190.70MiB at    6.47MiB/s ETA 00:21  [download]  27.5% of  190.70MiB at   10.53MiB/s ETA 00:13[download]  27.5% of  190.70MiB at    3.86MiB/s ETA 00:35[download]  27.5% of  190.70MiB at    4.21MiB/s ETA 00:32[download]  27.5% of  190.70MiB at    4.75MiB/s ETA 00:29[download]  27.6% of  190.70MiB at    6.73MiB/s ETA 00:20[download]  27.7% of  190.70MiB at    8.78MiB/s ETA 00:15[download]  28.0% of  190.70MiB at   11.71MiB/s ETA 00:11[download]  28.5% of  190.70MiB at    2.08MiB/s ETA 01:05[download]  29.1% of  190.70MiB at    2.83MiB/s ETA 00:47[download]  29.6% of  190.70MiB at    3.09MiB/s ETA 00:43[download]  30.5% of  190.70MiB at    3.44MiB/s ETA 00:38[download]  30.3% of  190.70MiB at    2.49MiB/s ETA 00:53[download]  30.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  30.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  30.5% of  190.70MiB at    1.13MiB/s ETA 01:57  [download]  30.5% of  190.70MiB at    2.23MiB/s ETA 00:59[download]  30.5% of  190.70MiB at    1.02MiB/s ETA 02:10[download]  30.5% of  190.70MiB at    1.15MiB/s ETA 01:55[download]  30.5% of  190.70MiB at    1.25MiB/s ETA 01:46[download]  30.6% of  190.70MiB at    1.89MiB/s ETA 01:10[download]  31.4% of  190.70MiB at    3.12MiB/s ETA 00:41[download]  30.7% of  190.70MiB at    2.47MiB/s ETA 00:53[download]  31.0% of  190.70MiB at    3.91MiB/s ETA 00:33[download]  31.5% of  190.70MiB at    5.85MiB/s ETA 00:22[download]  32.5% of  190.70MiB at    3.10MiB/s ETA 00:41[download]  32.6% of  190.70MiB at    4.89MiB/s ETA 00:26[download]  32.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  32.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  32.5% of  190.70MiB at    5.16MiB/s ETA 00:25  [download]  32.5% of  190.70MiB at    8.17MiB/s ETA 00:15[download]  32.5% of  190.70MiB at    4.20MiB/s ETA 00:30[download]  32.5% of  190.70MiB at    4.26MiB/s ETA 00:30[download]  32.5% of  190.70MiB at    4.82MiB/s ETA 00:26[download]  32.6% of  190.70MiB at    6.21MiB/s ETA 00:20[download]  32.7% of  190.70MiB at    8.16MiB/s ETA 00:15[download]  33.0% of  190.70MiB at    1.78MiB/s ETA 01:11[download]  33.5% of  190.70MiB at    3.07MiB/s ETA 00:41[download]  34.6% of  190.70MiB at    4.74MiB/s ETA 00:26[download]  34.7% of  190.70MiB at    4.35MiB/s ETA 00:28[download]  35.5% of  190.70MiB at    2.94MiB/s ETA 00:41[download]  35.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  35.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  35.5% of  190.70MiB at    6.52MiB/s ETA 00:18  [download]  35.5% of  190.70MiB at   10.22MiB/s ETA 00:12[download]  35.5% of  190.70MiB at    1.14MiB/s ETA 01:48[download]  35.5% of  190.70MiB at    1.25MiB/s ETA 01:38[download]  36.7% of  190.70MiB at    3.20MiB/s ETA 00:37[download]  35.5% of  190.70MiB at    1.79MiB/s ETA 01:08[download]  35.6% of  190.70MiB at    2.43MiB/s ETA 00:50[download]  35.7% of  190.70MiB at    3.12MiB/s ETA 00:39[download]  37.5% of  190.70MiB at    3.67MiB/s ETA 00:32[download]  36.0% of  190.70MiB at    4.97MiB/s ETA 00:24[download]  36.5% of  190.70MiB at    7.59MiB/s ETA 00:15[download]  37.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  37.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  37.5% of  190.70MiB at    6.80MiB/s ETA 00:17  [download]  37.5% of  190.70MiB at   10.83MiB/s ETA 00:11[download]  37.5% of  190.70MiB at   17.95MiB/s ETA 00:06[download]  37.6% of  190.70MiB at   10.43MiB/s ETA 00:11[download]  37.5% of  190.70MiB at    3.52MiB/s ETA 00:33[download]  37.6% of  190.70MiB at    4.02MiB/s ETA 00:29[download]  37.6% of  190.70MiB at    4.62MiB/s ETA 00:25[download]  37.8% of  190.70MiB at  818.30KiB/s ETA 02:28[download]  38.0% of  190.70MiB at    1.21MiB/s ETA 01:38[download]  38.4% of  190.70MiB at    2.03MiB/s ETA 00:57[download]  39.4% of  190.70MiB at    3.24MiB/s ETA 00:35[download]  39.7% of  190.70MiB at    4.69MiB/s ETA 00:24[download]  40.5% of  190.70MiB at    5.29MiB/s ETA 00:21[download]  40.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  40.5% of  190.70MiB at  Unknown B/s ETA Unknown[download]  40.5% of  190.70MiB at  450.65KiB/s ETA 04:17  [download]  40.6% of  190.70MiB at  941.03KiB/s ETA 02:03[download]  40.6% of  190.70MiB at    1.43MiB/s ETA 01:19[download]  40.6% of  190.70MiB at    1.82MiB/s ETA 01:02[download]  40.6% of  190.70MiB at    2.57MiB/s ETA 00:44[download]  40.7% of  190.70MiB at    3.39MiB/s ETA 00:33[download]  40.8% of  190.70MiB at    4.08MiB/s ETA 00:27[download]  41.1% of  190.70MiB at    5.84MiB/s ETA 00:19[download]  41.2% of  190.70MiB at    3.22MiB/s ETA 00:34[download]  41.6% of  190.70MiB at    2.65MiB/s ETA 00:42[download]  42.5% of  190.70MiB at    3.85MiB/s ETA 00:28[download]  42.6% of  190.70MiB at    3.87MiB/s ETA 00:28[download]  42.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  42.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  42.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  42.6% of  190.70MiB at    1.45MiB/s ETA 01:15  [download]  42.6% of  190.70MiB at    2.89MiB/s ETA 00:37[download]  42.6% of  190.70MiB at    2.41MiB/s ETA 00:45[download]  42.6% of  190.70MiB at    3.09MiB/s ETA 00:35[download]  42.7% of  190.70MiB at    4.57MiB/s ETA 00:23[download]  42.8% of  190.70MiB at    5.88MiB/s ETA 00:18[download]  43.1% of  190.70MiB at    8.34MiB/s ETA 00:13[download]  43.6% of  190.70MiB at    8.50MiB/s ETA 00:12[download]  44.3% of  190.70MiB at    4.98MiB/s ETA 00:21[download]  44.7% of  190.70MiB at    3.87MiB/s ETA 00:27[download]  46.0% of  190.70MiB at    5.08MiB/s ETA 00:20[download]  45.6% of  190.70MiB at    4.16MiB/s ETA 00:24[download]  45.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  45.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  45.6% of  190.70MiB at    5.42MiB/s ETA 00:19  [download]  45.6% of  190.70MiB at  892.70KiB/s ETA 01:59[download]  45.6% of  190.70MiB at    1.49MiB/s ETA 01:09[download]  45.6% of  190.70MiB at    1.46MiB/s ETA 01:11[download]  45.7% of  190.70MiB at    1.61MiB/s ETA 01:04[download]  45.7% of  190.70MiB at    2.39MiB/s ETA 00:43[download]  45.9% of  190.70MiB at    3.80MiB/s ETA 00:27[download]  46.1% of  190.70MiB at    6.14MiB/s ETA 00:16[download]  46.7% of  190.70MiB at    9.21MiB/s ETA 00:11[download]  47.7% of  190.70MiB at    4.10MiB/s ETA 00:24[download]  47.8% of  190.70MiB at    4.00MiB/s ETA 00:24[download]  47.8% of  190.70MiB at  975.65KiB/s ETA 01:45[download]  47.8% of  190.70MiB at    1.81MiB/s ETA 00:55[download]  47.8% of  190.70MiB at    3.39MiB/s ETA 00:29[download]  47.8% of  190.70MiB at    6.17MiB/s ETA 00:16[download]  47.8% of  190.70MiB at    3.19MiB/s ETA 00:31[download]  47.8% of  190.70MiB at    3.06MiB/s ETA 00:32[download]  47.8% of  190.70MiB at    4.48MiB/s ETA 00:22[download]  47.9% of  190.70MiB at    6.46MiB/s ETA 00:15[download]  48.0% of  190.70MiB at    8.61MiB/s ETA 00:11[download]  48.3% of  190.70MiB at   11.05MiB/s ETA 00:08[download]  48.8% of  190.70MiB at    7.73MiB/s ETA 00:12[download]  49.1% of  190.70MiB at    4.67MiB/s ETA 00:20[download]  49.9% of  190.70MiB at    4.42MiB/s ETA 00:21[download]  50.8% of  190.70MiB at    4.55MiB/s ETA 00:20[download]  50.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  50.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  50.8% of  190.70MiB at    6.30MiB/s ETA 00:14  [download]  50.8% of  190.70MiB at    5.87MiB/s ETA 00:16[download]  50.8% of  190.70MiB at    2.53MiB/s ETA 00:37[download]  50.8% of  190.70MiB at    2.11MiB/s ETA 00:44[download]  50.8% of  190.70MiB at    2.38MiB/s ETA 00:39[download]  50.9% of  190.70MiB at    2.57MiB/s ETA 00:36[download]  51.0% of  190.70MiB at    3.43MiB/s ETA 00:27[download]  51.3% of  190.70MiB at    4.80MiB/s ETA 00:19[download]  51.5% of  190.70MiB at    4.15MiB/s ETA 00:22[download]  51.8% of  190.70MiB at    2.61MiB/s ETA 00:35[download]  53.0% of  190.70MiB at    4.67MiB/s ETA 00:19[download]  52.7% of  190.70MiB at    3.63MiB/s ETA 00:24[download]  53.0% of  190.70MiB at  Unknown B/s ETA Unknown[download]  53.0% of  190.70MiB at  Unknown B/s ETA Unknown[download]  53.0% of  190.70MiB at    6.50MiB/s ETA 00:13  [download]  53.0% of  190.70MiB at    4.55MiB/s ETA 00:19[download]  53.0% of  190.70MiB at    3.17MiB/s ETA 00:28[download]  53.0% of  190.70MiB at    3.15MiB/s ETA 00:28[download]  53.0% of  190.70MiB at    3.46MiB/s ETA 00:25[download]  53.1% of  190.70MiB at    4.65MiB/s ETA 00:19[download]  53.2% of  190.70MiB at    5.48MiB/s ETA 00:16[download]  53.5% of  190.70MiB at    7.02MiB/s ETA 00:12[download]  54.0% of  190.70MiB at    7.85MiB/s ETA 00:11[download]  54.6% of  190.70MiB at    4.46MiB/s ETA 00:19[download]  55.1% of  190.70MiB at    6.61MiB/s ETA 00:12[download]  55.8% of  190.70MiB at    4.26MiB/s ETA 00:19[download]  55.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  55.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  55.8% of  190.70MiB at    6.67MiB/s ETA 00:12  [download]  55.8% of  190.70MiB at    3.81MiB/s ETA 00:22[download]  55.8% of  190.70MiB at    1.59MiB/s ETA 00:52[download]  55.9% of  190.70MiB at    1.89MiB/s ETA 00:44[download]  55.9% of  190.70MiB at    2.37MiB/s ETA 00:35[download]  56.0% of  190.70MiB at    3.35MiB/s ETA 00:25[download]  56.1% of  190.70MiB at    4.22MiB/s ETA 00:19[download]  57.2% of  190.70MiB at    5.67MiB/s ETA 00:14[download]  56.3% of  190.70MiB at    5.46MiB/s ETA 00:15[download]  56.9% of  190.70MiB at    7.18MiB/s ETA 00:11[download]  57.9% of  190.70MiB at    4.93MiB/s ETA 00:16[download]  58.1% of  190.70MiB at    4.75MiB/s ETA 00:16[download]  58.1% of  190.70MiB at  Unknown B/s ETA Unknown[download]  58.1% of  190.70MiB at  Unknown B/s ETA Unknown[download]  58.1% of  190.70MiB at    5.22MiB/s ETA 00:15  [download]  58.1% of  190.70MiB at    7.56MiB/s ETA 00:10[download]  58.1% of  190.70MiB at    1.27MiB/s ETA 01:02[download]  58.2% of  190.70MiB at    1.77MiB/s ETA 00:44[download]  58.2% of  190.70MiB at    1.99MiB/s ETA 00:40[download]  58.3% of  190.70MiB at    2.96MiB/s ETA 00:26[download]  58.4% of  190.70MiB at    4.73MiB/s ETA 00:16[download]  58.6% of  190.70MiB at    6.61MiB/s ETA 00:11[download]  59.2% of  190.70MiB at    7.58MiB/s ETA 00:10[download]  59.9% of  190.70MiB at    3.80MiB/s ETA 00:20[download]  60.2% of  190.70MiB at    3.39MiB/s ETA 00:22[download]  61.4% of  190.70MiB at    4.35MiB/s ETA 00:16[download]  61.0% of  190.70MiB at    4.23MiB/s ETA 00:17[download]  61.0% of  190.70MiB at  Unknown B/s ETA Unknown[download]  61.0% of  190.70MiB at    2.40MiB/s ETA 00:31  [download]  61.0% of  190.70MiB at    3.71MiB/s ETA 00:20[download]  61.1% of  190.70MiB at    5.92MiB/s ETA 00:12[download]  61.1% of  190.70MiB at    1.79MiB/s ETA 00:41[download]  61.1% of  190.70MiB at    2.69MiB/s ETA 00:27[download]  61.1% of  190.70MiB at    3.39MiB/s ETA 00:21[download]  61.2% of  190.70MiB at    5.13MiB/s ETA 00:14[download]  61.3% of  190.70MiB at    7.37MiB/s ETA 00:10[download]  61.6% of  190.70MiB at    9.45MiB/s ETA 00:07[download]  62.1% of  190.70MiB at   12.02MiB/s ETA 00:06[download]  63.1% of  190.70MiB at    8.75MiB/s ETA 00:08[download]  63.3% of  190.70MiB at    4.79MiB/s ETA 00:14[download]  63.3% of  190.70MiB at  Unknown B/s ETA Unknown[download]  63.3% of  190.70MiB at    2.79MiB/s ETA 00:25  [download]  63.3% of  190.70MiB at    4.44MiB/s ETA 00:15[download]  63.3% of  190.70MiB at    6.77MiB/s ETA 00:10[download]  63.3% of  190.70MiB at    2.79MiB/s ETA 00:25[download]  63.3% of  190.70MiB at    4.14MiB/s ETA 00:16[download]  63.3% of  190.70MiB at    4.90MiB/s ETA 00:14[download]  63.4% of  190.70MiB at    6.42MiB/s ETA 00:10[download]  63.5% of  190.70MiB at    8.00MiB/s ETA 00:08[download]  63.8% of  190.70MiB at   10.40MiB/s ETA 00:06[download]  64.3% of  190.70MiB at    3.01MiB/s ETA 00:22[download]  65.2% of  190.70MiB at    5.60MiB/s ETA 00:11[download]  65.2% of  190.70MiB at    3.83MiB/s ETA 00:17[download]  66.2% of  190.70MiB at    4.47MiB/s ETA 00:14[download]  67.1% of  190.70MiB at    4.28MiB/s ETA 00:14[download]  66.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]  66.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]  66.2% of  190.70MiB at    6.50MiB/s ETA 00:09  [download]  66.2% of  190.70MiB at   10.19MiB/s ETA 00:06[download]  66.2% of  190.70MiB at    5.40MiB/s ETA 00:11[download]  66.2% of  190.70MiB at    4.77MiB/s ETA 00:13[download]  66.2% of  190.70MiB at    4.86MiB/s ETA 00:13[download]  66.3% of  190.70MiB at    6.09MiB/s ETA 00:10[download]  66.4% of  190.70MiB at    7.69MiB/s ETA 00:08[download]  66.7% of  190.70MiB at   10.36MiB/s ETA 00:06[download]  67.2% of  190.70MiB at   13.25MiB/s ETA 00:04[download]  68.3% of  190.70MiB at    6.10MiB/s ETA 00:09[download]  68.4% of  190.70MiB at    4.11MiB/s ETA 00:14[download]  68.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  68.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  68.4% of  190.70MiB at    6.13MiB/s ETA 00:09  [download]  68.4% of  190.70MiB at    5.35MiB/s ETA 00:11[download]  68.4% of  190.70MiB at    3.76MiB/s ETA 00:16[download]  68.4% of  190.70MiB at    2.96MiB/s ETA 00:20[download]  68.4% of  190.70MiB at    3.49MiB/s ETA 00:17[download]  68.5% of  190.70MiB at    5.02MiB/s ETA 00:11[download]  68.6% of  190.70MiB at    7.13MiB/s ETA 00:08[download]  68.9% of  190.70MiB at    2.60MiB/s ETA 00:22[download]  69.4% of  190.70MiB at    3.94MiB/s ETA 00:14[download]  70.3% of  190.70MiB at    5.68MiB/s ETA 00:09[download]  70.4% of  190.70MiB at    5.42MiB/s ETA 00:10[download]  71.2% of  190.70MiB at    5.63MiB/s ETA 00:09[download]  71.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]  71.2% of  190.70MiB at  Unknown B/s ETA Unknown[download]  71.2% of  190.70MiB at    1.30MiB/s ETA 00:42  [download]  71.2% of  190.70MiB at  502.88KiB/s ETA 01:52[download]  71.2% of  190.70MiB at  790.87KiB/s ETA 01:11[download]  71.2% of  190.70MiB at  939.45KiB/s ETA 00:59[download]  71.2% of  190.70MiB at    1.28MiB/s ETA 00:42[download]  71.3% of  190.70MiB at    1.86MiB/s ETA 00:29[download]  71.4% of  190.70MiB at    2.92MiB/s ETA 00:18[download]  71.7% of  190.70MiB at    4.67MiB/s ETA 00:11[download]  72.2% of  190.70MiB at    4.37MiB/s ETA 00:12[download]  72.5% of  190.70MiB at    4.52MiB/s ETA 00:11[download]  73.3% of  190.70MiB at    6.12MiB/s ETA 00:08[download]  73.6% of  190.70MiB at    4.64MiB/s ETA 00:10[download]  73.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  73.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  73.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  73.6% of  190.70MiB at   12.92MiB/s ETA 00:03  [download]  73.6% of  190.70MiB at    4.08MiB/s ETA 00:12[download]  73.6% of  190.70MiB at    2.97MiB/s ETA 00:16[download]  73.6% of  190.70MiB at    4.37MiB/s ETA 00:11[download]  73.7% of  190.70MiB at    6.27MiB/s ETA 00:07[download]  73.8% of  190.70MiB at    2.61MiB/s ETA 00:19[download]  75.4% of  190.70MiB at    5.81MiB/s ETA 00:08[download]  74.1% of  190.70MiB at    2.67MiB/s ETA 00:18[download]  74.6% of  190.70MiB at    4.18MiB/s ETA 00:11[download]  75.7% of  190.70MiB at    4.27MiB/s ETA 00:10[download]  76.4% of  190.70MiB at    5.00MiB/s ETA 00:09[download]  76.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  76.4% of  190.70MiB at  Unknown B/s ETA Unknown[download]  76.4% of  190.70MiB at    6.67MiB/s ETA 00:06  [download]  76.4% of  190.70MiB at    1.42MiB/s ETA 00:31[download]  76.4% of  190.70MiB at    2.44MiB/s ETA 00:18[download]  76.4% of  190.70MiB at    2.69MiB/s ETA 00:16[download]  76.4% of  190.70MiB at    3.80MiB/s ETA 00:11[download]  76.5% of  190.70MiB at    4.09MiB/s ETA 00:10[download]  76.6% of  190.70MiB at    4.91MiB/s ETA 00:09[download]  76.9% of  190.70MiB at    7.33MiB/s ETA 00:06[download]  77.4% of  190.70MiB at    2.28MiB/s ETA 00:18[download]  78.1% of  190.70MiB at    3.21MiB/s ETA 00:12[download]  77.8% of  190.70MiB at    3.81MiB/s ETA 00:11[download]  78.6% of  190.70MiB at    4.11MiB/s ETA 00:09[download]  78.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  78.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  78.6% of  190.70MiB at    5.46MiB/s ETA 00:07  [download]  78.6% of  190.70MiB at  609.61KiB/s ETA 01:08[download]  78.6% of  190.70MiB at  852.98KiB/s ETA 00:48[download]  78.7% of  190.70MiB at    1.04MiB/s ETA 00:39[download]  78.7% of  190.70MiB at    1.46MiB/s ETA 00:27[download]  78.8% of  190.70MiB at    2.14MiB/s ETA 00:18[download]  78.9% of  190.70MiB at    3.33MiB/s ETA 00:12[download]  79.1% of  190.70MiB at    3.19MiB/s ETA 00:12[download]  79.5% of  190.70MiB at    3.25MiB/s ETA 00:12[download]  79.7% of  190.70MiB at    4.87MiB/s ETA 00:07[download]  80.7% of  190.70MiB at    5.91MiB/s ETA 00:06[download]  81.3% of  190.70MiB at    4.14MiB/s ETA 00:08[download]  81.6% of  190.70MiB at    4.28MiB/s ETA 00:08[download]  81.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  81.6% of  190.70MiB at  Unknown B/s ETA Unknown[download]  81.6% of  190.70MiB at    6.39MiB/s ETA 00:05  [download]  81.6% of  190.70MiB at    1.82MiB/s ETA 00:19[download]  81.6% of  190.70MiB at    2.60MiB/s ETA 00:13[download]  81.6% of  190.70MiB at    2.83MiB/s ETA 00:12[download]  81.7% of  190.70MiB at    3.51MiB/s ETA 00:09[download]  81.7% of  190.70MiB at    4.84MiB/s ETA 00:07[download]  81.9% of  190.70MiB at    6.65MiB/s ETA 00:05[download]  82.1% of  190.70MiB at    2.36MiB/s ETA 00:14[download]  82.8% of  190.70MiB at    5.22MiB/s ETA 00:06[download]  82.7% of  190.70MiB at    2.93MiB/s ETA 00:11[download]  83.7% of  190.70MiB at    5.14MiB/s ETA 00:06[download]  83.7% of  190.70MiB at    4.04MiB/s ETA 00:07[download]  83.7% of  190.70MiB at  Unknown B/s ETA Unknown[download]  83.7% of  190.70MiB at  Unknown B/s ETA Unknown[download]  83.7% of  190.70MiB at  Unknown B/s ETA Unknown[download]  83.7% of  190.70MiB at    1.04MiB/s ETA 00:29  [download]  83.7% of  190.70MiB at  707.81KiB/s ETA 00:44[download]  83.7% of  190.70MiB at    1.03MiB/s ETA 00:30[download]  83.8% of  190.70MiB at    1.59MiB/s ETA 00:19[download]  83.8% of  190.70MiB at    2.46MiB/s ETA 00:12[download]  84.0% of  190.70MiB at    4.04MiB/s ETA 00:07[download]  84.2% of  190.70MiB at    6.18MiB/s ETA 00:04[download]  84.8% of  190.70MiB at    3.46MiB/s ETA 00:08[download]  85.8% of  190.70MiB at    3.10MiB/s ETA 00:08[download]  85.8% of  190.70MiB at    3.42MiB/s ETA 00:07[download]  86.7% of  190.70MiB at    3.72MiB/s ETA 00:06[download]  86.7% of  190.70MiB at  Unknown B/s ETA Unknown[download]  86.7% of  190.70MiB at  Unknown B/s ETA Unknown[download]  86.7% of  190.70MiB at    6.39MiB/s ETA 00:03  [download]  86.7% of  190.70MiB at   10.22MiB/s ETA 00:02[download]  86.7% of  190.70MiB at    3.58MiB/s ETA 00:07[download]  86.7% of  190.70MiB at    3.61MiB/s ETA 00:07[download]  86.7% of  190.70MiB at    5.24MiB/s ETA 00:04[download]  86.8% of  190.70MiB at    6.55MiB/s ETA 00:03[download]  86.9% of  190.70MiB at    8.11MiB/s ETA 00:03[download]  87.2% of  190.70MiB at   10.43MiB/s ETA 00:02[download]  87.3% of  190.70MiB at    3.12MiB/s ETA 00:07[download]  87.7% of  190.70MiB at    2.97MiB/s ETA 00:07[download]  88.6% of  190.70MiB at    4.25MiB/s ETA 00:05[download]  88.8% of  190.70MiB at    3.60MiB/s ETA 00:05[download]  88.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  88.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  88.8% of  190.70MiB at    4.15MiB/s ETA 00:05  [download]  88.8% of  190.70MiB at    4.95MiB/s ETA 00:04[download]  88.8% of  190.70MiB at    2.56MiB/s ETA 00:08[download]  88.8% of  190.70MiB at    3.63MiB/s ETA 00:05[download]  88.9% of  190.70MiB at    4.93MiB/s ETA 00:04[download]  88.9% of  190.70MiB at    6.27MiB/s ETA 00:03[download]  89.0% of  190.70MiB at    8.39MiB/s ETA 00:02[download]  89.3% of  190.70MiB at    9.53MiB/s ETA 00:02[download]  89.8% of  190.70MiB at   10.20MiB/s ETA 00:01[download]  90.4% of  190.70MiB at    4.03MiB/s ETA 00:04[download]  90.9% of  190.70MiB at    5.12MiB/s ETA 00:03[download]  91.8% of  190.70MiB at    4.02MiB/s ETA 00:03[download]  91.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  91.8% of  190.70MiB at  Unknown B/s ETA Unknown[download]  91.8% of  190.70MiB at    6.35MiB/s ETA 00:02  [download]  91.8% of  190.70MiB at    3.45MiB/s ETA 00:04[download]  91.8% of  190.70MiB at    1.45MiB/s ETA 00:10[download]  91.8% of  190.70MiB at    1.69MiB/s ETA 00:09[download]  92.7% of  190.70MiB at    5.34MiB/s ETA 00:02[download]  91.8% of  190.70MiB at    1.87MiB/s ETA 00:08[download]  91.9% of  190.70MiB at    2.83MiB/s ETA 00:05[download]  92.0% of  190.70MiB at    3.74MiB/s ETA 00:04[download]  92.3% of  190.70MiB at    5.39MiB/s ETA 00:02[download]  92.8% of  190.70MiB at    7.72MiB/s ETA 00:01[download]  93.9% of  190.70MiB at    2.44MiB/s ETA 00:04[download]  93.8% of  190.70MiB at    3.16MiB/s ETA 00:03[download]  94.6% of  190.70MiB at    3.08MiB/s ETA 00:03[download]  93.8% of  190.70MiB at  149.46KiB/s ETA 01:20[download]  93.8% of  190.70MiB at  408.07KiB/s ETA 00:29[download]  93.8% of  190.70MiB at  904.31KiB/s ETA 00:13[download]  93.8% of  190.70MiB at    1.76MiB/s ETA 00:06[download]  93.8% of  190.70MiB at    2.91MiB/s ETA 00:04[download]  93.9% of  190.70MiB at    1.25MiB/s ETA 00:09[download]  93.9% of  190.70MiB at    1.84MiB/s ETA 00:06[download]  94.0% of  190.70MiB at    2.69MiB/s ETA 00:04[download]  94.1% of  190.70MiB at    4.23MiB/s ETA 00:02[download]  94.4% of  190.70MiB at    6.44MiB/s ETA 00:01[download]  94.9% of  190.70MiB at    9.16MiB/s ETA 00:01[download]  95.9% of  190.70MiB at    6.55MiB/s ETA 00:01[download]  96.2% of  190.70MiB at    3.36MiB/s ETA 00:02[download]  96.9% of  190.70MiB at    3.56MiB/s ETA 00:01[download]  96.9% of  190.70MiB at  Unknown B/s ETA Unknown[download]  96.9% of  190.70MiB at  Unknown B/s ETA Unknown[download]  96.9% of  190.70MiB at    6.52MiB/s ETA 00:00  [download]  96.9% of  190.70MiB at   10.24MiB/s ETA 00:00[download]  98.0% of  190.70MiB at    7.25MiB/s ETA 00:00[download]  96.9% of  190.70MiB at  943.78KiB/s ETA 00:06[download]  96.9% of  190.70MiB at    1.59MiB/s ETA 00:03[download]  97.0% of  190.70MiB at    2.31MiB/s ETA 00:02[download]  97.0% of  190.70MiB at    3.43MiB/s ETA 00:01[download]  97.2% of  190.70MiB at    5.23MiB/s ETA 00:01[download]  97.4% of  190.70MiB at    7.76MiB/s ETA 00:00[download]  98.0% of  190.70MiB at    9.84MiB/s ETA 00:00[download]  99.0% of  190.70MiB at    6.47MiB/s ETA 00:00[download]  99.0% of  190.70MiB at    9.03MiB/s ETA 00:00[download]  99.0% of  190.70MiB at  Unknown B/s ETA Unknown[download]  99.0% of  190.70MiB at  Unknown B/s ETA Unknown[download]  99.0% of  190.70MiB at    5.19MiB/s ETA 00:00  [download]  99.0% of  190.70MiB at    8.30MiB/s ETA 00:00[download]  99.0% of  190.70MiB at   13.61MiB/s ETA 00:00[download]  99.0% of  190.70MiB at    6.32MiB/s ETA 00:00[download]  99.0% of  190.70MiB at    5.35MiB/s ETA 00:00[download]  99.1% of  190.70MiB at    6.58MiB/s ETA 00:00[download]  99.2% of  190.70MiB at    8.87MiB/s ETA 00:00[download]  99.5% of  190.70MiB at   11.07MiB/s ETA 00:00[download] 100.0% of  190.70MiB at    7.79MiB/s ETA 00:00[download] 100.0% of  190.70MiB at    9.79MiB/s ETA 00:00[download] 100% of  190.70MiB in 00:00:47 at 3.99MiB/s   
-ERROR: Unable to rename file: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4.part' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4'
-[download] 100% of  190.70MiB in 00:00:45 at 4.17MiB/s   
-[ExtractAudio] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.m4a
-[ExtractAudio] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.m4a
-Deleting original file /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4 (pass -k to keep)
-[Metadata] Adding metadata to "/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.m4a"
-ERROR: [Errno 2] No such file or directory: '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4' -> '/Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S7 - The brain, meditation, compassion in science.mp4'
-  audio FAILED (exit 1)
-  audio OK
-  subs: no manual English
-
-=== BR74S8: Alternative medicine and holism ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S8 - Alternative medicine and holism.m4a
-  subs: no manual English
-
-=== BR74S8: Alternative medicine and holism ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S8 - Alternative medicine and holism.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/fJG7lbv96Ac
-[youtube] fJG7lbv96Ac: Downloading webpage
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/fJG7lbv96Ac
-[youtube] fJG7lbv96Ac: Downloading webpage
-[youtube] fJG7lbv96Ac: Downloading android vr player API JSON
-[youtube] fJG7lbv96Ac: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] fJG7lbv96Ac: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] fJG7lbv96Ac: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-  audio FAILED (exit 1)
-  subs: no manual English
-
-=== BR74S9: The immeasurable, non-verbal communication, love, Krishnamur ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S9 - The immeasurable, non-verbal communication, love, Krishnamurti’s youth.m4a
-  subs: no manual English
-
-=== BR74S9: The immeasurable, non-verbal communication, love, Krishnamur ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S9 - The immeasurable, non-verbal communication, love, Krishnamurti’s youth.m4a
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/avHqYCJaikE
-[youtube] avHqYCJaikE: Downloading webpage
-[youtube] Extracting URL: https://youtu.be/avHqYCJaikE
-[youtube] avHqYCJaikE: Downloading webpage
-[youtube] avHqYCJaikE: Downloading android vr player API JSON
-[youtube] avHqYCJaikE: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] avHqYCJaikE: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] avHqYCJaikE: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-  audio FAILED (exit 1)
-  subs: no manual English
-
-=== BR74S10: The masters, Krishnamurti, meditation and silence ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S10 - The masters, Krishnamurti, meditation and silence.m4a
-  subs: no manual English
-
-=== BR74S10: The masters, Krishnamurti, meditation and silence ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S10 - The masters, Krishnamurti, meditation and silence.m4a
-Extracting cookies from chrome
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/WkM-zbuvGfc
-[youtube] WkM-zbuvGfc: Downloading webpage
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/WkM-zbuvGfc
-[youtube] WkM-zbuvGfc: Downloading webpage
-[youtube] WkM-zbuvGfc: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] WkM-zbuvGfc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-[youtube] WkM-zbuvGfc: Downloading android vr player API JSON
-  audio FAILED (exit 1)
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] WkM-zbuvGfc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-  subs: no manual English
-
-=== BR74S11: Meditation, death, the mind when the self is not ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S11 - Meditation, death, the mind when the self is not.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/XaLSeUt1j68
-[youtube] XaLSeUt1j68: Downloading webpage
-  subs: no manual English
-
-=== BR74S11: Meditation, death, the mind when the self is not ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S11 - Meditation, death, the mind when the self is not.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/XaLSeUt1j68
-[youtube] XaLSeUt1j68: Downloading webpage
-[youtube] XaLSeUt1j68: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] XaLSeUt1j68: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-[youtube] XaLSeUt1j68: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] XaLSeUt1j68: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-  subs: no manual English
-
-=== BR74S12: Cooperation and action not based on ideals ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S12 - Cooperation and action not based on ideals.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/yEzyyz4dJ9M
-[youtube] yEzyyz4dJ9M: Downloading webpage
-  subs: no manual English
-
-=== BR74S12: Cooperation and action not based on ideals ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S12 - Cooperation and action not based on ideals.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/yEzyyz4dJ9M
-[youtube] yEzyyz4dJ9M: Downloading webpage
-[youtube] yEzyyz4dJ9M: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] yEzyyz4dJ9M: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-[youtube] yEzyyz4dJ9M: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] yEzyyz4dJ9M: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-  subs: no manual English
-
-=== ND81S3: When I observe fear, that fear is me ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1181-ND81S1-3/ND81S3 - When I observe fear, that fear is me.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/yJdIuAPkgtc
-[youtube] yJdIuAPkgtc: Downloading webpage
-  subs: no manual English
-
-=== ND81S3: When I observe fear, that fear is me ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1181-ND81S1-3/ND81S3 - When I observe fear, that fear is me.m4a
-Extracting cookies from chrome
-Extracted 39 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/yJdIuAPkgtc
-[youtube] yJdIuAPkgtc: Downloading webpage
-[youtube] yJdIuAPkgtc: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] yJdIuAPkgtc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-[youtube] yJdIuAPkgtc: Downloading android vr player API JSON
-WARNING: [youtube] No title found in player responses; falling back to title from initial data. Other metadata may also be missing
-ERROR: [youtube] yJdIuAPkgtc: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-  audio FAILED (exit 1)
-  subs: no manual English
-S5 missing exit 1
-
---- Failed subs retry 2026-06-08T01:06:13Z ---
-  subs: no manual English
-S5 missing exit 1
-
---- Failed subs retry 2026-06-08T01:06:13Z ---
-usage: download_item.py [-h] [--audio {best,mp3}]
-                        [--library-root LIBRARY_ROOT] [--cookies COOKIES]
-                        [--cookies-from-browser BROWSER] [--dry-run]
-                        [--no-subs]
-                        codes [codes ...]
-download_item.py: error: unrecognized arguments: --subs-only
-Failed subs exit 2
-Post S4-6 retries done 2026-06-08T01:06:13Z
-
-=== SD74CA10: The art of listening ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/4A-conversations-allan-w-anderson/1051-SD74CA1-18/SD74CA10 - The art of listening.m4a
-  audio SKIP (already on disk)
-  subs: no manual English
-
-=== OJ81CB: A feeling for something sacred ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/4B-conversations-david-bohm/OJ81CB - A feeling for something sacred.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== ML7172CAN1: The circus of man’s struggle ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/4D-conversations-misc/1089-ML7172CAN1-7/ML7172CAN1 - The circus of man’s struggle.m4a
-  audio SKIP (already on disk)
-Extracting cookies from chrome
-Extracted 1105 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/zsJckds1KfY
-[youtube] zsJckds1KfY: Downloading webpage
-[youtube] zsJckds1KfY: Downloading tv downgraded player API JSON
-[youtube] zsJckds1KfY: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] zsJckds1KfY: Downloading m3u8 information
-[info] zsJckds1KfY: Downloading subtitles: en
-[info] zsJckds1KfY: Downloading 1 format(s): 137+251
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/4D-conversations-misc/1089-ML7172CAN1-7/ML7172CAN1 - The circus of man’s struggle.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/4D-conversations-misc/1089-ML7172CAN1-7/ML7172CAN1 - The circus of man’s struggle.en.vtt
-[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at    2.82MiB/s (00:00:00)[download]    7.00KiB at    5.00MiB/s (00:00:00)[download]   15.00KiB at    8.86MiB/s (00:00:00)[download]   31.00KiB at   12.98MiB/s (00:00:00)[download]   63.00KiB at   10.29MiB/s (00:00:00)[download]   65.83KiB at   10.18MiB/s (00:00:00)[download] 100% of   65.83KiB in 00:00:00 at 537.31KiB/s
-  subs OK
-
-=== BR70S5: Can a divided mind perceive the wholeness of life? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1121-BR70S1-6/BR70S5 - Can a divided mind perceive the wholeness of life.m4a
-  audio SKIP (already on disk)
-Extracting cookies from chrome
-Extracted 1105 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/j92itJW9E00
-[youtube] j92itJW9E00: Downloading webpage
-[youtube] j92itJW9E00: Downloading tv downgraded player API JSON
-[youtube] j92itJW9E00: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] j92itJW9E00: Downloading m3u8 information
-[info] j92itJW9E00: Downloading subtitles: en
-[info] j92itJW9E00: Downloading 1 format(s): 299+251
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1121-BR70S1-6/BR70S5 - Can a divided mind perceive the wholeness of life.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1121-BR70S1-6/BR70S5 - Can a divided mind perceive the wholeness of life.en.vtt
-[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at    2.53MiB/s (00:00:00)[download]    7.00KiB at    4.42MiB/s (00:00:00)[download]   15.00KiB at    7.79MiB/s (00:00:00)[download]   31.00KiB at   13.52MiB/s (00:00:00)[download]   63.00KiB at   22.93MiB/s (00:00:00)[download]   68.83KiB at   14.02MiB/s (00:00:00)[download] 100% of   68.83KiB in 00:00:00 at 489.59KiB/s
-  subs OK
-
-=== BR74S3: Defining being human, compassion, feeling special ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S3 - Defining being human, compassion, feeling special.m4a
-  audio SKIP (already on disk)
-Extracting cookies from chrome
-Extracted 1105 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/GKLpHjJcLCU
-[youtube] GKLpHjJcLCU: Downloading webpage
-[youtube] GKLpHjJcLCU: Downloading tv downgraded player API JSON
-[youtube] GKLpHjJcLCU: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] GKLpHjJcLCU: Downloading m3u8 information
-[info] GKLpHjJcLCU: Downloading subtitles: en
-[info] GKLpHjJcLCU: Downloading 1 format(s): 299+251
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S3 - Defining being human, compassion, feeling special.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S3 - Defining being human, compassion, feeling special.en.vtt
-[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at    1.97MiB/s (00:00:00)[download]    7.00KiB at    3.49MiB/s (00:00:00)[download]   15.00KiB at    6.17MiB/s (00:00:00)[download]   31.00KiB at   10.68MiB/s (00:00:00)[download]   63.00KiB at    7.07MiB/s (00:00:00)[download]  127.00KiB at    7.18MiB/s (00:00:00)[download]  164.06KiB at    8.50MiB/s (00:00:00)[download] 100% of  164.06KiB in 00:00:00 at 934.56KiB/s
-  subs OK
-
-=== BR74S4: The brain, images in relationship, yoga ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1127-BR74S1-12/BR74S4 - The brain, images in relationship, yoga.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR78S1: The art of questioning ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1147-BR78S1-7/BR78S1 - The art of questioning.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR78S3: Can you face the fact that you are absolutely nothing? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1147-BR78S1-7/BR78S3 - Can you face the fact that you are absolutely nothing.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR78S7: What is it that flowers? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1147-BR78S1-7/BR78S7 - What is it that flowers.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR79S2: Observing my prejudice ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1154-BR79S1-6/BR79S2 - Observing my prejudice.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR79S4: When the illusion of individuality ends ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1154-BR79S1-6/BR79S4 - When the illusion of individuality ends.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR84SBR1: What is thought? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1170-BR84SBR1-3/BR84SBR1 - What is thought.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== BR84SBR2: Is there an action in which there is no limitation? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1170-BR84SBR1-3/BR84SBR2 - Is there an action in which there is no limitation.m4a
-  audio SKIP (already on disk)
-Extracting cookies from chrome
-Extracted 1105 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/efqtQfxBMcE
-[youtube] efqtQfxBMcE: Downloading webpage
-[youtube] efqtQfxBMcE: Downloading tv downgraded player API JSON
-[youtube] efqtQfxBMcE: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] efqtQfxBMcE: Downloading m3u8 information
-[info] efqtQfxBMcE: Downloading subtitles: en
-[info] efqtQfxBMcE: Downloading 1 format(s): 135+251
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1170-BR84SBR1-3/BR84SBR2 - Is there an action in which there is no limitation.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5A-seminars-europe-and-usa/1170-BR84SBR1-3/BR84SBR2 - Is there an action in which there is no limitation.en.vtt
-[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at    2.05MiB/s (00:00:00)[download]    7.00KiB at    3.40MiB/s (00:00:00)[download]   15.00KiB at    6.35MiB/s (00:00:00)[download]   31.00KiB at   11.44MiB/s (00:00:00)[download]   63.00KiB at   16.16MiB/s (00:00:00)[download]   76.76KiB at   17.92MiB/s (00:00:00)[download] 100% of   76.76KiB in 00:00:00 at 530.61KiB/s
-  subs OK
-
-=== MA79S1: How can a human being bring about a radical change, not only ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1174-MA79S1-4/MA79S1 - How can a human being bring about a radical change, not only in himself but outside.m4a
-  audio SKIP (already on disk)
-Extracting cookies from chrome
-Extracted 1105 cookies from chrome
-[youtube] Extracting URL: https://youtu.be/YFQ60-04lG0
-[youtube] YFQ60-04lG0: Downloading webpage
-[youtube] YFQ60-04lG0: Downloading tv downgraded player API JSON
-[youtube] YFQ60-04lG0: Downloading player 5cabb421-main
-[youtube] [jsc:deno] Solving JS challenges using deno
-[youtube] YFQ60-04lG0: Downloading m3u8 information
-[info] YFQ60-04lG0: Downloading subtitles: en
-[info] YFQ60-04lG0: Downloading 1 format(s): 135+251
-[info] Writing video subtitles to: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1174-MA79S1-4/MA79S1 - How can a human being bring about a radical change, not only in himself but outside.en.vtt
-WARNING: The extractor specified to use impersonation for this download, but no impersonate target is available. If you encounter errors, then see  https://github.com/yt-dlp/yt-dlp#impersonation  for information on installing the required dependencies
-[download] Destination: /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1174-MA79S1-4/MA79S1 - How can a human being bring about a radical change, not only in himself but outside.en.vtt
-[download]    1.00KiB at  Unknown B/s (00:00:00)[download]    3.00KiB at    2.44MiB/s (00:00:00)[download]    7.00KiB at    4.38MiB/s (00:00:00)[download]   15.00KiB at    7.80MiB/s (00:00:00)[download]   31.00KiB at   13.49MiB/s (00:00:00)[download]   63.00KiB at   22.32MiB/s (00:00:00)[download]   83.54KiB at   22.13MiB/s (00:00:00)[download] 100% of   83.54KiB in 00:00:00 at 562.98KiB/s
-  subs OK
-
-=== MA82S2: Desire, time and thought are the basic elements of fear ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1184-MA82S1-2/MA82S2 - Desire, time and thought are the basic elements of fear.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-
-=== MA83S1: What creates division? ===
-  -> /Users/romankryzhanovskyi/Library/Mobile Documents/com~apple~CloudDocs/Krishnamurti/library/5B-seminars-india/1186-MA83S1-2/MA83S1 - What creates division.m4a
-  audio SKIP (already on disk)
-  subs SKIP (already on disk)
-Failed subs exit 0
-Post S4-6 retries done 2026-06-08T01:07:09Z
