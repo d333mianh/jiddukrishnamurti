@@ -93,6 +93,13 @@ MEGA_GROUPS: list[dict] = [
         "section_numbers": {9},
         "pdf_sections": "9A",
     },
+    {
+        "id": "10",
+        "title": "Education directory",
+        "filename": "10 - Education directory.md",
+        "section_numbers": {10},
+        "pdf_sections": "10A (items unique to the Education Directory 2026)",
+    },
 ]
 
 _SECTION_NUMBER_TO_MEGA = {

@@ -6,7 +6,7 @@ layout: series-combined
 
 Compact catalog — **9 notes** (index + 8 groups). Each **series** is one row (e.g. `LO61T1-12`); **Min** = total minutes in the series.
 
-**1484** recordings · **247** series · **107** standalone.
+**1495** recordings · **248** series · **107** standalone.
 
 Full summaries: `catalog/krishnamurti.db` · Series list: `catalog/exports/catalog-series.csv`
 
@@ -22,6 +22,7 @@ Full summaries: `catalog/krishnamurti.db` · Series list: `catalog/exports/catal
 | [[06 - K School discussions.md|K School discussions]] | 47 | 36 | 256 |
 | [[08 - Excerpts.md|Excerpts]] | 1 | 0 | 12 |
 | [[09 - Films and documentaries.md|Films and documentaries]] | 1 | 18 | 26 |
+| [[10 - Education directory.md|Education directory]] | 1 | 0 | 11 |
 
 ## All series (PDF order)
 
@@ -279,6 +280,7 @@ Full summaries: `catalog/krishnamurti.db` · Series list: `catalog/exports/catal
 | WO78DSS1-3 | Proper education is the cultivation of the wholene | [[06 - K School discussions.md|06]] | 3 | 267 |
 | US97EBM1-12 | Beyond myth & tradition | [[08 - Excerpts.md|08]] | 12 | 348 |
 | US66FRR1-8 | The real revolution | [[09 - Films and documentaries.md|09]] | 8 | 232 |
+| GSBR74DT1-11 | Awakening intelligence | [[10 - Education directory.md|10]] | 11 | 1092 |
 
 ## Lookup summaries
 
