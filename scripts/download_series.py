@@ -254,13 +254,15 @@ def download_audio(
         return 0
     out_tpl = str(dest.with_suffix("")) + ".%(ext)s"
 
-    # Prefer format 18 (360p MP4+AAC); fall back to 360p HLS when Google returns 403.
+    # Prefer DASH audio 140 (m4a AAC ~128k, the library standard — and not
+    # gated by the 2026 bot-checks that hit format 18); fall back to
+    # 18 (360p MP4+AAC) and 360p HLS.
     cmd = [
         "yt-dlp",
         "--no-update",
         "--no-playlist",
         "-f",
-        "18/93/91",
+        "140/18/93/91",
         "--retries",
         "10",
         "--fragment-retries",
