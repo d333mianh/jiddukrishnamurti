@@ -80,8 +80,23 @@ Open: confirm Tier C (esp. young-people discussions); decide whether interviews
 
 ## STT (for the 519 no-subs items, ~600 h)
 
-Decided 2026-06-11 after a 6-item evaluation across 1949–1984 (see project
-memory and compare/): **ElevenLabs Scribe v2 + keyterm prompting**.
+**Interim local pass (running since 2026-06-11):** budget doesn't currently
+allow the Scribe backfill, so all 519 items are being transcribed locally
+first with whisper.cpp **large-v3-turbo, `-mc 0`, no prompt**
+(`scripts/transcribe_whisper.py`, resumable, talks first; outputs
+`<stem>.whisper.{vtt,json,txt}` next to media; DB rows
+`item_subtitles.kind='whisper-large-v3-turbo'`). Pilot data behind those
+settings: turbo beat large-v3 on both test clips (5.05%/6.69% vs
+5.50%/9.43% strong WER — large-v3 hallucinates on hard material) and runs
+~8× realtime on the M1 (~3 days vs ~10); without `-mc 0` the context
+feedback loop produced a 6× repeated sentence (16.1% WER); whisper's
+initial prompt is silently ignored under `-mc 0` and degrades quality with
+`-mc 224`, so keyterm prompting is whisper-inapplicable. These transcripts
+are good enough to start L2/L3 on; Scribe supersedes them later by kind.
+
+**Final quality pass (when budget allows):** decided 2026-06-11 after a
+6-item evaluation across 1949–1984 (see project memory and compare/):
+**ElevenLabs Scribe v2 + keyterm prompting**.
 
 - Strong-normalized WER vs manual subs: 3.3–7.9% across hard cases; true
   content-error (substitution) rate 0.8–2.1% even on the 1949 tape and a Q&A with
@@ -120,3 +135,8 @@ memory and compare/): **ElevenLabs Scribe v2 + keyterm prompting**.
   Batches API judgment pass; model picked by pilot (Opus 4.8 vs Sonnet 4.6).
 - 2026-06-11 — pipeline order: build/validate everything on the 975 subtitled
   items before spending on STT.
+- 2026-06-11 — interim local transcription launched: whisper.cpp
+  large-v3-turbo + `-mc 0`, no prompt (pilot: turbo > large-v3 on this
+  corpus; `-mc 0` prevents repetition loops; whisper prompts don't work as
+  keyterms). Scribe v2 remains the final-quality pass when budget allows,
+  superseding by `item_subtitles.kind`.
