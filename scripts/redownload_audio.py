@@ -41,7 +41,7 @@ def select_items(
         FROM item_media m
         JOIN items i ON i.id = m.item_id
         JOIN item_links l ON l.item_id = i.id
-          AND l.source = 'kft_pdf_youtube' AND l.link_kind = 'primary'
+          AND l.source IN ('kft_pdf_youtube', 'kft_channel_scan') AND l.link_kind = 'primary'
         WHERE m.media = 'audio' AND m.status = 'downloaded'
     """
     if codes:

@@ -100,6 +100,13 @@ MEGA_GROUPS: list[dict] = [
         "section_numbers": {10},
         "pdf_sections": "10A (items unique to the Education Directory 2026)",
     },
+    {
+        "id": "11",
+        "title": "Channel recordings",
+        "filename": "11 - Channel recordings.md",
+        "section_numbers": {11},
+        "pdf_sections": "11A (official YouTube channel recordings absent from all KFT PDFs)",
+    },
 ]
 
 _SECTION_NUMBER_TO_MEGA = {

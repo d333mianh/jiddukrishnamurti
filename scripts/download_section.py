@@ -26,7 +26,7 @@ def series_in_section(
         SELECT i.series_code
         FROM items i
         JOIN item_links l ON l.item_id = i.id
-          AND l.source = 'kft_pdf_youtube' AND l.link_kind = 'primary'
+          AND l.source IN ('kft_pdf_youtube', 'kft_channel_scan') AND l.link_kind = 'primary'
         WHERE i.future_path LIKE ? AND i.series_code IS NOT NULL{footage_clause}
         GROUP BY i.series_code
         ORDER BY MIN(i.pdf_order)
@@ -43,7 +43,7 @@ def orphan_video_codes(conn: sqlite3.Connection, section_prefix: str) -> list[st
         SELECT i.code
         FROM items i
         JOIN item_links l ON l.item_id = i.id
-          AND l.source = 'kft_pdf_youtube' AND l.link_kind = 'primary'
+          AND l.source IN ('kft_pdf_youtube', 'kft_channel_scan') AND l.link_kind = 'primary'
         WHERE i.future_path LIKE ? AND i.series_code IS NULL
           AND i.footage_type = 'video_footage'
         ORDER BY i.pdf_order

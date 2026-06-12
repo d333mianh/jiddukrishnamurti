@@ -64,7 +64,7 @@ def missing_items(
         SELECT i.id, i.code, i.title, i.series_code, i.future_path, l.url
         FROM items i
         JOIN item_links l ON l.item_id = i.id
-          AND l.source = 'kft_pdf_youtube' AND l.link_kind = 'primary'
+          AND l.source IN ('kft_pdf_youtube', 'kft_channel_scan') AND l.link_kind = 'primary'
         WHERE i.footage_type = ? AND i.future_path LIKE ?
         ORDER BY i.pdf_order
         """,

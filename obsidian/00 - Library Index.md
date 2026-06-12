@@ -6,7 +6,7 @@ layout: series-combined
 
 Compact catalog — **9 notes** (index + 8 groups). Each **series** is one row (e.g. `LO61T1-12`); **Min** = total minutes in the series.
 
-**1495** recordings · **248** series · **107** standalone.
+**1541** recordings · **254** series · **107** standalone.
 
 Full summaries: `catalog/krishnamurti.db` · Series list: `catalog/exports/catalog-series.csv`
 
@@ -23,6 +23,7 @@ Full summaries: `catalog/krishnamurti.db` · Series list: `catalog/exports/catal
 | [[08 - Excerpts.md|Excerpts]] | 1 | 0 | 12 |
 | [[09 - Films and documentaries.md|Films and documentaries]] | 1 | 18 | 26 |
 | [[10 - Education directory.md|Education directory]] | 1 | 0 | 11 |
+| [[11 - Channel recordings.md|Channel recordings]] | 6 | 0 | 46 |
 
 ## All series (PDF order)
 
@@ -281,6 +282,12 @@ Full summaries: `catalog/krishnamurti.db` · Series list: `catalog/exports/catal
 | US97EBM1-12 | Beyond myth & tradition | [[08 - Excerpts.md|08]] | 12 | 348 |
 | US66FRR1-8 | The real revolution | [[09 - Films and documentaries.md|09]] | 8 | 232 |
 | GSBR74DT1-11 | Awakening intelligence | [[10 - Education directory.md|10]] | 11 | 1092 |
+| OJBR80CB1-15 | The Ending of Time | [[11 - Channel recordings.md|11]] | 15 | 1148 |
+| BRGS75CB1-12 | The Limits of Thought | [[11 - Channel recordings.md|11]] | 12 | 1197 |
+| LO62T1-4 | London 1962 Public Talks | [[11 - Channel recordings.md|11]] | 4 | 292 |
+| LO62D1-2 | London 1962 Public Discussions | [[11 - Channel recordings.md|11]] | 2 | 161 |
+| LO62DSG1-9 | London 1962 Small Group Discussions | [[11 - Channel recordings.md|11]] | 9 | 824 |
+| SM71T1-4 | Santa Monica 1971 Public Talks | [[11 - Channel recordings.md|11]] | 4 | 380 |
 
 ## Lookup summaries
 

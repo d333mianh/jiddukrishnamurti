@@ -42,7 +42,7 @@ def missing_codes(conn: sqlite3.Connection, section_prefix: str | None) -> list[
         SELECT i.code
         FROM items i
         JOIN item_links l ON l.item_id = i.id
-          AND l.source = 'kft_pdf_youtube' AND l.link_kind = 'primary'
+          AND l.source IN ('kft_pdf_youtube', 'kft_channel_scan') AND l.link_kind = 'primary'
         LEFT JOIN item_media m ON m.item_id = i.id AND m.media = ?
         WHERE i.footage_type = ? AND i.future_path LIKE ?
           AND COALESCE(m.status, 'missing') != 'downloaded'
