@@ -40,6 +40,7 @@ DEFAULT_MODEL = (
 )
 KIND = "whisper-large-v3-turbo"
 TMP_WAV = Path("/tmp/whisper_backfill.wav")
+STOP_FILE = ROOT / "catalog" / "logs" / "whisper_backfill.stop"
 
 
 def log(msg: str) -> None:
@@ -102,9 +103,14 @@ def main() -> None:
             log(f"  would do {r[1]} ({r[2]}, {r[3]} min)")
         return
 
+    STOP_FILE.unlink(missing_ok=True)
     done = failed = 0
     t_start = time.time()
     for item_id, code, etype, minutes, rel_path, file_size in items:
+        if STOP_FILE.exists():
+            log(f"stop file found ({STOP_FILE}) — pausing after {done} items; "
+                "re-run the script to resume")
+            break
         audio = ICLOUD / rel_path
         out_base = audio.parent / (audio.stem + ".whisper")
         vtt = Path(str(out_base) + ".vtt")
