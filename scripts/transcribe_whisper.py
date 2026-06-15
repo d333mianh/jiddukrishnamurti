@@ -36,7 +36,8 @@ ICLOUD = Path.home() / (
     "Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti"
 )
 DEFAULT_MODEL = (
-    Path.home() / "--cld/stt-eng/stt-compare/models/whispercpp/ggml-large-v3-turbo.bin"
+    Path.home()
+    / "Library/Mobile Documents/com~apple~CloudDocs/ggml-large-v3-turbo.bin"
 )
 KIND = "whisper-large-v3-turbo"
 TMP_WAV = Path("/tmp/whisper_backfill.wav")
