@@ -2,7 +2,7 @@
 
 Goal: build the most complete structure of the meaning, ideas, and fundamentals of
 J. Krishnamurti's teachings on top of the complete KFT recordings archive
-(1,495 items, ~1,830 h) — every concept traceable to his own words, cited back to
+(1,541 items, ~1,960 h) — every concept traceable to his own words, cited back to
 the recording with a timestamp.
 
 ## Principles
@@ -15,8 +15,8 @@ the recording with a timestamp.
 3. **Questions are context metadata.** A question ("What is meditation?") is often
    the cleanest topic label for the answer that follows; each Q segment links
    forward to its answer span.
-4. **Manual KFT subtitles are the gold standard** (975 items, ~1,226 h). The whole
-   pipeline is built and validated on them first; STT fills the remaining 519
+4. **Manual KFT subtitles are the gold standard** (1,000 items, ~1,280 h). The whole
+   pipeline is built and validated on them first; STT fills the remaining 541
    items last, through an already-proven pipeline.
 
 ## Layer architecture
@@ -78,10 +78,10 @@ the recording with a timestamp.
 Open: confirm Tier C (esp. young-people discussions); decide whether interviews
 (~30 mostly short items) sit in B or C.
 
-## STT (for the 519 no-subs items, ~600 h)
+## STT (for the 541 no-subs items, ~680 h)
 
 **Interim local pass (running since 2026-06-11):** budget doesn't currently
-allow the Scribe backfill, so all 519 items are being transcribed locally
+allow the Scribe backfill, so all 541 items are being transcribed locally
 first with whisper.cpp **large-v3-turbo, `-mc 0`, no prompt**
 (`scripts/transcribe_whisper.py`, resumable, talks first; outputs
 `<stem>.whisper.{vtt,json,txt}` next to media; DB rows
@@ -113,7 +113,7 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
 
 ## Phases
 
-1. **Segments** — schema + VTT parser; populate L2 for all 975 subtitled items;
+1. **Segments** — schema + VTT parser; populate L2 for all 1,000 subtitled items;
    FTS5; stats report (actual % K-speech per event type — settles tier questions
    with data). No transcription, no API cost.
 2. **Concepts** — registry seed; tagging pilot (~500 passages, Opus 4.8 vs
@@ -140,3 +140,22 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   corpus; `-mc 0` prevents repetition loops; whisper prompts don't work as
   keyterms). Scribe v2 remains the final-quality pass when budget allows,
   superseding by `item_subtitles.kind`.
+- 2026-06-20 — counts refreshed from the DB. Totals above were written
+  2026-06-11 (1,495 items); the 2026-06-12 @KFoundation channel scan added 46
+  recordings absent from all PDFs (section 11A), so the archive is now **1,541
+  items / ~1,960 h**, split **1,000 subtitled (~1,280 h) / 541 no-subs (~680 h)**.
+  Provenance: 1,484 Full-Length PDF + 11 Education Directory (10A) + 46 channel
+  (11A). Whisper backfill 111/541 done.
+- 2026-06-21 — excerpts (section 8A, the 12 `US97EBM1-12` "Beyond Myth &
+  Tradition" items) deferred, not deleted. They are KFA-made posthumous
+  compilations of "relevant excerpts from K's Talks and Discussions filmed at
+  different times" (per item summary), so their text duplicates full-length
+  recordings already in the archive. Decision: keep the media + gold manual
+  subs as a browsable topical-intro layer, but **exclude them from the
+  searchable corpus** to avoid duplicate passages / ambiguous citations. Their
+  12 curated themes (Conflict, Change, Freedom & authority, The sacred,
+  Choiceless awareness, Meditation, Mirror of relationship, Conditioning, The
+  violent self, Death, Love, The religious mind) are retained as a KFT-authored
+  thematic scaffold for a future learning-pattern / topic-structure phase.
+  Note: no per-excerpt provenance mapping exists yet (which source talk each is
+  cut from is unrecorded); build that if/when passage-level dedup is needed.
