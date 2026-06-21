@@ -27,6 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 from footage_schema import footage_type_from_media_type  # noqa: E402
 from media_schema import ITEM_MEDIA_DDL  # noqa: E402
+from segment_schema import ensure_segment_schema  # noqa: E402
 
 PDF_DEFAULT = ROOT / "Krishnamurti-Foundation-Trust-–-Full-Length-Directory-2026.pdf"
 PLACES_FILE = Path(__file__).resolve().parent / "places.json"
@@ -714,10 +715,19 @@ def init_db(conn: sqlite3.Connection) -> None:
     )
     # item_media (download tracking) shares its DDL with the download scripts.
     conn.executescript(ITEM_MEDIA_DDL)
+    # L1/L2 teachings-corpus tables (transcripts/segments/passages/FTS), populated
+    # by scripts/parse_vtt.py. Created empty here; see PHASE2_TABLES note below.
+    ensure_segment_schema(conn)
 
 
 # Tables populated by phase-2 scripts (discover_links.py, download_*.py).
 # A rebuild drops the DB, so their rows are carried across keyed by item code.
+#
+# The L1/L2 corpus tables (transcripts/segments/passages/passages_fts) are
+# DELIBERATELY NOT listed here: snapshot/restore re-keys rows by items.code with
+# fresh autoincrement ids, which would break their internal transcript_id/
+# segment_id cross-references. They are instead regenerated from the on-disk VTTs
+# by parse_vtt.py (idempotent per item+kind), so just re-run it after a rebuild.
 PHASE2_TABLES = ("item_links", "item_subtitles", "item_media")
 
 
