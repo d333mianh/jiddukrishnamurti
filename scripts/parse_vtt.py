@@ -65,12 +65,24 @@ SEED_MAP = {
     "pupul jayakar": ("PJ", "Pupul Jayakar"), "pupul": ("PJ", "Pupul Jayakar"),
     "wr": ("WR", "Walpola Rahula"), "rahula": ("WR", "Walpola Rahula"),
 }
+# Tokens that may open a cue with NO space after the colon ("Q:No."). Restricting the
+# no-space path to these (or short all-caps initials) keeps a prose colon like
+# "Yes:absolutely" from being minted as a speaker.
+SEED_LABELS = ALWAYS_SEED | set(SEED_MAP)
 
-LABEL_RE = re.compile(r"^([A-Za-z][A-Za-z0-9 .'’\-]{0,30}?):(?:\s+(.*))?$", re.S)
+# A cue may open with a speaker label ("K: ...", "David Bohm: ..."). The space and
+# the tail are captured separately so parse_cues can accept a multi-word label only
+# when a space (or end-of-cue) follows the colon — leaving a prose colon like
+# "We are asking: ..." to the registry's seed/recurrence gate — while STILL accepting
+# a tight single-token tag with no space ("Q:No.", "K:Right?"), which some KFT
+# dialogue subs use and which previously collapsed the whole file to one ANN segment.
+LABEL_RE = re.compile(r"^([A-Za-z][A-Za-z0-9 .'’\-]{0,30}?):(\s*)(.*)$", re.S)
 TS_RE = re.compile(
     r"(\d{2}):(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{2}):(\d{2}):(\d{2})[.,](\d{3})"
 )
 ABBREV = {"mr", "mrs", "ms", "dr", "st", "sr", "jr", "vs", "etc", "no", "vol"}
+# Quote/bracket wrappers stripped from BOTH ends of a token before sentence-end tests.
+WRAP = "\"'’‘“”()[]"
 
 
 @dataclass
@@ -114,8 +126,14 @@ def parse_cues(text: str) -> list[Cue]:
         lm = LABEL_RE.match(body)
         label, rest = (None, body)
         if lm:
-            label = lm.group(1).strip()
-            rest = (lm.group(2) or "").strip()
+            cand, gap, tail = lm.group(1).strip(), lm.group(2), lm.group(3)
+            # accept if a space follows the colon, or the label ends the cue; OR a
+            # no-space tag that LOOKS like a speaker label — a known seed ("Q:No.") or
+            # short all-caps initials ("DB:yes") — so a prose colon ("Yes:absolutely")
+            # is not minted as a candidate (it would otherwise pass the >=2x gate).
+            looks_like_label = cand.lower() in SEED_LABELS or (cand.isupper() and len(cand) <= 4)
+            if gap or tail == "" or looks_like_label:
+                label, rest = cand, tail.strip()
         cues.append(Cue(t_start, t_end, body, label=label, rest=rest))
     return cues
 
@@ -150,7 +168,10 @@ def split_embedded(cues: list[Cue], registry: dict) -> list[Cue]:
     if not registry:
         return cues
     alt = "|".join(re.escape(lbl) for lbl in sorted(registry, key=len, reverse=True))
-    splitter = re.compile(r"(?:^|(?<=\s))(" + alt + r"):(?:\s+|$)")
+    # match a registry label's colon whether or not a space follows ("Q:No." as well
+    # as "Q: No.") — same no-space tolerance as LABEL_RE, so a cue that packs a speaker
+    # change with no space ("Q:No. K:Right.") splits instead of collapsing to one tag.
+    splitter = re.compile(r"(?:^|(?<=\s))(" + alt + r"):\s*")
     out: list[Cue] = []
     for c in cues:
         body = c.text
@@ -198,14 +219,17 @@ def build_segments(cues: list[Cue], registry: dict) -> list[Segment]:
 
 
 def _is_sentence_end(word: str) -> bool:
-    core = word.rstrip("\"'’”)]")
+    core = word.strip(WRAP)  # strip wrappers from BOTH ends: '"Mr.' / '(Dr.' / '“U.'
     if not core or core[-1] not in ".?!":
         return False
-    token = core.rstrip(".?!").lower()
-    if token in ABBREV:
+    if core.endswith("…") or core.endswith(".."):
+        return False  # trailing ellipsis ("perhaps...", "..."): a pause, not a boundary
+    base = core.rstrip(".?!")
+    if not base:
+        return False  # punctuation-only token ("?!" / "."): a pause, not a boundary
+    if base.lower() in ABBREV:
         return False
     # single/double capital initial like "J." or "K." is not a sentence end
-    base = core.rstrip(".?!")
     if core.endswith(".") and base.isalpha() and base.isupper() and len(base) <= 2:
         return False
     return True
@@ -285,13 +309,18 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
         (item_id, kind, language, source_path, resolved_via, len(cues), 0, 0, 0,
          duration, PARSER_VERSION, now),
     ).lastrowid
-    for raw, (code, name, hits) in registry.items():
+    # speaker_labels is the per-item label registry: it stores EVERY raw surface form a
+    # transcript used (UNIQUE is on raw_label), so two forms of one speaker — "K:" and
+    # "Krishnamurti:" — are intentionally two rows. Any distinct-speaker count must use
+    # COUNT(DISTINCT speaker_code), never COUNT(*), so alias rows can't inflate it.
+    for raw, (code, name, n) in registry.items():
         conn.execute(
             "INSERT INTO speaker_labels(transcript_id,raw_label,speaker_code,display_name,cue_hits) VALUES(?,?,?,?,?)",
-            (tid, raw, code, name, hits),
+            (tid, raw, code, name, n),
         )
 
     pseq = 0
+    k_pass = 0
     total_words = 0
     prev_speaker = None
     prev_seq = None
@@ -314,6 +343,7 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
             ).lastrowid
             if seg.speaker_code == "K":
                 conn.execute("INSERT INTO passages_fts(rowid,text) VALUES(?,?)", (pid, ptext))
+                k_pass += 1
             pseq += 1
         prev_speaker, prev_seq = seg.speaker_code, sseq
 
@@ -323,34 +353,40 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
     )
     conn.commit()
     return {"transcript_id": tid, "segments": len(segments), "passages": pseq,
+            "k_passages": k_pass, "speakers": sorted({s.speaker_code for s in segments}),
             "words": total_words, "registry": registry}
 
 
 # ── on-disk resolution (batch mode) ───────────────────────────────────────────
-def materialize(path: Path) -> None:
-    """Ensure an iCloud file is actually present locally. brctl download is async,
-    so poll briefly for real bytes rather than racing ahead to an empty read."""
+def materialize(path: Path) -> bool:
+    """Ensure an iCloud file is present locally; return True if real bytes are now
+    available. brctl download is async, so poll briefly — but bail out immediately for
+    a path that is neither on disk nor an iCloud placeholder (nothing to download), so
+    a genuinely missing item doesn't burn the full ~15s poll budget on every one of
+    resolve_vtt's three candidate paths (~45s of dead wait per missing item)."""
     if path.exists() and path.stat().st_size > 0:
-        return
+        return True
+    placeholder = path.with_name("." + path.name + ".icloud")
+    if not path.exists() and not placeholder.exists():
+        return False  # not downloaded and not evicted-in-cloud: nothing to wait for
     subprocess.run(["brctl", "download", str(path)], check=False)
     for _ in range(30):  # up to ~15s
         if path.exists() and path.stat().st_size > 0:
-            return
+            return True
         time.sleep(0.5)
+    return False
 
 
 def resolve_vtt(code: str, future_path: str, root: Path) -> tuple[Path | None, str]:
     rel = future_path[len("library/"):] if future_path.startswith("library/") else future_path
     direct = root / "library" / rel
-    materialize(direct)
-    if direct.exists() and direct.stat().st_size > 0:
+    if materialize(direct):
         return direct, "direct"
     # multi-part drift: DB has "BASE.N - title.en.vtt"; disk has combined "BASE.en.vtt"
     base = code.split(".")[0]
     d = direct.parent
     for cand in (d / f"{base}.en.vtt", d / f"{base}.en-GB.vtt"):
-        materialize(cand)
-        if cand.exists() and cand.stat().st_size > 0:
+        if materialize(cand):
             return cand, "combined-multipart"
     hits = sorted(d.glob(f"{base}*.en*.vtt")) if d.exists() else []
     if hits:
@@ -404,7 +440,7 @@ def main() -> None:
     if args.limit:
         q += f" LIMIT {int(args.limit)}"
     rows = conn.execute(q, params).fetchall()
-    done = skipped = empty = 0
+    done = skipped = empty = collapsed = 0
     for item_id, code, future_path, language, kind in rows:
         path, via = resolve_vtt(code, future_path, args.media_root)
         if path is None:
@@ -421,8 +457,13 @@ def main() -> None:
         r = ingest(conn, item_id=item_id, kind=kind, language=language,
                    source_path=str(path), resolved_via=via, cues=cues)
         done += 1
-        print(f"  {code}: {len(cues)} cues -> {r['segments']} seg, {r['passages']} pass ({via})")
-    print(f"done={done} skipped={skipped} empty={empty}")
+        # collapse guard: a manual item that yields no K passages almost always means
+        # the speaker labels failed to parse (e.g. an unseen label style) — surface it.
+        flag = "  ⚠ 0 K-passages (check speaker labels)" if r["k_passages"] == 0 else ""
+        if flag:
+            collapsed += 1
+        print(f"  {code}: {len(cues)} cues -> {r['segments']} seg, {r['passages']} pass ({via}){flag}")
+    print(f"done={done} skipped={skipped} empty={empty} collapsed={collapsed}")
 
 
 if __name__ == "__main__":

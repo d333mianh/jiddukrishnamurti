@@ -250,6 +250,38 @@ def section_slug(number: int, letter: str, title: str) -> str:
     return f"{number}{letter}-{slugify(title, 60)}"
 
 
+EVENT_YEAR_RE = re.compile(r"\b(\d{4})\b")
+
+
+def year_from_event_date(event_date: str | None) -> int | None:
+    """The recording's true year is the 4-digit year in its event_date ("DD Month
+    YYYY"). The code's own digits are unreliable — winter-season span codes (MA8586,
+    ML6869) pack TWO 2-digit years, and 1920s 2-digit codes mis-pivot into the 2000s —
+    so event_date is authoritative; the code-parsed year is only a fallback for the
+    rare item with no parsed date. The 1900–2100 bound is a generous sanity ceiling
+    that rejects stray 4-digit non-years, not the archive's real 1920s–1997 span."""
+    if not event_date:
+        return None
+    years = EVENT_YEAR_RE.findall(event_date)
+    if not years:
+        return None
+    y = int(years[-1])
+    return y if 1900 <= y <= 2100 else None
+
+
+def normalize_code_year(year_s: str) -> int | None:
+    """Year embedded in a KFT code, as a FALLBACK only (event_date is authoritative).
+    Single point of truth for both parse_code branches. Archive is 1920s–1997: every
+    2-digit year is 19xx; a 4-digit segment is a winter span code (e.g. 8586 = 1985/86)
+    — take its start year, never verbatim. 1- or 3-digit segments are malformed (no
+    real code has them) and yield no usable year rather than a junk value."""
+    if len(year_s) == 2:
+        return 1900 + int(year_s)
+    if len(year_s) == 4:
+        return 1900 + int(year_s[:2])
+    return None
+
+
 def parse_code(raw_code: str, places: dict[str, str]) -> dict:
     """Parse KFT code into components; handles variants like MA8182, KHF1&2."""
     suffix = None
@@ -266,9 +298,7 @@ def parse_code(raw_code: str, places: dict[str, str]) -> dict:
     m = CODE_PARSE_RE.match(base)
     if m:
         place_code, year_s, rest, _ = m.group(1), m.group(2), m.group(3), m.group(4)
-        year = int(year_s) if len(year_s) == 4 else int(year_s)
-        if len(year_s) == 2:
-            year = 1900 + year if year > 30 else 2000 + year
+        year = normalize_code_year(year_s)  # FALLBACK only; event_date is authoritative
 
         # Split type letters from trailing digits
         em = re.match(r"^([A-Z]+)(\d+.*)$", rest)
@@ -283,9 +313,7 @@ def parse_code(raw_code: str, places: dict[str, str]) -> dict:
         if em:
             place_code, year_s, rest = em.group(1), em.group(2), em.group(3)
             if year_s:
-                year = int(year_s)
-                if year < 100:
-                    year = 1900 + year if year > 30 else 2000 + year
+                year = normalize_code_year(year_s)  # FALLBACK only; event_date authoritative
             event_type = rest.rstrip("0123456789&")
             event_number = re.sub(r"^[A-Z]+", "", rest) or None
 
@@ -531,7 +559,7 @@ def parse_sections_and_items(body: str, places: dict[str, str]) -> tuple[list[Se
             series_title=series_title,
             notes="\n".join(notes_parts).strip(),
             place_code=parsed.get("place_code"),
-            year=parsed.get("year"),
+            year=year_from_event_date(event_date) or parsed.get("year"),
             event_type=parsed.get("event_type"),
             event_number=parsed.get("event_number"),
             suffix=parsed.get("suffix"),
@@ -1185,55 +1213,59 @@ def fetch_series_aggregates(
     return results
 
 
+def render_md_table(headers: list[str], rows: list[list[str]]) -> list[str]:
+    """Render a column-aligned GitHub/Obsidian markdown table. Cells and the separator
+    are padded to each column's max width — matching what editors (Obsidian/Prettier)
+    emit on save — so the generated vault file is a fixed point: the next edit or
+    rebuild produces no reformat churn (previously every save re-padded the table)."""
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for c, cell in enumerate(row):
+            widths[c] = max(widths[c], len(cell))
+
+    def fmt(cells: list[str]) -> str:
+        return "| " + " | ".join(c.ljust(widths[i]) for i, c in enumerate(cells)) + " |"
+
+    out = [fmt(headers), "| " + " | ".join("-" * w for w in widths) + " |"]
+    out.extend(fmt(row) for row in rows)
+    return out
+
+
 def render_combined_series_table(series_rows: list[dict]) -> list[str]:
-    lines = [
-        "| Series | Title | Ep. | Media | Min | Year | Place |",
-        "|--------|-------|-----|-------|-----|------|-------|",
-    ]
+    rows = []
     for row in series_rows:
         title = row["series_title"]
         title_short = title[:60] + ("…" if len(title) > 60 else "")
-        lines.append(
-            "| "
-            + " | ".join(
-                [
-                    md_cell(row["series_code"]),
-                    md_cell(title_short),
-                    md_cell(row["episodes"]),
-                    md_cell(row["media_type"]),
-                    md_cell(row["minutes"]),
-                    md_cell(row["year"]),
-                    md_cell(row["place_name"]),
-                ]
-            )
-            + " |"
+        rows.append(
+            [
+                md_cell(row["series_code"]),
+                md_cell(title_short),
+                md_cell(row["episodes"]),
+                md_cell(row["media_type"]),
+                md_cell(row["minutes"]),
+                md_cell(row["year"]),
+                md_cell(row["place_name"]),
+            ]
         )
-    return lines
+    return render_md_table(["Series", "Title", "Ep.", "Media", "Min", "Year", "Place"], rows)
 
 
 def render_episode_table(rows: list[tuple]) -> list[str]:
     """One row per recording (standalone)."""
-    lines = [
-        "| Code | Title | Media | Min | Year | Place |",
-        "|------|-------|-------|-----|------|-------|",
-    ]
+    out_rows = []
     for code, row_title, media_type, duration, place_name, year in rows:
         title_short = row_title[:70] + ("…" if len(row_title) > 70 else "")
-        lines.append(
-            "| "
-            + " | ".join(
-                [
-                    md_cell(code),
-                    md_cell(title_short),
-                    md_cell(media_type),
-                    md_cell(duration),
-                    md_cell(year),
-                    md_cell(place_name),
-                ]
-            )
-            + " |"
+        out_rows.append(
+            [
+                md_cell(code),
+                md_cell(title_short),
+                md_cell(media_type),
+                md_cell(duration),
+                md_cell(year),
+                md_cell(place_name),
+            ]
         )
-    return lines
+    return render_md_table(["Code", "Title", "Media", "Min", "Year", "Place"], out_rows)
 
 
 def export_series_csv(conn: sqlite3.Connection) -> None:
@@ -1302,9 +1334,8 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
         "",
         "## Groups",
         "",
-        "| Group | Series | Standalone | Total |",
-        "|-------|--------|------------|-------|",
     ]
+    group_rows: list[list[str]] = []
 
     file_count = 1
     mega_filename = {g["id"]: g["filename"] for g in MEGA_GROUPS}
@@ -1330,8 +1361,8 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
             (gid,),
         ).fetchone()[0]
 
-        index_lines.append(
-            f"| [[{filename}|{title}]] | {series_in_group} | {standalone_in_group} | {count} |"
+        group_rows.append(
+            [f"[[{filename}|{title}]]", str(series_in_group), str(standalone_in_group), str(count)]
         )
 
         lines = [
@@ -1406,14 +1437,16 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
         (OBSIDIAN_DIR / filename).write_text("\n".join(lines), encoding="utf-8")
         file_count += 1
 
+    index_lines.extend(render_md_table(["Group", "Series", "Standalone", "Total"], group_rows))
+
     series_index_rows = []
     for s in fetch_series_aggregates(conn):
         mega_id = s.get("mega_group", "")
         fname = mega_filename.get(mega_id, "")
         link = f"[[{fname}|{mega_id}]]" if fname else mega_id
         series_index_rows.append(
-            f"| {md_cell(s['series_code'])} | {md_cell(s['series_title'][:50])} | "
-            f"{link} | {s['episodes']} | {md_cell(s['minutes'])} |"
+            [md_cell(s["series_code"]), md_cell(s["series_title"][:50]),
+             link, md_cell(s["episodes"]), md_cell(s["minutes"])]
         )
 
     index_lines.extend(
@@ -1421,9 +1454,7 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
             "",
             "## All series (PDF order)",
             "",
-            "| Series | Title | Group | Ep. | Min |",
-            "|--------|-------|-------|-----|-----|",
-            *series_index_rows,
+            *render_md_table(["Series", "Title", "Group", "Ep.", "Min"], series_index_rows),
             "",
             "## Lookup summaries",
             "",
@@ -1434,11 +1465,14 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
             "",
             "## Exports",
             "",
-            "| File | Contents |",
-            "|------|----------|",
-            "| `catalog/exports/catalog-series.csv` | One row per series |",
-            "| `catalog/exports/catalog-compact.csv` | One row per series + standalone |",
-            "| `catalog/exports/catalog.csv` | Full metadata + summaries |",
+            *render_md_table(
+                ["File", "Contents"],
+                [
+                    ["`catalog/exports/catalog-series.csv`", "One row per series"],
+                    ["`catalog/exports/catalog-compact.csv`", "One row per series + standalone"],
+                    ["`catalog/exports/catalog.csv`", "Full metadata + summaries"],
+                ],
+            ),
             "",
             "Rebuild: `python3 scripts/build_catalog.py`",
             "",
