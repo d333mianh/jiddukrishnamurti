@@ -13,9 +13,9 @@ layout: series-combined
 
 *1 series* (one row per series).
 
-| Series | Title | Ep. | Media | Min | Year | Place |
-|--------|-------|-----|-------|-----|------|-------|
-| US97EBM1-12 | Beyond myth & tradition | 12 | video | 348 | 1997 | USA |
+| Series      | Title                   | Ep. | Media | Min | Year | Place |
+| ----------- | ----------------------- | --- | ----- | --- | ---- | ----- |
+| US97EBM1-12 | Beyond myth & tradition | 12  | video | 348 | 1997 | USA   |
 
 ---
 ## Full detail

@@ -13,9 +13,9 @@ layout: series-combined
 
 *1 series* (one row per series).
 
-| Series | Title | Ep. | Media | Min | Year | Place |
-|--------|-------|-----|-------|-----|------|-------|
-| GSBR74DT1-11 | Awakening intelligence | 11 | audio | 1092 | 1974 | Brockwood Park / Gstaad |
+| Series       | Title                  | Ep. | Media | Min  | Year | Place                   |
+| ------------ | ---------------------- | --- | ----- | ---- | ---- | ----------------------- |
+| GSBR74DT1-11 | Awakening intelligence | 11  | audio | 1092 | 1974 | Brockwood Park / Gstaad |
 
 ---
 ## Full detail
