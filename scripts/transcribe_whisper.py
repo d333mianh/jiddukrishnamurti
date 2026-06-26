@@ -42,17 +42,33 @@ DEFAULT_MODEL = (
 KIND = "whisper-large-v3-turbo"
 TMP_WAV = Path("/tmp/whisper_backfill.wav")
 STOP_FILE = ROOT / "catalog" / "logs" / "whisper_backfill.stop"
+SKIP_LOG = ROOT / "catalog" / "logs" / "whisper_skipped.txt"
 
 
 def log(msg: str) -> None:
     print(f"[{datetime.now().strftime('%m-%d %H:%M:%S')}] {msg}", flush=True)
 
 
+def _is_icloud_item(path: Path) -> bool:
+    """True if the path is a real (possibly dataless) iCloud file or a .icloud
+    placeholder — i.e. brctl can be asked to download it."""
+    return path.exists() or (path.parent / f".{path.name}.icloud").exists()
+
+
+def prefetch(path: Path) -> None:
+    """Enqueue an async iCloud download so the file warms up *while earlier items
+    transcribe* (SP-6). brctl download returns immediately; materialize() waits for
+    the real bytes later. Issuing this `window` items ahead replaces the old per-item
+    15-min inline race — the bottleneck that failed ~70% of items under throttling."""
+    if not _is_icloud_item(path):
+        return
+    subprocess.run(["brctl", "download", str(path)], check=False,
+                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def materialize(path: Path, expect_size: int, timeout_s: int = 900) -> bool:
-    if not path.exists():
-        placeholder = path.parent / f".{path.name}.icloud"
-        if not placeholder.exists():
-            return False
+    if not _is_icloud_item(path):
+        return False
     subprocess.run(["brctl", "download", str(path)], check=False)
     deadline = time.time() + timeout_s
     while time.time() < deadline:
@@ -62,6 +78,14 @@ def materialize(path: Path, expect_size: int, timeout_s: int = 900) -> bool:
                 return True
         time.sleep(10)
     return False
+
+
+def record_skip(code: str, name: str) -> None:
+    """Persist a skip so failed items are visible and re-attempt is auditable (SP-6).
+    They are retried automatically on the next run (no whisper VTT exists yet)."""
+    SKIP_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with open(SKIP_LOG, "a", encoding="utf-8") as f:
+        f.write(f"{datetime.now(timezone.utc).isoformat()}\t{code}\t{name}\n")
 
 
 def worklist(conn: sqlite3.Connection):
@@ -81,6 +105,9 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--prefetch", type=int, default=5,
+                    help="iCloud downloads to keep in flight ahead of transcription "
+                         "(SP-6 pre-materialize; 0 = old inline behavior)")
     ap.add_argument("--model", type=Path, default=DEFAULT_MODEL)
     ap.add_argument("--prompt-file", type=Path, default=None,
                     help="optional initial prompt (off by default; ignored by -mc 0)")
@@ -105,14 +132,25 @@ def main() -> None:
         return
 
     STOP_FILE.unlink(missing_ok=True)
+    audio_paths = [ICLOUD / r[4] for r in items]
+    window = max(0, args.prefetch)
+    for p in audio_paths[:window]:          # prime the window: warm the first N now
+        prefetch(p)
+    log(f"prefetch window = {window}")
+
     done = failed = 0
     t_start = time.time()
-    for item_id, code, etype, minutes, rel_path, file_size in items:
+    for idx, (item_id, code, etype, minutes, rel_path, file_size) in enumerate(items):
         if STOP_FILE.exists():
             log(f"stop file found ({STOP_FILE}) — pausing after {done} items; "
                 "re-run the script to resume")
             break
-        audio = ICLOUD / rel_path
+        # keep the pipeline full: enqueue the download `window` items ahead so it is
+        # already warm when we reach it, instead of racing a 15-min inline wait.
+        if window and idx + window < len(items):
+            prefetch(audio_paths[idx + window])
+
+        audio = audio_paths[idx]
         out_base = audio.parent / (audio.stem + ".whisper")
         vtt = Path(str(out_base) + ".vtt")
 
@@ -127,6 +165,7 @@ def main() -> None:
         log(f"=== {code} ({etype}, {minutes} min)")
         if not materialize(audio, file_size or 0):
             log(f"  SKIP: could not materialize {audio.name}")
+            record_skip(code, audio.name)
             failed += 1
             continue
 
