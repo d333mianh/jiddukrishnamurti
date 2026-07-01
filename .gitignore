@@ -7,6 +7,7 @@ __pycache__/
 venv/
 catalog/logs/
 library/
+compare/
 *cookies*.txt
 www.youtube.com_cookies.txt
 catalog/.yt-browser-cookies.txt
