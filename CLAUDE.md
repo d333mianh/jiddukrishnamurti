@@ -57,6 +57,12 @@ Obsidian vault are regenerated from it. Schema (see `.schema`):
 - **Phase-2 tables** (`item_links`, `item_subtitles`, `item_media`) — link
   discovery and per-item download/transcription **state**, tracked by `status`.
 
+Table DDL is not inline in `build_catalog.py`; each state table has its own
+`scripts/*_schema.py` module (`footage_schema`, `media_schema`, `subtitle_schema`,
+`segment_schema`) imported by the build/backfill scripts. **Change a table's shape
+in its schema module, not in ad-hoc SQL.** Inspect the live DB directly with
+`sqlite3 catalog/krishnamurti.db` (`.schema`, `.tables`).
+
 ### Rebuild semantics — the central gotcha
 
 `build_catalog.py` **deletes and recreates the DB from the PDF every run.** Before
@@ -130,6 +136,10 @@ audio format 140 (129 kbps AAC). Layered entry points, all writing `item_media` 
 series) → `download_section.py` (a section); plus targeted `download_missing_*.py`
 and `redownload_audio.py` (replaces sub-bitrate/corrupt audio). YouTube auth uses
 `www.youtube.com_cookies.txt` / `catalog/.yt-browser-cookies.txt` (both gitignored).
+
+`organize_library.py` moves/renames already-downloaded media under `library/` to
+match the catalog's series subfolders and PDF order (takes `--dry-run`); run it
+after `backfill_media.py` if on-disk layout has drifted from the DB.
 
 ## Transcription
 
