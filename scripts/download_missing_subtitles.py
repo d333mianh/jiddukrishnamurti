@@ -28,7 +28,7 @@ def section_path_pattern(section_prefix: str | None) -> str:
         return "library/%"
     if len(section_prefix) == 1 and section_prefix.isdigit():
         return f"library/{section_prefix}%"
-    return f"library/{section_prefix}-"
+    return f"library/{section_prefix}-%"
 
 
 def has_manual_subtitle(

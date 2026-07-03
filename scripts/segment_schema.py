@@ -100,8 +100,27 @@ CREATE VIRTUAL TABLE IF NOT EXISTS passages_fts USING fts5(
 """
 
 
+def ensure_corpus_include(conn: sqlite3.Connection) -> None:
+    """Scope gate for corpus ingestion (STRATEGY: Tier-C/EBM exclusion).
+
+    Adds items.corpus_include (default 1) and, only when the column is newly
+    created, marks the EBM excerpts 0 — they are re-cuts of parent talks and
+    would duplicate passages in the FTS index. An existing column is left
+    untouched so manual overrides survive re-runs.
+    """
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(items)")}
+    if "items" in {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")} and \
+            "corpus_include" not in cols:
+        conn.execute(
+            "ALTER TABLE items ADD COLUMN corpus_include INTEGER NOT NULL DEFAULT 1"
+        )
+        conn.execute("UPDATE items SET corpus_include = 0 WHERE event_type = 'EBM'")
+
+
 def ensure_segment_schema(conn: sqlite3.Connection) -> None:
     conn.executescript(SEGMENT_DDL)
+    ensure_corpus_include(conn)
 
 
 def utc_now() -> str:

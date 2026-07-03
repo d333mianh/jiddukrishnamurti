@@ -444,14 +444,29 @@ def ensure_link_schema(conn: sqlite3.Connection) -> None:
             conn.execute(f"ALTER TABLE item_links ADD COLUMN {name} {typ}")
 
 
-def write_links(conn: sqlite3.Connection, rows: list[dict], now: str, *, replace: bool = True) -> int:
+def write_links(
+    conn: sqlite3.Connection,
+    rows: list[dict],
+    now: str,
+    *,
+    replace: bool = True,
+    item_ids: set[int] | None = None,
+) -> int:
     ensure_link_schema(conn)
     if replace:
         # Rows marked "Manually verified" fix PDF hyperlink errors (wrong-row
         # association, season-shifted Q&A links); re-discovery must not undo them.
-        conn.execute(
-            "DELETE FROM item_links WHERE COALESCE(notes,'') NOT LIKE 'Manually verified%'"
-        )
+        if item_ids is not None:
+            placeholders = ",".join("?" * len(item_ids))
+            conn.execute(
+                f"DELETE FROM item_links WHERE item_id IN ({placeholders})"
+                " AND COALESCE(notes,'') NOT LIKE 'Manually verified%'",
+                tuple(item_ids),
+            )
+        else:
+            conn.execute(
+                "DELETE FROM item_links WHERE COALESCE(notes,'') NOT LIKE 'Manually verified%'"
+            )
     manual = {
         (item_id, link_kind)
         for item_id, link_kind in conn.execute(
@@ -613,7 +628,12 @@ def main() -> None:
 
     matched_ids = {r["item_id"] for r in primary}
 
-    print("Removing all previous item_links and writing PDF YouTube links only…")
+    if args.limit:
+        print(
+            f"Removing previous item_links for {len(items)} limited items and writing PDF YouTube links…"
+        )
+    else:
+        print("Removing all previous item_links and writing PDF YouTube links only…")
     if args.archive:
         archive_items = items[: args.archive_limit]
         if not getattr(args, "archive_all", False):
@@ -631,7 +651,12 @@ def main() -> None:
                 hit["notes"] = "fuzzy archive.org search"
                 all_rows.append(hit)
 
-    n = write_links(conn, all_rows, now)
+    if args.limit:
+        n = write_links(
+            conn, all_rows, now, item_ids={r[0] for r in items}
+        )
+    else:
+        n = write_links(conn, all_rows, now)
     conn.commit()
     save_cache(cache)
 

@@ -33,9 +33,12 @@ certain way (STT engine choice, citation granularity, relevance tiers, etc.).
 
 ```bash
 # run from the repo root (the iCloud jiddu-krishnamurti/ folder)
-pip install -r requirements.txt        # openpyxl, pandas, pypdf
-python3 scripts/build_catalog.py       # rebuild DB + exports + Obsidian from PDF
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # openpyxl, pandas, pypdf
+.venv/bin/python scripts/build_catalog.py    # rebuild DB + exports + Obsidian (--pdf PATH, --force)
 ```
+
+The system Homebrew Python is PEP 668 externally-managed — install into the
+repo-local `.venv` (gitignored), not system-wide.
 
 External tools the scripts shell out to (not in requirements.txt): `pdftotext`
 (poppler), `yt-dlp` (downloads), `ffmpeg` + `whisper-cli` (whisper.cpp, local
@@ -65,25 +68,31 @@ in its schema module, not in ad-hoc SQL.** Inspect the live DB directly with
 
 ### Rebuild semantics — the central gotcha
 
-`build_catalog.py` **deletes and recreates the DB from the PDF every run.** Before
-unlinking, it snapshots the three phase-2 tables and restores them keyed by item
-`code` (`snapshot_phase2_tables` / `restore_phase2_tables` in `build_catalog.py`).
-Consequences:
+`build_catalog.py` **recreates the DB from the PDF every run — atomically**: it
+builds into `catalog/krishnamurti.db.rebuild` and `os.replace()`s over the
+canonical DB only after a successful commit, so any mid-rebuild failure leaves
+the old DB intact. Before touching anything it validates the parse
+(`validate_parse`): unknown section numbers, a >2% item-count drop vs the last
+`import_runs` row, or PDF items reaching the overlay range (`pdf_order >= 1484`)
+abort the rebuild. `--force` overrides the item-count check and permits
+manual-subtitle orphan drops (below); it does NOT bypass the unknown-section or
+overlay-range guards.
 
-- Only items present in the **Full-Length Directory PDF** survive a rebuild.
-  Items added from other sources are **dropped**, and their phase-2 rows are
-  dropped as orphans.
-- Two scripts re-add the non-PDF items and are **idempotent specifically so they
-  can be re-run after every rebuild**:
-  - `add_education_directory.py` → section 10A (11 `GSBR74DT` items)
-  - `add_channel_recordings.py` → section 11A (items found only on the
-    @KFoundation YouTube channel; marked by `source_pdf` and `item_links.source =
-    'kft_channel_scan'` vs PDF links' `'kft_pdf_youtube'`)
-- After re-adding, run `backfill_media.py` to re-sync `item_media` from files
-  already on disk (it reflects current disk state, healing drifted rows).
+- The three phase-2 tables are snapshotted and restored keyed by item `code`
+  (`snapshot_phase2_tables` / `restore_phase2_tables` in `build_catalog.py`).
+- The non-PDF overlay sections are applied **inside** the rebuild — save_db calls
+  `add_education_directory.apply(conn)` (10A, 11 `GSBR74DT` items) and
+  `add_channel_recordings.apply(conn)` (11A, @KFoundation channel items) *before*
+  the phase-2 restore — so overlay items **and their subtitle/media/link rows
+  survive every rebuild**. Both `add_*` scripts remain standalone idempotent CLIs
+  for incremental use.
+- If the restore would drop `kind='manual'` subtitle rows (an item code vanished
+  from the catalog — e.g. a PDF code change), the rebuild **fails listing the
+  codes**; investigate before reaching for `--force`.
+- After a rebuild, `backfill_media.py` still re-syncs `item_media` from disk.
 
-**Canonical rebuild order:** `build_catalog.py` → `add_education_directory.py` →
-`add_channel_recordings.py` → `discover_links.py` → (downloads) → `backfill_media.py`.
+**Canonical rebuild order:** `build_catalog.py` (includes 10A/11A) →
+`discover_links.py` → (downloads) → `backfill_media.py` → `parse_vtt.py`.
 
 ## Teachings corpus — L1/L2 (Phase 1)
 
@@ -110,8 +119,15 @@ ids; doing that here would corrupt the `transcript_id`/`segment_id`
 cross-references. Instead `ensure_segment_schema()` (called from
 `build_catalog.init_db`) recreates them **empty** on every rebuild, and
 `parse_vtt.py` re-populates them afterward. So corpus repopulation is a step
-*after* the rebuild order, not part of the phase-2 restore. (The current canonical
-DB predates this wiring; the tables appear empty on the next `build_catalog.py` run.)
+*after* the rebuild order, not part of the phase-2 restore.
+
+Ingestion guards: `parse_vtt.py` refuses a 0-cue parse in *both* batch and
+standalone modes (`ingest()` itself raises — protects existing transcripts from
+header-only/evicted files), sets `PRAGMA foreign_keys=ON`, and batch mode only
+ingests items with `items.corpus_include = 1`. That scope gate
+(`ensure_corpus_include()` in `segment_schema.py`, populated on rebuild) marks
+the 12 `EBM` excerpts 0 so re-cut passages never duplicate their parent talks
+in FTS.
 
 ## Media lives in iCloud (now at the repo root)
 

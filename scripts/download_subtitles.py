@@ -108,7 +108,6 @@ def download_manual_subtitle(
     cookies_browser: str | None,
     dry_run: bool,
 ) -> int:
-    dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.is_file() and dest.stat().st_size > 50:
         return 0
     suffix = f".{lang}.vtt"
@@ -136,12 +135,21 @@ def download_manual_subtitle(
     if dry_run:
         print(" ".join(cmd))
         return 0
+    dest.parent.mkdir(parents=True, exist_ok=True)
     rc = subprocess.call(cmd)
     if rc == 0 and dest.is_file() and dest.stat().st_size > 50:
         return 0
-    # yt-dlp may write sibling path; accept any matching lang file in folder
+    # yt-dlp may write sibling path; accept matching lang file for this item stem
     if rc == 0:
-        matches = list(dest.parent.glob(f"*.{lang}.vtt"))
+        stem = dest.name[: -len(suffix)]
+        if dest.parent.exists():
+            matches = sorted(
+                p
+                for p in dest.parent.iterdir()
+                if p.name.startswith(stem) and p.name.endswith(suffix)
+            )
+        else:
+            matches = []
         if matches and matches[0].stat().st_size > 50:
             if matches[0] != dest and not dest.is_file():
                 matches[0].rename(dest)
@@ -200,7 +208,10 @@ def process_item_subtitle(
     cookies_browser: str | None,
     dry_run: bool = False,
 ) -> str:
-    """Download manual EN subtitle for one item. Returns: downloaded|skipped|missing|failed."""
+    """Download manual EN subtitle for one item. Returns: downloaded|skipped|missing|failed|dry-run."""
+    if dry_run:
+        print(f"  DRY-RUN would probe & download subtitle -> {future_path}")
+        return "dry-run"
     fp = future_path.replace(".mp4", ".m4a")
     lang, probe_error = probe_manual_language(
         url, cookies_file=cookies_file, cookies_browser=cookies_browser
@@ -373,7 +384,7 @@ def main() -> None:
     elif cookies_browser:
         print(f"  Cookies: live browser ({cookies_browser})")
 
-    stats = {"downloaded": 0, "skipped": 0, "missing": 0, "failed": 0}
+    stats = {"downloaded": 0, "skipped": 0, "missing": 0, "failed": 0, "dry-run": 0}
     for i, (item_id, code, title, series_code, future_path, url) in enumerate(
         rows, 1
     ):
@@ -416,15 +427,20 @@ def main() -> None:
             print("  SKIP (already on disk)")
         elif result == "missing":
             print("  no manual English subtitles")
+        elif result == "dry-run":
+            pass  # DRY-RUN line already printed by process_item_subtitle
         else:
             print("  FAILED")
         stats[result if result in stats else "failed"] += 1
         time.sleep(args.sleep)
 
-    print(
+    summary = (
         f"\nDone: {stats['downloaded']} downloaded, {stats['skipped']} skipped, "
         f"{stats['missing']} missing manual EN, {stats['failed']} failed"
     )
+    if stats["dry-run"]:
+        summary += f", {stats['dry-run']} dry-run"
+    print(summary)
     if stats["failed"]:
         sys.exit(1)
 

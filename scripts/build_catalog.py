@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sqlite3
 import subprocess
@@ -352,10 +353,10 @@ def infer_media_kind(event_type: str | None, code: str) -> str:
         return "recording"
     if event_type.startswith("I") or "IM" in (event_type or ""):
         return "interview"
-    if event_type.startswith("F") or event_type in ("EBM", "FRR", "HF", "FTPL"):
-        return "film"
     if event_type.startswith("EBM"):
         return "excerpt"
+    if event_type.startswith("F") or event_type in ("FRR", "HF", "FTPL"):
+        return "film"
     if event_type.startswith("C") or event_type in ("CPJ", "CA", "CTM"):
         return "conversation"
     if event_type in ("DS", "DSG", "DSS", "DT", "DYP", "TS"):
@@ -759,11 +760,18 @@ def init_db(conn: sqlite3.Connection) -> None:
 PHASE2_TABLES = ("item_links", "item_subtitles", "item_media")
 
 
-def snapshot_phase2_tables(db_path: Path) -> dict[str, tuple[list[str], list[tuple]]]:
-    """Read phase-2 rows from the existing DB as (item code, *columns)."""
+def snapshot_phase2_tables(
+    db_path: Path,
+) -> tuple[dict[str, tuple[list[str], list[tuple]]], set[str]]:
+    """Read phase-2 rows from the existing DB as (item code, *columns), plus the
+    set of ALL item codes the old DB knew. The code set lets save_db distinguish
+    overlay items that existed before (their snapshotted link state — including
+    intentional deletions — is the truth) from genuinely new overlay items
+    (JSON defaults apply)."""
     snapshot: dict[str, tuple[list[str], list[tuple]]] = {}
+    known_codes: set[str] = set()
     if not db_path.exists():
-        return snapshot
+        return snapshot, known_codes
     conn = sqlite3.connect(db_path)
     try:
         existing = {
@@ -771,7 +779,8 @@ def snapshot_phase2_tables(db_path: Path) -> dict[str, tuple[list[str], list[tup
             for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
         }
         if "items" not in existing:
-            return snapshot
+            return snapshot, known_codes
+        known_codes = {r[0] for r in conn.execute("SELECT code FROM items")}
         for table in PHASE2_TABLES:
             if table not in existing:
                 continue
@@ -788,38 +797,69 @@ def snapshot_phase2_tables(db_path: Path) -> dict[str, tuple[list[str], list[tup
                 snapshot[table] = (cols, rows)
     finally:
         conn.close()
-    return snapshot
+    return snapshot, known_codes
 
 
 def restore_phase2_tables(
     conn: sqlite3.Connection,
     snapshot: dict[str, tuple[list[str], list[tuple]]],
+    *,
+    force: bool = False,
 ) -> None:
-    """Re-insert snapshot rows against fresh item ids; orphaned codes are dropped."""
+    """Re-insert snapshot rows against fresh item ids. Orphaned codes are dropped —
+    but dropping a manual subtitle row is treated as an error unless force=True."""
     if not snapshot:
         return
     code_to_id = {row[1]: row[0] for row in conn.execute("SELECT id, code FROM items")}
+    manual_orphans: set[str] = set()
     for table, (cols, rows) in snapshot.items():
         table_cols = {row[1] for row in conn.execute(f"PRAGMA table_info({table})")}
         keep = [c for c in cols if c in table_cols]
         col_list = ", ".join(keep)
         placeholders = ", ".join("?" for _ in keep)
+        # item_links: the overlay apply() (which runs BEFORE this restore) seeds
+        # rows with JSON-default notes/titles for the same (item_id, url). The
+        # snapshot is the live state and must win — upsert instead of ignore.
+        if table == "item_links":
+            updates = ", ".join(f"{c} = excluded.{c}" for c in keep)
+            insert_sql = (
+                f"INSERT INTO {table} (item_id, {col_list}) VALUES (?, {placeholders}) "
+                f"ON CONFLICT(item_id, url) DO UPDATE SET {updates}"
+            )
+        else:
+            insert_sql = (
+                f"INSERT OR IGNORE INTO {table} (item_id, {col_list}) VALUES (?, {placeholders})"
+            )
+        kind_idx = (
+            cols.index("kind") if table == "item_subtitles" and "kind" in cols else None
+        )
         restored = orphaned = 0
+        orphan_codes: set[str] = set()
         for code, *values in rows:
             item_id = code_to_id.get(code)
             if item_id is None:
                 orphaned += 1
+                orphan_codes.add(code)
+                if kind_idx is not None and values[kind_idx] == "manual":
+                    manual_orphans.add(code)
                 continue
             by_col = dict(zip(cols, values))
-            conn.execute(
-                f"INSERT OR IGNORE INTO {table} (item_id, {col_list}) VALUES (?, {placeholders})",
-                (item_id, *(by_col[c] for c in keep)),
-            )
+            conn.execute(insert_sql, (item_id, *(by_col[c] for c in keep)))
             restored += 1
         msg = f"  Preserved {table}: {restored} rows"
         if orphaned:
-            msg += f" ({orphaned} rows dropped: item code no longer in PDF)"
+            sample = ", ".join(sorted(orphan_codes)[:5])
+            msg += (f" ({orphaned} rows dropped; codes no longer in catalog, "
+                    f"e.g. {sample})")
         print(msg)
+    if manual_orphans and not force:
+        raise SystemExit(
+            f"Refusing rebuild: {len(manual_orphans)} items with gold manual "
+            f"subtitles would lose their tracking rows "
+            f"({', '.join(sorted(manual_orphans)[:10])}). Their codes are no "
+            "longer in the catalog — investigate (PDF code change?) or re-run "
+            "with --force. Old DB left untouched."
+        )
 
 
 def save_db(
@@ -827,13 +867,18 @@ def save_db(
     items: list[Item],
     pdf_path: Path,
     pdf_hash: str,
+    *,
+    force: bool = False,
 ) -> None:
     CATALOG_DIR.mkdir(parents=True, exist_ok=True)
-    phase2 = snapshot_phase2_tables(DB_PATH)
-    if DB_PATH.exists():
-        DB_PATH.unlink()
+    phase2, known_codes = snapshot_phase2_tables(DB_PATH)
+    # Build into a temp file and os.replace() over the canonical DB only after
+    # a successful commit: any mid-rebuild failure leaves the old DB intact.
+    tmp_path = DB_PATH.with_name(DB_PATH.name + ".rebuild")
+    if tmp_path.exists():
+        tmp_path.unlink()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(tmp_path)
     init_db(conn)
     now = datetime.now(timezone.utc).isoformat()
 
@@ -948,9 +993,34 @@ def save_db(
         """,
         (now, str(pdf_path), pdf_hash, len(items), len(sections)),
     )
-    restore_phase2_tables(conn, phase2)
+    # Overlay sections (10A/11A) live in JSON, not the Full-Length PDF. Apply
+    # them BEFORE restore_phase2_tables so their item_subtitles/item_media/
+    # item_links rows re-key against fresh item ids instead of orphan-dropping
+    # on every rebuild.
+    import add_channel_recordings
+    import add_education_directory
+    print("Applying overlays (10A education directory, 11A channel recordings)...")
+    add_education_directory.apply(conn)
+    add_channel_recordings.apply(conn)
+    # Corpus scope gate: EBM excerpts are re-cuts of parent talks and would
+    # duplicate passages in FTS. (Runs after inserts; init_db only adds the column.)
+    conn.execute("UPDATE items SET corpus_include = 0 WHERE event_type = 'EBM'")
+    # apply() seeded JSON-default links for the overlay items. For any item the
+    # OLD DB already knew (known_codes), its snapshotted link state is the live
+    # truth — including URL/note corrections AND intentional deletions (no rows)
+    # — so remove the seeds and let the restore define those items' links. JSON
+    # defaults only survive for items new to the catalog (fresh DB or a
+    # brand-new JSON entry).
+    if known_codes:
+        conn.executemany(
+            "DELETE FROM item_links WHERE item_id = "
+            "(SELECT id FROM items WHERE code = ?)",
+            [(code,) for code in known_codes],
+        )
+    restore_phase2_tables(conn, phase2, force=force)
     conn.commit()
     conn.close()
+    os.replace(tmp_path, DB_PATH)
 
 
 def export_csv(conn: sqlite3.Connection) -> None:
@@ -1506,9 +1576,62 @@ def write_manifest(pdf_path: Path, pdf_hash: str, sections: int, items: int) -> 
     )
 
 
-def main(pdf_path: Path = PDF_DEFAULT) -> None:
+# The 10A/11A overlay items occupy pdf_order 1484+ and their on-disk library
+# folder prefixes ({pdf_order:04d}-{series}) depend on those numbers. A PDF
+# that grows into that range needs a deliberate renumbering (JSON bases AND
+# library folders), not a silent interleave.
+OVERLAY_BASE_ORDER = 1484
+
+
+def validate_parse(sections: list[Section], items: list[Item], *, force: bool) -> None:
+    """Abort BEFORE the old DB is touched when the parse looks wrong."""
+    unknown = sorted({s.number for s in sections} - set(_SECTION_NUMBER_TO_MEGA))
+    if unknown:
+        raise SystemExit(
+            f"Section numbers {unknown} have no MEGA_GROUPS mapping; add them "
+            "to MEGA_GROUPS before rebuilding. Old DB left untouched."
+        )
+    max_order = max((i.pdf_order for i in items), default=0)
+    if max_order >= OVERLAY_BASE_ORDER:
+        raise SystemExit(
+            f"PDF items reach pdf_order {max_order}, colliding with the 10A/11A "
+            f"overlay range (>= {OVERLAY_BASE_ORDER}). Renumber the overlay JSON "
+            "bases and their library folders first. Old DB left untouched."
+        )
+    if not DB_PATH.exists():
+        return
+    prev_conn = sqlite3.connect(DB_PATH)
+    try:
+        row = prev_conn.execute(
+            "SELECT item_count FROM import_runs ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    except sqlite3.OperationalError:
+        row = None
+    finally:
+        prev_conn.close()
+    if row and row[0] and len(items) < row[0] * 0.98:
+        msg = (f"Parsed only {len(items)} items vs {row[0]} in the previous "
+               "import — the PDF or pdftotext layout may have shifted and the "
+               "parser silently dropped lines.")
+        if not force:
+            raise SystemExit(msg + " Re-run with --force to override. "
+                             "Old DB left untouched.")
+        print(f"WARNING: {msg} (proceeding: --force)")
+
+
+def main(pdf_path: Path = PDF_DEFAULT, *, force: bool = False) -> None:
     if not pdf_path.exists():
         raise SystemExit(f"PDF not found: {pdf_path}")
+    try:  # preflight: export deps must fail BEFORE the DB is rebuilt/swapped,
+        # not in export_xlsx afterwards (which would leave exports stale).
+        import openpyxl  # noqa: F401
+        import pandas  # noqa: F401
+    except ImportError as exc:
+        raise SystemExit(
+            f"missing export dependency '{exc.name}': "
+            "python3 -m venv .venv && .venv/bin/pip install -r requirements.txt, "
+            "then re-run with .venv/bin/python"
+        )
 
     places = load_places()
     print(f"Reading {pdf_path.name}...")
@@ -1525,8 +1648,10 @@ def main(pdf_path: Path = PDF_DEFAULT) -> None:
     video = sum(1 for i in items if i.media_type == "video")
     print(f"  Audio: {audio}, Video: {video}")
 
+    validate_parse(sections, items, force=force)
+
     pdf_hash = file_sha256(pdf_path)
-    save_db(sections, items, pdf_path, pdf_hash)
+    save_db(sections, items, pdf_path, pdf_hash, force=force)
 
     conn = sqlite3.connect(DB_PATH)
     export_csv(conn)
@@ -1539,11 +1664,24 @@ def main(pdf_path: Path = PDF_DEFAULT) -> None:
     print("Wrote catalog/exports/catalog.xlsx")
     note_count = build_obsidian_series(conn)
     print(f"Wrote series-combined Obsidian vault ({note_count} notes)")
+    db_sections, db_items = conn.execute(
+        "SELECT (SELECT COUNT(*) FROM sections), (SELECT COUNT(*) FROM items)"
+    ).fetchone()
     conn.close()
 
-    write_manifest(pdf_path, pdf_hash, len(sections), len(items))
+    write_manifest(pdf_path, pdf_hash, db_sections, db_items)
     print("Done.")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    ap = argparse.ArgumentParser(
+        description="Rebuild catalog DB + exports + Obsidian vault from the KFT PDF"
+    )
+    ap.add_argument("--pdf", type=Path, default=PDF_DEFAULT)
+    ap.add_argument("--force", action="store_true",
+                    help="proceed despite item-count regression or dropped "
+                         "manual-subtitle tracking rows")
+    args = ap.parse_args()
+    main(args.pdf, force=args.force)

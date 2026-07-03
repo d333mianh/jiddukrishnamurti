@@ -1,9 +1,9 @@
 {
   "source_pdf": "Krishnamurti-Foundation-Trust-\u2013-Full-Length-Directory-2026.pdf",
   "pdf_sha256": "59bfb71c4c8cb60a0a509f22c3c4b64a6fe945e2b848cab2fb75d8c9fa306476",
-  "imported_at": "2026-06-03T05:02:47.135586+00:00",
-  "sections": 20,
-  "items": 1484,
+  "imported_at": "2026-07-03T09:10:40.809104+00:00",
+  "sections": 22,
+  "items": 1541,
   "obsidian_layout": "series-combined",
   "outputs": {
     "sqlite": "catalog/krishnamurti.db",

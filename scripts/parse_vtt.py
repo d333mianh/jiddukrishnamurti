@@ -276,6 +276,11 @@ def chunk_passages(seg: Segment) -> list[tuple[float, float, str, int]]:
 
 
 def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) -> dict:
+    if not cues:
+        raise ValueError(
+            f"refusing to ingest 0 cues for item_id={item_id} ({source_path}): "
+            "would delete the prior transcript and write an empty one"
+        )
     registry = build_registry(cues)
     cues = split_embedded(cues, registry)  # expose two-speaker cues
     hits: dict[str, int] = {}
@@ -403,23 +408,34 @@ def main() -> None:
     ap.add_argument("--db", type=Path, default=DB_PATH)
     ap.add_argument("--vtt", type=Path, help="parse this file directly (standalone mode)")
     ap.add_argument("--item", help="item code (required with --vtt)")
-    ap.add_argument("--kind", default="manual")
-    ap.add_argument("--language", default="en")
+    ap.add_argument("--kind", default="manual",
+                    help="subtitle kind (standalone --vtt mode only; batch is manual-only)")
+    ap.add_argument("--language", default="en",
+                    help="language code (standalone --vtt mode only; batch uses en/en-GB)")
     ap.add_argument("--event-type", help="batch: only this event_type (e.g. T)")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--media-root", type=Path, default=MEDIA_ROOT)
     args = ap.parse_args()
 
     conn = sqlite3.connect(args.db)
+    conn.execute("PRAGMA foreign_keys = ON")  # make ON DELETE CASCADE real (SP-3)
     ensure_segment_schema(conn)
 
     if args.vtt:
         if not args.item:
             sys.exit("--item CODE required with --vtt")
-        row = conn.execute("SELECT id FROM items WHERE code=?", (args.item,)).fetchone()
+        row = conn.execute(
+            "SELECT id, corpus_include FROM items WHERE code=?", (args.item,)
+        ).fetchone()
         if not row:
             sys.exit(f"item not in catalog: {args.item}")
+        if not row[1]:
+            print(f"WARN {args.item}: corpus_include=0 (scope-excluded item) — "
+                  "ingesting anyway (explicit --vtt override)")
         cues = parse_cues(read_vtt(args.vtt))
+        if not cues:
+            sys.exit(f"0 cues parsed from {args.vtt} — refusing to overwrite "
+                     "any existing transcript with an empty one")
         r = ingest(conn, item_id=row[0], kind=args.kind, language=args.language,
                    source_path=str(args.vtt), resolved_via="override", cues=cues)
         print(f"{args.item}: {len(cues)} cues -> {r['segments']} segments, "
@@ -431,7 +447,8 @@ def main() -> None:
     q = """SELECT i.id, i.code, s.future_path, s.language, s.kind
            FROM items i
            JOIN item_subtitles s ON s.item_id=i.id
-             AND s.kind='manual' AND s.status='downloaded' AND s.language IN ('en','en-GB')"""
+             AND s.kind='manual' AND s.status='downloaded' AND s.language IN ('en','en-GB')
+           WHERE i.corpus_include = 1"""
     params: list = []
     if args.event_type:
         q += " AND i.event_type=?"

@@ -28,12 +28,16 @@ def safe_title(title: str) -> str:
     return re.sub(r"\s+", " ", t).strip()[:100]
 
 
-def main() -> None:
+def apply(conn: sqlite3.Connection) -> tuple[int, int]:
+    """Insert the 10A section/series/items/links into an open catalog DB.
+
+    No commit: the caller (main() here, or build_catalog.save_db during a
+    rebuild) owns the transaction.
+    """
     meta = json.loads(META_PATH.read_text(encoding="utf-8"))
     sec = meta["section"]
     ser = meta["series"]
     now = datetime.now(timezone.utc).isoformat()
-    conn = sqlite3.connect(DB_PATH)
 
     cur = conn.execute(
         """INSERT OR IGNORE INTO sections (number, letter, code, title, slug, sort_order)
@@ -91,12 +95,19 @@ def main() -> None:
         )
         added_links += cur.rowcount
 
-    conn.commit()
     n = conn.execute(
         "SELECT COUNT(*) FROM items WHERE section_id = ?", (section_id,)
     ).fetchone()[0]
     print(f"items added {added_items}, links added {added_links}; "
           f"section now holds {n} items")
+    return added_items, added_links
+
+
+def main() -> None:
+    conn = sqlite3.connect(DB_PATH)
+    apply(conn)
+    conn.commit()
+    conn.close()
 
 
 if __name__ == "__main__":
