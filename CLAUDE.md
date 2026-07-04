@@ -28,6 +28,9 @@ complete Krishnamurti Foundation Trust (KFT) recordings archive (~1,540 items).
 Read **`STRATEGY.md`** first for the multi-phase roadmap and the
 dated decision log — it is the source of truth for *why* things are done a
 certain way (STT engine choice, citation granularity, relevance tiers, etc.).
+`AGENTS.md` mirrors this file with extra detail on code conventions, naming, and
+QA; `.claude/workflows/quick-finish-review.js` is an adversarial diff-review
+workflow for `parse_vtt.py` / `build_catalog.py` changes.
 
 ## Commands
 
@@ -42,8 +45,8 @@ repo-local `.venv` (gitignored), not system-wide.
 
 External tools the scripts shell out to (not in requirements.txt): `pdftotext`
 (poppler), `yt-dlp` (downloads), `ffmpeg` + `whisper-cli` (whisper.cpp, local
-transcription). `compare/` and `scripts/build_keyterms.py` additionally need
-`jiwer` and `wordfreq`. There is no test suite, linter config, or CI.
+transcription). `compare/` (including `compare/build_keyterms.py`) additionally
+needs `jiwer` and `wordfreq`. There is no test suite, linter config, or CI.
 
 Each script is a standalone CLI with `--help`; most take `--dry-run` and
 `--limit N`. Run any of them directly, e.g. `python3 scripts/download_series.py LO61T1`.
@@ -175,7 +178,7 @@ Filter/supersede by `kind`; never overwrite manual subs.
 How the production STT engine was chosen (verdict: **ElevenLabs Scribe v2 +
 keyterm prompting**, recorded in STRATEGY.md). `run_stt.sh elevenlabs|xai <audio>
 <label> [keyterms.json]` calls a provider (one multipart `keyterms` field *per
-term*); `scripts/build_keyterms.py` mines the keyterm lexicon from the manual-sub
+term*); `compare/build_keyterms.py` mines the keyterm lexicon from the manual-sub
 corpus using `wordfreq` zipf rarity; `compare_texts.py` / `compare_piece.py` score
 WER/CER with `jiwer` against manual VTTs (the reference). When evaluating, exclude
 a test item's own subs from the keyterm lexicon to avoid leakage.
