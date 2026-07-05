@@ -127,6 +127,29 @@ class ParseVttTests(unittest.TestCase):
             "SELECT COUNT(*) FROM passages WHERE attribution='q_boundary_heuristic'"
         ).fetchone()[0], 0)
 
+    def test_labeled_turn_keeps_unlabeled_continuations_atomic(self) -> None:
+        self.ingest_fixture("labeled_turn_continuation.vtt", "TESTQ5", "Q")
+        rows = self.conn.execute(
+            "SELECT speaker_code,attribution,text FROM segments ORDER BY seq"
+        ).fetchall()
+        self.assertEqual(2, len(rows))
+        self.assertEqual(("K", "label"), rows[0][:2])
+        self.assertIn("third continuation", rows[0][2])
+        self.assertEqual(("Q", "label"), rows[1][:2])
+
+    def test_long_labeled_k_turn_produces_full_sized_passages(self) -> None:
+        self.ingest_fixture("long_labeled_monologue.vtt", "TESTT5", "T")
+        segments = self.conn.execute(
+            "SELECT speaker_code,attribution FROM segments ORDER BY seq"
+        ).fetchall()
+        self.assertEqual([("K", "label")], segments)
+        word_counts = [row[0] for row in self.conn.execute(
+            "SELECT word_count FROM passages ORDER BY seq"
+        )]
+        self.assertGreater(len(word_counts), 1)
+        self.assertGreater(sum(word_counts) / len(word_counts), 100)
+        self.assertLessEqual(sum(count < 20 for count in word_counts), 1)
+
     def test_k_presence_warns_for_uncovered_event_type(self) -> None:
         result = self.ingest_fixture("zero_k_film.vtt", "TESTF1", "FOF")
         self.assertEqual("warn", result["qa"]["status"])

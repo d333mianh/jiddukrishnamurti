@@ -290,8 +290,10 @@ def build_segments(
         current_attribution = attribution
         piece = Cue(c.t_start, c.t_end, text, label=raw, rest=text,
                     timestamps_synthetic=c.timestamps_synthetic)
-        if (segments and segments[-1].speaker_code == code
-                and segments[-1].attribution == attribution):
+        # A speaker turn is atomic.  Its attribution records how the turn was
+        # established; unlabeled continuation cues neither split the turn nor
+        # replace that provenance.
+        if segments and segments[-1].speaker_code == code:
             segments[-1].cues.append(piece)
         else:
             segments.append(Segment(code, raw, attribution, [piece]))
