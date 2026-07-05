@@ -28,7 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 from footage_schema import footage_type_from_media_type  # noqa: E402
 from media_schema import ITEM_MEDIA_DDL  # noqa: E402
-from segment_schema import ensure_corpus_include  # noqa: E402
+from segment_schema import ensure_corpus_tiers  # noqa: E402
 
 PDF_DEFAULT = ROOT / "Krishnamurti-Foundation-Trust-–-Full-Length-Directory-2026.pdf"
 PLACES_FILE = Path(__file__).resolve().parent / "places.json"
@@ -745,8 +745,8 @@ def init_db(conn: sqlite3.Connection) -> None:
     # item_media (download tracking) shares its DDL with the download scripts.
     conn.executescript(ITEM_MEDIA_DDL)
     # The generated L1/L2 corpus lives in corpus/krishnamurti-corpus.db. Only
-    # its catalog-side scope flag belongs in this rebuilt database.
-    ensure_corpus_include(conn)
+    # its catalog-side tier and derived scope flag belong in this rebuilt database.
+    ensure_corpus_tiers(conn)
 
 
 # Tables populated by phase-2 scripts (discover_links.py, download_*.py).
@@ -999,9 +999,8 @@ def save_db(
     print("Applying overlays (10A education directory, 11A channel recordings)...")
     add_education_directory.apply(conn)
     add_channel_recordings.apply(conn)
-    # Corpus scope gate: EBM excerpts are re-cuts of parent talks and would
-    # duplicate passages in FTS. (Runs after inserts; init_db only adds the column.)
-    conn.execute("UPDATE items SET corpus_include = 0 WHERE event_type = 'EBM'")
+    # Populate explicit corpus tiers after every PDF and overlay item exists.
+    ensure_corpus_tiers(conn)
     # apply() seeded JSON-default links for the overlay items. For any item the
     # OLD DB already knew (known_codes), its snapshotted link state is the live
     # truth — including URL/note corrections AND intentional deletions (no rows)

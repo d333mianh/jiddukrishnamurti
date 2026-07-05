@@ -33,6 +33,7 @@ class ParseVttTests(unittest.TestCase):
             self.conn,
             item_code=code,
             event_type=event_type,
+            corpus_tier="C" if event_type.startswith("F") else "A",
             kind="manual",
             language="en",
             source_path=str(FIXTURES / name),
@@ -89,6 +90,7 @@ class ParseVttTests(unittest.TestCase):
                 self.conn,
                 item_code="TESTT3",
                 event_type="T",
+                corpus_tier="A",
                 kind="manual",
                 language="en",
                 source_path=str(FIXTURES / "empty.vtt"),
@@ -155,6 +157,19 @@ class ParseVttTests(unittest.TestCase):
         self.assertEqual("warn", result["qa"]["status"])
         self.assertEqual("k_presence", result["qa"]["rule"])
         self.assertIn("zero_k_passages", result["qa"]["failure_codes"])
+
+    def test_tier_c_is_ingested_but_excluded_from_fts(self) -> None:
+        result = self.ingest_fixture("unlabeled_talk.vtt", "TESTF2", "FTPL")
+        self.assertGreater(result["k_passages"], 0)
+        self.assertGreater(self.conn.execute(
+            "SELECT COUNT(*) FROM passages WHERE item_code='TESTF2'"
+        ).fetchone()[0], 0)
+        self.assertEqual(0, self.conn.execute(
+            "SELECT COUNT(*) FROM passages_fts"
+        ).fetchone()[0])
+        self.assertEqual("C", self.conn.execute(
+            "SELECT corpus_tier FROM transcripts WHERE item_code='TESTF2'"
+        ).fetchone()[0])
 
     def test_single_speaker_dialogue_is_a_pass_with_source_signal(self) -> None:
         result = self.ingest_fixture("single_speaker_qa.vtt", "TESTQ4", "Q")

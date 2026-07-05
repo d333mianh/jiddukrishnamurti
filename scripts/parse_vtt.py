@@ -436,6 +436,7 @@ def ingest(
     *,
     item_code,
     event_type,
+    corpus_tier,
     kind,
     language,
     source_path,
@@ -486,11 +487,11 @@ def ingest(
     now = datetime.now(timezone.utc).isoformat()
     duration = cues[-1].t_end if cues else 0.0
     tid = conn.execute(
-        """INSERT INTO transcripts(item_code,event_type,kind,language,source_path,
+        """INSERT INTO transcripts(item_code,event_type,corpus_tier,kind,language,source_path,
              resolved_via,cue_count,segment_count,passage_count,word_count,
              duration_secs,parser_version,assumed_k,parsed_at)
-           VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-        (item_code, event_type, kind, language, source_path, resolved_via,
+           VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (item_code, event_type, corpus_tier, kind, language, source_path, resolved_via,
          source_cue_count, 0, 0, 0, duration, PARSER_VERSION, int(assumed_k), now),
     ).lastrowid
     # speaker_labels is the per-item label registry: it stores EVERY raw surface form a
@@ -530,8 +531,9 @@ def ingest(
                 (tid, sid, item_code, pseq, seg.speaker_code, t_start, t_end,
                  int(synthetic), ptext, pwc, seg.attribution),
             ).lastrowid
-            if seg.speaker_code == "K":
+            if seg.speaker_code == "K" and corpus_tier in ("A", "B"):
                 conn.execute("INSERT INTO passages_fts(rowid,text) VALUES(?,?)", (pid, ptext))
+            if seg.speaker_code == "K":
                 k_pass += 1
             pseq += 1
         prev_speaker, prev_seq = seg.speaker_code, sseq
@@ -641,7 +643,8 @@ def main() -> None:
         if not args.item:
             sys.exit("--item CODE required with --vtt")
         row = conn.execute(
-            "SELECT code, event_type, corpus_include FROM catalog.items WHERE code=?",
+            "SELECT code,event_type,corpus_include,corpus_tier "
+            "FROM catalog.items WHERE code=?",
             (args.item,),
         ).fetchone()
         if not row:
@@ -653,7 +656,7 @@ def main() -> None:
         if not cues:
             sys.exit(f"0 cues parsed from {args.vtt} — refusing to overwrite "
                      "any existing transcript with an empty one")
-        r = ingest(conn, item_code=row[0], event_type=row[1], kind=args.kind,
+        r = ingest(conn, item_code=row[0], event_type=row[1], corpus_tier=row[3], kind=args.kind,
                    language=args.language, source_path=str(args.vtt),
                    resolved_via="override", cues=cues)
         print(f"{args.item}: {len(cues)} cues -> {r['segments']} segments, "
@@ -662,7 +665,7 @@ def main() -> None:
         return
 
     # batch mode
-    q = """SELECT i.code, i.event_type, s.future_path, s.language, s.kind
+    q = """SELECT i.code,i.event_type,i.corpus_tier,s.future_path,s.language,s.kind
            FROM catalog.items i
            JOIN catalog.item_subtitles s ON s.item_id=i.id
              AND s.kind='manual' AND s.status='downloaded' AND s.language IN ('en','en-GB')
@@ -676,7 +679,7 @@ def main() -> None:
         q += f" LIMIT {int(args.limit)}"
     rows = conn.execute(q, params).fetchall()
     done = skipped = empty = collapsed = 0
-    for code, event_type, future_path, language, kind in rows:
+    for code, event_type, corpus_tier, future_path, language, kind in rows:
         path, via = resolve_vtt(code, future_path, args.media_root)
         if path is None:
             print(f"  SKIP {code}: VTT not found ({future_path})")
@@ -689,7 +692,7 @@ def main() -> None:
             print(f"  WARN {code}: 0 cues parsed from {path} (evicted/not-VTT?) — not written")
             empty += 1
             continue
-        r = ingest(conn, item_code=code, event_type=event_type, kind=kind,
+        r = ingest(conn, item_code=code, event_type=event_type, corpus_tier=corpus_tier, kind=kind,
                    language=language, source_path=str(path), resolved_via=via,
                    cues=cues)
         done += 1

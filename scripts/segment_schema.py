@@ -14,6 +14,11 @@ from pathlib import Path
 
 PARSER_VERSION = "l2-parser-v3"
 
+TIER_A_EVENT_TYPES = frozenset({
+    "T", "TS", "TSS", "TYP", "TR", "Q", "S", "SBR", "D", "DT", "DS", "DSS",
+})
+TIER_B_EVENT_TYPES = frozenset({"DSG", "DYP", "DCO", "DTV", "WOL", "HF"})
+
 SEGMENT_DDL = """
 CREATE TABLE IF NOT EXISTS corpus_meta (
     key        TEXT PRIMARY KEY,
@@ -25,6 +30,7 @@ CREATE TABLE IF NOT EXISTS transcripts (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     item_code      TEXT    NOT NULL,
     event_type     TEXT,
+    corpus_tier    TEXT    NOT NULL CHECK(corpus_tier IN ('A','B','C','X')),
     kind           TEXT    NOT NULL,
     language       TEXT    NOT NULL,
     source_path    TEXT    NOT NULL,
@@ -120,8 +126,32 @@ CREATE VIRTUAL TABLE IF NOT EXISTS passages_fts USING fts5(
 """
 
 
-def ensure_corpus_include(conn: sqlite3.Connection) -> None:
-    """Add the catalog-side corpus scope flag when building the catalog."""
+def corpus_tier_for_event_type(event_type: str | None) -> str:
+    """Return the explicit corpus tier for a catalog event type."""
+    normalized = (event_type or "").strip().upper()
+    if normalized == "EBM":
+        return "X"
+    if normalized in TIER_A_EVENT_TYPES:
+        return "A"
+    if normalized.startswith("F"):
+        return "C"
+    if normalized.startswith(("C", "I")) or normalized in TIER_B_EVENT_TYPES:
+        return "B"
+    return "B"
+
+
+def _event_type_is_mapped(event_type: str | None) -> bool:
+    normalized = (event_type or "").strip().upper()
+    return (
+        normalized == "EBM"
+        or normalized in TIER_A_EVENT_TYPES
+        or normalized.startswith(("F", "C", "I"))
+        or normalized in TIER_B_EVENT_TYPES
+    )
+
+
+def ensure_corpus_tiers(conn: sqlite3.Connection) -> None:
+    """Add and populate catalog-side corpus tier and derived include columns."""
     tables = {
         r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'"
@@ -134,7 +164,33 @@ def ensure_corpus_include(conn: sqlite3.Connection) -> None:
         conn.execute(
             "ALTER TABLE items ADD COLUMN corpus_include INTEGER NOT NULL DEFAULT 1"
         )
-        conn.execute("UPDATE items SET corpus_include = 0 WHERE event_type = 'EBM'")
+    if "corpus_tier" not in cols:
+        conn.execute("ALTER TABLE items ADD COLUMN corpus_tier TEXT")
+
+    rows = conn.execute("SELECT id,event_type FROM items").fetchall()
+    unknown = sorted({
+        "<NULL>" if event_type is None else str(event_type)
+        for _, event_type in rows
+        if not _event_type_is_mapped(event_type)
+    })
+    if unknown:
+        print(
+            "WARN unmapped event_type(s) defaulting to corpus tier B: "
+            + ", ".join(unknown)
+        )
+    for item_id, event_type in rows:
+        tier = corpus_tier_for_event_type(event_type)
+        include = int(tier != "X")
+        conn.execute(
+            """UPDATE items SET corpus_tier=?, corpus_include=?
+               WHERE id=? AND (corpus_tier IS NOT ? OR corpus_include != ?)""",
+            (tier, include, item_id, tier, include),
+        )
+
+
+def ensure_corpus_include(conn: sqlite3.Connection) -> None:
+    """Backward-compatible alias for the catalog tier populator."""
+    ensure_corpus_tiers(conn)
 
 
 def ensure_corpus_schema(
@@ -142,6 +198,12 @@ def ensure_corpus_schema(
 ) -> None:
     """Ensure corpus tables and record database-level provenance."""
     conn.executescript(SEGMENT_DDL)
+    transcript_cols = {r[1] for r in conn.execute("PRAGMA table_info(transcripts)")}
+    if "corpus_tier" not in transcript_cols:
+        conn.execute(
+            "ALTER TABLE transcripts ADD COLUMN corpus_tier TEXT "
+            "CHECK(corpus_tier IN ('A','B','C','X'))"
+        )
     # Additive migration for corpora created by parser v2. Full re-ingest fills
     # these values with cue-level attribution provenance.
     for table in ("segments", "passages"):

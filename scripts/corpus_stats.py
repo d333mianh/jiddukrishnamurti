@@ -38,11 +38,14 @@ def _table(headers: list[str], rows: list[list[object]]) -> str:
     return "\n".join(lines)
 
 
-def collect(conn: sqlite3.Connection) -> tuple[list[dict], list[dict]]:
+def collect(conn: sqlite3.Connection) -> tuple[list[dict], list[dict], list[dict]]:
     base_rows = conn.execute(
         """SELECT t.id, t.item_code, COALESCE(i.event_type,t.event_type,'?'),
+                  COALESCE(t.corpus_tier,i.corpus_tier,'?'),
                   t.kind, t.language, t.segment_count, t.passage_count,
-                  q.k_passage_count, q.status, COALESCE(q.failure_codes,'')
+                  q.k_passage_count, q.status, COALESCE(q.failure_codes,''),
+                  (SELECT COUNT(*) FROM passages_fts f
+                   JOIN passages p ON p.id=f.rowid WHERE p.transcript_id=t.id)
            FROM transcripts t
            LEFT JOIN catalog.items i ON i.code=t.item_code
            LEFT JOIN transcript_qa q ON q.transcript_id=t.id
@@ -50,16 +53,19 @@ def collect(conn: sqlite3.Connection) -> tuple[list[dict], list[dict]]:
     ).fetchall()
     item_rows: list[dict] = []
     for row in base_rows:
-        tid, code, event_type, kind, language, segs, passages, k_pass, qa, failures = row
+        (tid, code, event_type, tier, kind, language, segs, passages,
+         k_pass, qa, failures, fts_rows) = row
         metric = {
             "transcript_id": tid,
             "item_code": code,
             "event_type": event_type,
+            "corpus_tier": tier,
             "kind": kind,
             "language": language,
             "segments": segs or 0,
             "passages": passages or 0,
             "k_passages": k_pass or 0,
+            "fts_rows": fts_rows or 0,
             "qa_status": qa or "missing",
             "qa_failures": failures,
             "collapsed": int((k_pass or 0) == 0),
@@ -132,23 +138,46 @@ def collect(conn: sqlite3.Connection) -> tuple[list[dict], list[dict]]:
             )
         event_rows.append(event_row)
     event_rows.sort(key=lambda row: row["event_type"])
-    return item_rows, event_rows
+
+    tiers: dict[str, dict] = {}
+    for item in item_rows:
+        tier = item["corpus_tier"]
+        if tier not in tiers:
+            tiers[tier] = {
+                "corpus_tier": tier,
+                "item_codes": set(),
+                "passages": 0,
+                "k_words": 0,
+                "fts_rows": 0,
+            }
+        tier_row = tiers[tier]
+        tier_row["item_codes"].add(item["item_code"])
+        tier_row["passages"] += item["passages"]
+        tier_row["k_words"] += item["word_k"]
+        tier_row["fts_rows"] += item["fts_rows"]
+    for tier_row in tiers.values():
+        tier_row["items"] = len(tier_row.pop("item_codes"))
+    tier_rows = sorted(tiers.values(), key=lambda row: row["corpus_tier"])
+    return item_rows, event_rows, tier_rows
 
 
 def _share_cells(row: dict, prefix: str) -> list[str]:
     return [f"{row[f'{prefix}_pct_{category.lower()}']:.1f}" for category in CATEGORIES]
 
 
-def print_report(item_rows: list[dict], event_rows: list[dict]) -> None:
+def print_report(
+    item_rows: list[dict], event_rows: list[dict], tier_rows: list[dict]
+) -> None:
     share_headers = ["K%", "Q%", "ANN%", "UNK%"]
     print("Shares use all segment speech as the denominator; named speakers are the remainder.")
     print("PER ITEM (word share, then duration share)")
     print(_table(
-        ["ITEM", "EVT", "KIND", "SEG", "PASS", "KP", "QA", "COLL",
+        ["ITEM", "EVT", "TIER", "KIND", "SEG", "PASS", "KP", "FTS", "QA", "COLL",
          *["W" + h for h in share_headers], *["D" + h for h in share_headers]],
         [[
-            row["item_code"], row["event_type"], row["kind"], row["segments"],
-            row["passages"], row["k_passages"], row["qa_status"], row["collapsed"],
+            row["item_code"], row["event_type"], row["corpus_tier"], row["kind"],
+            row["segments"], row["passages"], row["k_passages"], row["fts_rows"],
+            row["qa_status"], row["collapsed"],
             *_share_cells(row, "word"), *_share_cells(row, "duration"),
         ] for row in item_rows],
     ))
@@ -161,6 +190,12 @@ def print_report(item_rows: list[dict], event_rows: list[dict]) -> None:
             row["qa_failures"], row["collapsed"], *_share_cells(row, "word"),
             *_share_cells(row, "duration"),
         ] for row in event_rows],
+    ))
+    print("\nPER CORPUS TIER")
+    print(_table(
+        ["TIER", "ITEMS", "PASS", "K WORDS", "FTS"],
+        [[row["corpus_tier"], row["items"], row["passages"], row["k_words"],
+          row["fts_rows"]] for row in tier_rows],
     ))
     failures = [row for row in item_rows if row["qa_status"] == "warn"]
     if failures:
@@ -188,7 +223,7 @@ def main() -> None:
     ap.add_argument("--catalog-db", type=Path, default=CATALOG_DB_PATH)
     ap.add_argument(
         "--csv", type=Path,
-        help="write item CSV here and an adjacent '<stem>-events.csv'",
+        help="write item CSV here and adjacent event/tier rollup CSVs",
     )
     args = ap.parse_args()
     if not args.db.is_file():
@@ -197,14 +232,17 @@ def main() -> None:
         sys.exit(f"catalog database not found: {args.catalog_db}")
     conn = sqlite3.connect(_readonly_uri(args.db), uri=True)
     conn.execute("ATTACH DATABASE ? AS catalog", (_readonly_uri(args.catalog_db),))
-    item_rows, event_rows = collect(conn)
-    print_report(item_rows, event_rows)
+    item_rows, event_rows, tier_rows = collect(conn)
+    print_report(item_rows, event_rows, tier_rows)
     if args.csv:
         write_csv(args.csv, item_rows)
         event_path = args.csv.with_name(args.csv.stem + "-events" + args.csv.suffix)
+        tier_path = args.csv.with_name(args.csv.stem + "-tiers" + args.csv.suffix)
         write_csv(event_path, event_rows)
+        write_csv(tier_path, tier_rows)
         print(f"\nCSV: {args.csv}")
         print(f"CSV: {event_path}")
+        print(f"CSV: {tier_path}")
 
 
 if __name__ == "__main__":
