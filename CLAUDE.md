@@ -46,15 +46,18 @@ repo-local `.venv` (gitignored), not system-wide.
 External tools the scripts shell out to (not in requirements.txt): `pdftotext`
 (poppler), `yt-dlp` (downloads), `ffmpeg` + `whisper-cli` (whisper.cpp, local
 transcription). `compare/` (including `compare/build_keyterms.py`) additionally
-needs `jiwer` and `wordfreq`. There is no test suite, linter config, or CI.
+needs `jiwer` and `wordfreq`. Parser regressions use stdlib `unittest`; there is
+no linter config or CI.
 
 Each script is a standalone CLI with `--help`; most take `--dry-run` and
 `--limit N`. Run any of them directly, e.g. `python3 scripts/download_series.py LO61T1`.
 
-## The SQLite catalog is canonical
+## The SQLite catalog is canonical pipeline state
 
-`catalog/krishnamurti.db` is the single source of truth; CSV/XLSX exports and the
-Obsidian vault are regenerated from it. Schema (see `.schema`):
+`catalog/krishnamurti.db` is the source of truth for catalog and pipeline state;
+CSV/XLSX exports and the Obsidian vault are regenerated from it. Generated
+L1/L2 transcript text lives separately in the gitignored
+`corpus/krishnamurti-corpus.db`. Catalog schema (see `.schema`):
 
 - **`items`** — one row per recording, keyed by `code` (e.g. `LO61T1`). `code`
   is the join key everywhere. `future_path` is the catalog-relative media path
@@ -94,13 +97,17 @@ overlay-range guards.
   codes**; investigate before reaching for `--force`.
 - After a rebuild, `backfill_media.py` still re-syncs `item_media` from disk.
 
-**Canonical rebuild order:** `build_catalog.py` (includes 10A/11A) →
+Catalog rebuilds do not create, clear, or restore corpus tables. Corpus rows are
+keyed by stable item code, so the separate corpus DB survives a rebuild.
+
+**Canonical pipeline order:** `build_catalog.py` (includes 10A/11A) →
 `discover_links.py` → (downloads) → `backfill_media.py` → `parse_vtt.py`.
 
 ## Teachings corpus — L1/L2 (Phase 1)
 
-The searchable-corpus layer sits *on top of* the catalog. `segment_schema.py`
-defines four tables + an FTS index, built from manual VTTs by `parse_vtt.py`:
+The searchable-corpus layer sits *on top of* the catalog in the separate,
+gitignored `corpus/krishnamurti-corpus.db`. `segment_schema.py` defines its
+tables and FTS index, built from manual VTTs by `parse_vtt.py`:
 
 - **`transcripts`** (L1) — one row per ingested transcript file (provenance).
 - **`segments`** (L2) — speaker-attributed turns (contiguous same-speaker cues
@@ -108,26 +115,24 @@ defines four tables + an FTS index, built from manual VTTs by `parse_vtt.py`:
 - **`passages`** — K monologues sub-chunked to ~150–200 words at sentence
   boundaries; **this is the citation unit** (each carries its own `t_start`/`t_end`).
 - **`speaker_labels`** — the per-item label registry.
+- **`transcript_qa`** — per-ingest validation status and collapse diagnostics.
 - **`passages_fts`** — FTS5 over K-only passage text.
+- **`corpus_meta`** — parser version, source catalog path, and creation time.
 
 `parse_vtt.py` is idempotent per `(item, kind, language)` (re-ingest deletes prior
-rows first). It builds a **per-item** speaker registry, admitting a `Label:` only
-if it's a trusted seed *or* recurs ≥2× — this is what rejects false positives like
-`"We are asking:"`. Run it from the catalog (`--event-type T [--limit N]`) or
-standalone on a single file (`--vtt … --item …`).
-
-**Gotcha — these tables are deliberately NOT in `PHASE2_TABLES`.** The
-snapshot/restore (above) re-keys rows by `items.code` with fresh autoincrement
-ids; doing that here would corrupt the `transcript_id`/`segment_id`
-cross-references. Instead `ensure_segment_schema()` (called from
-`build_catalog.init_db`) recreates them **empty** on every rebuild, and
-`parse_vtt.py` re-populates them afterward. So corpus repopulation is a step
-*after* the rebuild order, not part of the phase-2 restore.
+rows first). It attaches `catalog/krishnamurti.db` read-only for item and subtitle
+metadata, while all generated writes go to the corpus DB. Its per-item registry
+admits known labels at cue start or mid-cue; unknown labels must recur at cue
+start and be short initials, preventing prose-colon false speakers. Run batch
+ingestion with `--event-type T [--limit N]` or one file with
+`--vtt … --item …`. Use `corpus_stats.py` for per-item/event speaker shares,
+validation failures, and collapsed-item reporting.
 
 Ingestion guards: `parse_vtt.py` refuses a 0-cue parse in *both* batch and
 standalone modes (`ingest()` itself raises — protects existing transcripts from
-header-only/evicted files), sets `PRAGMA foreign_keys=ON`, and batch mode only
-ingests items with `items.corpus_include = 1`. That scope gate
+header-only/evicted files), marks word-interpolated split timestamps synthetic,
+records event-aware assumed-K provenance, and stores per-item QA warnings.
+Batch mode only ingests items with `items.corpus_include = 1`. That scope gate
 (`ensure_corpus_include()` in `segment_schema.py`, populated on rebuild) marks
 the 12 `EBM` excerpts 0 so re-cut passages never duplicate their parent talks
 in FTS.
@@ -153,7 +158,9 @@ embedded in the PDF (it wipes and rebuilds the table each run **except** rows wh
 audio format 140 (129 kbps AAC). Layered entry points, all writing `item_media` /
 `item_subtitles` status: `download_item.py` (one code) → `download_series.py` (a
 series) → `download_section.py` (a section); plus targeted `download_missing_*.py`
-and `redownload_audio.py` (replaces sub-bitrate/corrupt audio). YouTube auth uses
+and `redownload_audio.py` (replaces sub-bitrate/corrupt audio).
+`download_subtitles.py` fetches the manual (not auto-generated) English YouTube
+subtitles into `item_subtitles`. YouTube auth uses
 `www.youtube.com_cookies.txt` / `catalog/.yt-browser-cookies.txt` (both gitignored).
 
 `organize_library.py` moves/renames already-downloaded media under `library/` to
@@ -172,6 +179,11 @@ when `catalog/logs/whisper_backfill.stop` exists.
 The corpus distinguishes transcript provenance by `item_subtitles.kind`: `manual`
 (KFT-edited, gold standard) > a future ElevenLabs Scribe v2 pass > local whisper.
 Filter/supersede by `kind`; never overwrite manual subs.
+
+`import_kft_web_transcript.py` imports an official untimed KFT web transcript
+for items whose media can't be downloaded. It deliberately writes **plain text,
+not synthetic VTT** — estimated timestamps would create false citations in the
+L2 passage pipeline; keep it that way.
 
 ## STT evaluation (`compare/`)
 
