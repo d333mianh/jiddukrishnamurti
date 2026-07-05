@@ -74,6 +74,8 @@ SEED_LABELS = ALWAYS_SEED | set(SEED_MAP)
 # absent: without labels or diarization they must remain unresolved.
 SINGLE_SPEAKER_K_EVENTS = {"T", "TS", "TYP", "TR", "FTPL", "EBM"}
 MIN_DIALOGUE_K_WORDS = 20
+Q_BOUNDARY_MAX_CUES = 12
+Q_BOUNDARY_MAX_WORDS = 180
 
 # A cue may open with a speaker label ("K: ...", "David Bohm: ..."). The space and
 # the tail are captured separately so parse_cues can accept a multi-word label only
@@ -110,6 +112,7 @@ class Cue:
 class Segment:
     speaker_code: str
     raw_label: str | None
+    attribution: str
     cues: list[Cue] = field(default_factory=list)
 
 
@@ -242,32 +245,78 @@ def split_embedded(cues: list[Cue], registry: dict) -> list[Cue]:
 
 
 def build_segments(
-    cues: list[Cue], registry: dict, *, assume_unlabeled_k: bool = False
+    cues: list[Cue], registry: dict, *, assume_unlabeled_k: bool = False,
+    enable_q_boundary: bool = False,
 ) -> list[Segment]:
     """Tag speakers via the registry allowlist, inherit across unlabeled cues
     (leading unlabeled cues = ANN), then merge contiguous same-speaker cues."""
     segments: list[Segment] = []
     current = "K" if assume_unlabeled_k else "ANN"
+    current_attribution = "assumed_k" if assume_unlabeled_k else "inherit"
     seen_speaker = False
     seen_k_content = False
-    for c in cues:
+    q_boundary_at: int | None = None
+    for ci, c in enumerate(cues):
         if c.label in registry:
             code, raw, text, seen_speaker = registry[c.label][0], c.label, c.rest, True
+            attribution = "label"
+            q_boundary_at = (
+                _question_boundary(cues, ci, registry)
+                if code == "Q" and enable_q_boundary else None
+            )
         elif assume_unlabeled_k:
-            is_intro = not seen_k_content and ANNOUNCER_RE.search(c.text) is not None
-            code, raw, text = ("ANN" if is_intro else "K"), None, c.text
-            if code == "K":
+            if current == "Q" and q_boundary_at is not None and ci <= q_boundary_at:
+                code, raw, text, attribution = "Q", None, c.text, "inherit"
+            elif current == "Q":
+                code, raw, text, attribution = "K", None, c.text, "q_boundary_heuristic"
+                q_boundary_at = None
                 seen_k_content = True
+            else:
+                is_intro = not seen_k_content and ANNOUNCER_RE.search(c.text) is not None
+                code, raw, text = ("ANN" if is_intro else "K"), None, c.text
+                attribution = "inherit" if is_intro else "assumed_k"
+                if code == "K":
+                    seen_k_content = True
         else:
-            code, raw, text = (current if seen_speaker else "ANN"), None, c.text
+            if current == "Q" and q_boundary_at is not None and ci > q_boundary_at:
+                code, attribution = "K", "q_boundary_heuristic"
+                q_boundary_at = None
+            else:
+                code, attribution = (current if seen_speaker else "ANN"), current_attribution
+                if attribution == "label":
+                    attribution = "inherit"
+            raw, text = None, c.text
         current = code
+        current_attribution = attribution
         piece = Cue(c.t_start, c.t_end, text, label=raw, rest=text,
                     timestamps_synthetic=c.timestamps_synthetic)
-        if segments and segments[-1].speaker_code == code:
+        if (segments and segments[-1].speaker_code == code
+                and segments[-1].attribution == attribution):
             segments[-1].cues.append(piece)
         else:
-            segments.append(Segment(code, raw, [piece]))
+            segments.append(Segment(code, raw, attribution, [piece]))
     return segments
+
+
+def _question_boundary(cues: list[Cue], start: int, registry: dict) -> int:
+    """Return the last cue in a short labeled question block.
+
+    KFT subtitles commonly label only the question. Scan no more than twelve
+    cues / 180 words, stop at another admitted label, and end at the last cue
+    containing a question mark. If punctuation is absent (for example
+    ``Q: (Inaudible)``), only the explicitly labeled cue is considered Q.
+    """
+    last_question = start if "?" in cues[start].rest else None
+    words = 0
+    for i in range(start, min(len(cues), start + Q_BOUNDARY_MAX_CUES)):
+        if i > start and cues[i].label in registry:
+            break
+        words += len(cues[i].rest.split())
+        if words > Q_BOUNDARY_MAX_WORDS:
+            break
+        if "?" in cues[i].rest:
+            last_question = i
+    return last_question if last_question is not None else start
 
 
 def _is_sentence_end(word: str) -> bool:
@@ -356,23 +405,25 @@ def _qa_result(
         for c in seg.cues
     )
     failures: list[str] = []
+    signals: list[str] = []
     rule = "none"
     if _is_dialogue_event(event_type):
         rule = "dialogue"
         if len(content_speakers) < 2:
-            failures.append("fewer_than_2_speakers")
-        if k_passages == 0:
-            failures.append("zero_k_passages")
-        elif k_words < MIN_DIALOGUE_K_WORDS:
+            signals.append("single_speaker_source")
+        if 0 < k_words < MIN_DIALOGUE_K_WORDS:
             failures.append("trivial_k_speech")
     elif (event_type or "").upper() == "T":
         rule = "public_talk"
-        if k_passages == 0:
-            failures.append("zero_k_passages")
+    if k_passages == 0:
+        failures.append("zero_k_passages")
+        if rule == "none":
+            rule = "k_presence"
     return {
         "status": "warn" if failures else "pass",
         "rule": rule,
         "failure_codes": failures,
+        "signals": signals,
         "speaker_count": len(content_speakers),
         "k_words": k_words,
     }
@@ -402,8 +453,18 @@ def ingest(
         if c.label in registry:
             hits[c.label] = hits.get(c.label, 0) + 1
     registry = {k: (v[0], v[1], hits.get(k, v[2])) for k, v in registry.items()}
-    assumed_k = not registry and (event_type or "").upper() in SINGLE_SPEAKER_K_EVENTS
-    segments = build_segments(cues, registry, assume_unlabeled_k=assumed_k)
+    registry_codes = {value[0] for value in registry.values()}
+    question_only_registry = bool(registry_codes) and registry_codes == {"Q"}
+    assumed_k = (
+        (not registry or question_only_registry)
+        and (event_type or "").upper() in SINGLE_SPEAKER_K_EVENTS
+    )
+    segments = build_segments(
+        cues,
+        registry,
+        assume_unlabeled_k=assumed_k,
+        enable_q_boundary=(event_type or "").upper() == "Q" or assumed_k,
+    )
 
     # idempotent: drop any prior transcript for this (item, kind, language)
     prev = conn.execute(
@@ -452,19 +513,20 @@ def ingest(
         answers = prev_seq if (seg.speaker_code == "K" and prev_speaker == "Q") else None
         sid = conn.execute(
             """INSERT INTO segments(transcript_id,item_code,seq,speaker_code,raw_label,
-                 t_start,t_end,timestamps_synthetic,text,word_count,answers_seq)
-               VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                 t_start,t_end,timestamps_synthetic,text,word_count,answers_seq,attribution)
+               VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
             (tid, item_code, sseq, seg.speaker_code, seg.raw_label,
              seg.cues[0].t_start, seg.cues[-1].t_end,
-             int(any(c.timestamps_synthetic for c in seg.cues)), text, wc, answers),
+             int(any(c.timestamps_synthetic for c in seg.cues)), text, wc, answers,
+             seg.attribution),
         ).lastrowid
         for (t_start, t_end, ptext, pwc, synthetic) in chunk_passages(seg):
             pid = conn.execute(
                 """INSERT INTO passages(transcript_id,segment_id,item_code,seq,speaker_code,
-                     t_start,t_end,timestamps_synthetic,text,word_count)
-                   VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                     t_start,t_end,timestamps_synthetic,text,word_count,attribution)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
                 (tid, sid, item_code, pseq, seg.speaker_code, t_start, t_end,
-                 int(synthetic), ptext, pwc),
+                 int(synthetic), ptext, pwc, seg.attribution),
             ).lastrowid
             if seg.speaker_code == "K":
                 conn.execute("INSERT INTO passages_fts(rowid,text) VALUES(?,?)", (pid, ptext))
@@ -480,7 +542,8 @@ def ingest(
     failures = qa["failure_codes"]
     detail = (
         f"rule={qa['rule']}; speakers={qa['speaker_count']}; "
-        f"k_passages={k_pass}; k_words={qa['k_words']}"
+        f"k_passages={k_pass}; k_words={qa['k_words']}; "
+        f"signals={','.join(qa['signals']) or 'none'}"
     )
     conn.execute(
         """INSERT INTO transcript_qa(

@@ -12,7 +12,7 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
-PARSER_VERSION = "l2-parser-v2"
+PARSER_VERSION = "l2-parser-v3"
 
 SEGMENT_DDL = """
 CREATE TABLE IF NOT EXISTS corpus_meta (
@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS segments (
     text                 TEXT    NOT NULL,
     word_count           INTEGER NOT NULL,
     answers_seq          INTEGER,
+    attribution          TEXT    NOT NULL DEFAULT 'inherit'
+                                CHECK(attribution IN ('label','inherit','assumed_k','q_boundary_heuristic')),
     UNIQUE(transcript_id, seq)
 );
 CREATE INDEX IF NOT EXISTS idx_segments_item ON segments(item_code);
@@ -87,6 +89,8 @@ CREATE TABLE IF NOT EXISTS passages (
     timestamps_synthetic INTEGER NOT NULL DEFAULT 0,
     text                 TEXT    NOT NULL,
     word_count           INTEGER NOT NULL,
+    attribution          TEXT    NOT NULL DEFAULT 'inherit'
+                                CHECK(attribution IN ('label','inherit','assumed_k','q_boundary_heuristic')),
     UNIQUE(transcript_id, seq)
 );
 CREATE INDEX IF NOT EXISTS idx_passages_item ON passages(item_code);
@@ -138,6 +142,16 @@ def ensure_corpus_schema(
 ) -> None:
     """Ensure corpus tables and record database-level provenance."""
     conn.executescript(SEGMENT_DDL)
+    # Additive migration for corpora created by parser v2. Full re-ingest fills
+    # these values with cue-level attribution provenance.
+    for table in ("segments", "passages"):
+        cols = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        if "attribution" not in cols:
+            conn.execute(
+                f"ALTER TABLE {table} ADD COLUMN attribution TEXT NOT NULL "
+                "DEFAULT 'inherit' CHECK(attribution IN "
+                "('label','inherit','assumed_k','q_boundary_heuristic'))"
+            )
     now = utc_now()
     conn.execute(
         "INSERT OR IGNORE INTO corpus_meta(key,value) VALUES('created_at',?)", (now,)

@@ -100,10 +100,43 @@ class ParseVttTests(unittest.TestCase):
     def test_corpus_database_records_provenance(self) -> None:
         meta = dict(self.conn.execute("SELECT key,value FROM corpus_meta"))
         self.assertIn("created_at", meta)
-        self.assertEqual("l2-parser-v2", meta["parser_version"])
+        self.assertEqual("l2-parser-v3", meta["parser_version"])
         self.assertEqual(
             str(Path("/tmp/test-catalog.db").resolve()), meta["source_catalog_db"]
         )
+
+    def test_prose_question_talk_returns_to_assumed_k(self) -> None:
+        result = self.ingest_fixture("prose_question_talk.vtt", "TESTT4", "T")
+        self.assertTrue(result["assumed_k"])
+        self.assertGreater(result["k_passages"], 0)
+        attributions = dict(self.conn.execute(
+            "SELECT attribution,COUNT(*) FROM segments GROUP BY attribution"
+        ))
+        self.assertIn("assumed_k", attributions)
+        self.assertIn("q_boundary_heuristic", attributions)
+
+    def test_question_boundary_marks_unlabeled_answer_as_k(self) -> None:
+        result = self.ingest_fixture("unlabeled_qa_answer.vtt", "TESTQ3", "Q")
+        self.assertGreater(result["k_passages"], 0)
+        row = self.conn.execute(
+            "SELECT speaker_code,attribution FROM segments "
+            "WHERE attribution='q_boundary_heuristic'"
+        ).fetchone()
+        self.assertEqual(("K", "q_boundary_heuristic"), row)
+        self.assertGreater(self.conn.execute(
+            "SELECT COUNT(*) FROM passages WHERE attribution='q_boundary_heuristic'"
+        ).fetchone()[0], 0)
+
+    def test_k_presence_warns_for_uncovered_event_type(self) -> None:
+        result = self.ingest_fixture("zero_k_film.vtt", "TESTF1", "FOF")
+        self.assertEqual("warn", result["qa"]["status"])
+        self.assertEqual("k_presence", result["qa"]["rule"])
+        self.assertIn("zero_k_passages", result["qa"]["failure_codes"])
+
+    def test_single_speaker_dialogue_is_a_pass_with_source_signal(self) -> None:
+        result = self.ingest_fixture("single_speaker_qa.vtt", "TESTQ4", "Q")
+        self.assertEqual("pass", result["qa"]["status"])
+        self.assertIn("single_speaker_source", result["qa"]["signals"])
 
     def _row_counts(self) -> tuple[int, ...]:
         tables = (
