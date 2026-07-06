@@ -38,6 +38,7 @@ workflow for `parse_vtt.py` / `build_catalog.py` changes.
 # run from the repo root (the iCloud jiddu-krishnamurti/ folder)
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # openpyxl, pandas, pypdf
 .venv/bin/python scripts/build_catalog.py    # rebuild DB + exports + Obsidian (--pdf PATH, --force)
+.venv/bin/python -m unittest discover tests  # parser/schema regressions (tests/test_*.py)
 ```
 
 The system Homebrew Python is PEP 668 externally-managed — install into the
@@ -49,8 +50,10 @@ transcription). `compare/` (including `compare/build_keyterms.py`) additionally
 needs `jiwer` and `wordfreq`. Parser regressions use stdlib `unittest`; there is
 no linter config or CI.
 
-Each script is a standalone CLI with `--help`; most take `--dry-run` and
-`--limit N`. Run any of them directly, e.g. `python3 scripts/download_series.py LO61T1`.
+Pipeline scripts are standalone argparse CLIs with `--help`; most take `--dry-run`
+and `--limit N`. Run any directly, e.g. `python3 scripts/download_series.py LO61T1`.
+The `*_schema.py` modules are primarily importable helpers (some take simple
+positional smoke-test args instead of argparse).
 
 ## The SQLite catalog is canonical pipeline state
 
@@ -64,12 +67,15 @@ L1/L2 transcript text lives separately in the gitignored
   (always begins `library/...`).
 - **`sections`** / **`series`** — PDF-order groupings (`mega_group`, `pdf_order`).
 - **Phase-2 tables** (`item_links`, `item_subtitles`, `item_media`) — link
-  discovery and per-item download/transcription **state**, tracked by `status`.
+  discovery and per-item download/transcription state. `item_subtitles` and
+  `item_media` carry explicit `status` fields; `item_links` stores discovery/match
+  metadata (no `status` column).
 
-Table DDL is not inline in `build_catalog.py`; each state table has its own
-`scripts/*_schema.py` module (`footage_schema`, `media_schema`, `subtitle_schema`,
-`segment_schema`) imported by the build/backfill scripts. **Change a table's shape
-in its schema module, not in ad-hoc SQL.** Inspect the live DB directly with
+Schema DDL is split: catalog core plus the `item_links`/bootstrap subtitle DDL
+live in `build_catalog.py`; reusable media/subtitle/footage/corpus schema helpers
+live in `scripts/*_schema.py` (`footage_schema`, `media_schema`, `subtitle_schema`,
+`segment_schema`). **Change a table's shape at its canonical definition, not in
+ad-hoc SQL.** Inspect the live DB directly with
 `sqlite3 catalog/krishnamurti.db` (`.schema`, `.tables`).
 
 ### Rebuild semantics — the central gotcha
@@ -109,12 +115,19 @@ The searchable-corpus layer sits *on top of* the catalog in the separate,
 gitignored `corpus/krishnamurti-corpus.db`. `segment_schema.py` defines its
 tables and FTS index, built from manual VTTs by `parse_vtt.py`:
 
-- **`transcripts`** (L1) — one row per ingested transcript file (provenance).
-- **`segments`** (L2) — speaker-attributed turns (contiguous same-speaker cues
-  merged). Speaker tags: `K`, `Q`, named interlocutors, `ANN`, `UNK`.
-- **`passages`** — K monologues sub-chunked to ~150–200 words at sentence
-  boundaries; **this is the citation unit** (each carries its own `t_start`/`t_end`).
-- **`speaker_labels`** — the per-item label registry.
+- **`transcripts`** (L1) — one row per ingested transcript file (provenance),
+  including the catalog `corpus_tier` (`A|B|C|X`) at ingest time.
+- **`segments`** (L2) — speaker-attributed turns. A segment is one atomic
+  contiguous same-speaker turn; unlabeled continuation cues do not split it.
+  Speaker tags: `K`, `Q`, named interlocutors, `ANN`, `UNK`. Both `segments`
+  and `passages` record an `attribution` provenance (`label`, `inherit`,
+  `assumed_k`, `q_boundary_heuristic`).
+- **`passages`** — K monologues sub-chunked at sentence boundaries (150-word
+  target, 260-word hard max, short tails <60 words merged); non-K turns stay
+  one passage. **This is the citation unit** (each carries its own
+  `t_start`/`t_end`).
+- **`speaker_labels`** — per-transcript registry of raw label forms → canonical
+  speaker codes (unique on `(transcript_id, raw_label)`).
 - **`transcript_qa`** — per-ingest validation status and collapse diagnostics.
 - **`passages_fts`** — FTS5 over K-only passage text.
 - **`corpus_meta`** — parser version, source catalog path, and creation time.
@@ -125,17 +138,29 @@ metadata, while all generated writes go to the corpus DB. Its per-item registry
 admits known labels at cue start or mid-cue; unknown labels must recur at cue
 start and be short initials, preventing prose-colon false speakers. Run batch
 ingestion with `--event-type T [--limit N]` or one file with
-`--vtt … --item …`. Use `corpus_stats.py` for per-item/event speaker shares,
-validation failures, and collapsed-item reporting.
+`--vtt … --item …`. Use `corpus_stats.py` for per-item, per-event-type, and
+per-tier coverage/FTS statistics, validation failures, and collapsed-item
+reporting (`--csv PATH` also writes adjacent `-events` and `-tiers` rollups).
 
 Ingestion guards: `parse_vtt.py` refuses a 0-cue parse in *both* batch and
 standalone modes (`ingest()` itself raises — protects existing transcripts from
 header-only/evicted files), marks word-interpolated split timestamps synthetic,
 records event-aware assumed-K provenance, and stores per-item QA warnings.
-Batch mode only ingests items with `items.corpus_include = 1`. That scope gate
-(`ensure_corpus_include()` in `segment_schema.py`, populated on rebuild) marks
-the 12 `EBM` excerpts 0 so re-cut passages never duplicate their parent talks
-in FTS.
+
+### Corpus relevance tiers
+
+Each catalog item gets an explicit `items.corpus_tier`: **A** (core teachings),
+**B** (secondary, e.g. conversations/interviews), **C** (archival films),
+**X** (the 12 `EBM` excerpts, duplicates of parent talks). The derived
+`items.corpus_include` is 0 only for X. Batch ingestion gates on
+`corpus_include = 1` (so A/B/C are ingested), but only tier A/B K-passages
+enter `passages_fts`. Tier assignment is centralized in
+`segment_schema.corpus_tier_for_event_type()` (populated on rebuild via
+`ensure_corpus_tiers()`); unknown event types default to B with a warning —
+don't hard-code tier decisions elsewhere. For DBs predating explicit tiers,
+`scripts/migrate_corpus_tiers.py` is the one-time migration (adds/populates the
+tier columns, syncs `transcripts.corpus_tier`, removes tier-C rows from FTS);
+normal rebuilds and new ingests apply tiers automatically.
 
 ## Media lives in iCloud (now at the repo root)
 
