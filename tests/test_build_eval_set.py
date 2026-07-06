@@ -6,7 +6,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "build_eval_set.py"
@@ -16,6 +18,7 @@ if str(SCRIPTS) not in sys.path:
 
 from concept_schema import ensure_concept_schema  # noqa: E402
 from segment_schema import ensure_corpus_schema, utc_now  # noqa: E402
+import build_eval_set  # noqa: E402
 
 
 class BuildEvalSetTests(unittest.TestCase):
@@ -32,7 +35,7 @@ class BuildEvalSetTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def _build_catalog(self) -> None:
-        with sqlite3.connect(self.catalog) as conn:
+        with closing(sqlite3.connect(self.catalog)) as conn, conn:
             conn.execute(
                 "CREATE TABLE items (id INTEGER PRIMARY KEY, code TEXT UNIQUE, "
                 "year INTEGER, event_type TEXT)"
@@ -49,7 +52,7 @@ class BuildEvalSetTests(unittest.TestCase):
             )
 
     def _build_corpus(self) -> None:
-        with sqlite3.connect(self.db) as conn:
+        with closing(sqlite3.connect(self.db)) as conn, conn:
             conn.execute("PRAGMA foreign_keys = ON")
             ensure_corpus_schema(conn)
             ensure_concept_schema(conn)
@@ -101,8 +104,11 @@ class BuildEvalSetTests(unittest.TestCase):
         )
 
     def query(self, sql: str, params=()):
-        with sqlite3.connect(self.db) as conn:
+        conn = sqlite3.connect(self.db)
+        try:
             return conn.execute(sql, params).fetchall()
+        finally:
+            conn.close()
 
     def test_same_seed_selects_identical_passages_and_export_has_no_text(self) -> None:
         first = self.run_script("pilot-one")
@@ -112,9 +118,11 @@ class BuildEvalSetTests(unittest.TestCase):
         second = self.run_script("pilot-two", export=second_export)
         self.assertEqual(0, second.returncode, second.stderr)
         second_rows = [json.loads(line) for line in second_export.read_text().splitlines()]
-        self.assertEqual(first_rows, second_rows)
-        self.assertTrue(all("text" not in row for row in first_rows))
-        self.assertTrue(all(len(row["text_sha256"]) == 64 for row in first_rows))
+        self.assertEqual("eval_set", first_rows[0]["kind"])
+        self.assertEqual(1, first_rows[0]["format"])
+        self.assertEqual(first_rows[1:], second_rows[1:])
+        self.assertTrue(all("text" not in row for row in first_rows[1:]))
+        self.assertTrue(all(len(row["text_sha256"]) == 64 for row in first_rows[1:]))
 
     def test_weights_sum_to_frame_and_heuristic_attribution_is_included(self) -> None:
         result = self.run_script("weights")
@@ -147,6 +155,67 @@ class BuildEvalSetTests(unittest.TestCase):
         after = {table: self.query(f"SELECT * FROM {table}") for table in before}
         self.assertEqual(before, after)
         self.assertFalse(self.export.exists())
+
+    def test_export_failure_rolls_back_database(self) -> None:
+        argv = [
+            str(SCRIPT), "--name", "broken-export", "--size", "9", "--seed", "17",
+            "--db", str(self.db), "--catalog", str(self.catalog),
+            "--export", str(self.export),
+        ]
+        with mock.patch.object(sys, "argv", argv), \
+                mock.patch.object(build_eval_set.os, "replace", side_effect=OSError("disk full")):
+            with self.assertRaises(SystemExit) as raised:
+                build_eval_set.main()
+        self.assertIn("disk full", str(raised.exception))
+        self.assertEqual([], self.query("SELECT * FROM eval_sets WHERE name='broken-export'"))
+        self.assertFalse(self.export.exists())
+
+    def test_jsonl_round_trip_restores_membership_weights_and_strata(self) -> None:
+        built = self.run_script("round-trip")
+        self.assertEqual(0, built.returncode, built.stderr)
+        query = """SELECT a.item_code,a.transcript_kind,a.transcript_language,
+                          a.passage_seq,a.text_sha256,ep.stratum_json,ep.sample_weight
+                   FROM eval_set_passages ep
+                   JOIN eval_sets es ON es.id=ep.eval_set_id
+                   JOIN passage_anchors a ON a.id=ep.anchor_id
+                   WHERE es.name='round-trip'
+                   ORDER BY a.item_code,a.transcript_kind,a.transcript_language,
+                            a.passage_seq,a.text_sha256"""
+        before = self.query(query)
+        with closing(sqlite3.connect(self.db)) as conn, conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            conn.execute("DELETE FROM eval_sets")
+            conn.execute("DELETE FROM passage_anchors")
+            conn.execute("DELETE FROM transcripts")
+        restored = subprocess.run(
+            [sys.executable, str(SCRIPT), "--import", str(self.export),
+             "--db", str(self.db)],
+            text=True, capture_output=True,
+        )
+        self.assertEqual(0, restored.returncode, restored.stderr)
+        self.assertEqual(before, self.query(query))
+        self.assertEqual([(9,)], self.query(
+            "SELECT count(*) FROM passage_anchors WHERE anchor_status='stale'"
+        ))
+        repeated = subprocess.run(
+            [sys.executable, str(SCRIPT), "--import", str(self.export),
+             "--db", str(self.db)],
+            text=True, capture_output=True,
+        )
+        self.assertEqual(0, repeated.returncode, repeated.stderr)
+        self.assertIn("verified existing", repeated.stdout)
+
+    def test_export_only_regenerates_tracked_format(self) -> None:
+        built = self.run_script("export-again")
+        self.assertEqual(0, built.returncode, built.stderr)
+        regenerated = self.root / "regenerated.jsonl"
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--export-only", "export-again",
+             "--db", str(self.db), "--export", str(regenerated)],
+            text=True, capture_output=True,
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(self.export.read_text(), regenerated.read_text())
 
 
 if __name__ == "__main__":

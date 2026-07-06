@@ -6,10 +6,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import random
 import re
 import sqlite3
 import sys
+import tempfile
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -217,25 +219,281 @@ def upsert_anchor(conn: sqlite3.Connection, candidate: Candidate, now: str) -> i
     return int(row[0])
 
 
-def export_rows(path: Path, sampled: list[tuple[Candidate, float]]) -> None:
+def metadata_row(
+    name: str, seed: int, created_at: str, description: str | None,
+    params: dict[str, object],
+) -> dict[str, object]:
+    return {
+        "kind": "eval_set",
+        "format": 1,
+        "name": name,
+        "seed": seed,
+        "created_at": created_at,
+        "description": description,
+        "params": params,
+    }
+
+
+def sampled_export_rows(
+    sampled: list[tuple[Candidate, float]],
+) -> list[dict[str, object]]:
+    rows = []
+    for candidate, weight in sampled:
+        rows.append({
+            "item_code": candidate.item_code,
+            "transcript_kind": candidate.transcript_kind,
+            "transcript_language": candidate.transcript_language,
+            "passage_seq": candidate.passage_seq,
+            "text_sha256": candidate.text_sha256,
+            "stratum": candidate.stratum_key,
+            "sample_weight": weight,
+        })
+    return rows
+
+
+def export_rows(path: Path, rows: list[dict[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
-        for candidate, weight in sampled:
-            row = {
-                "item_code": candidate.item_code,
-                "transcript_kind": candidate.transcript_kind,
-                "transcript_language": candidate.transcript_language,
-                "passage_seq": candidate.passage_seq,
-                "text_sha256": candidate.text_sha256,
-                "stratum": candidate.stratum_key,
-                "sample_weight": weight,
-            }
-            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            "w", encoding="utf-8", dir=path.parent,
+            prefix=f".{path.name}.", suffix=".tmp", delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            for row in rows:
+                handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
+def stratum_from_export(row: dict[str, object]) -> dict[str, object] | None:
+    exported = row.get("stratum_json")
+    if isinstance(exported, dict):
+        return exported
+    key = row.get("stratum")
+    if not isinstance(key, str):
+        return None
+    values: dict[str, object] = {"stratum": key}
+    names = {
+        "decade": "decade", "type": "event_type", "tier": "corpus_tier",
+        "synth": "timestamps_synthetic",
+    }
+    for part in key.split("|"):
+        source, separator, value = part.partition(":")
+        if separator and source in names:
+            values[names[source]] = int(value) if source == "synth" else value
+    return values
+
+
+def load_export(path: Path) -> tuple[dict[str, object], list[dict[str, object]]]:
+    with path.open(encoding="utf-8") as handle:
+        lines = [json.loads(line) for line in handle if line.strip()]
+    if not lines or not isinstance(lines[0], dict):
+        raise ValueError(f"empty or invalid eval-set export: {path}")
+    metadata = lines[0]
+    if metadata.get("kind") != "eval_set" or metadata.get("format") != 1:
+        raise ValueError("eval-set export must begin with kind='eval_set', format=1 metadata")
+    required = ("name", "seed", "created_at", "params")
+    missing = [key for key in required if key not in metadata]
+    if missing:
+        raise ValueError(f"eval-set metadata missing: {', '.join(missing)}")
+    rows = lines[1:]
+    if not all(isinstance(row, dict) for row in rows):
+        raise ValueError("eval-set anchor lines must be JSON objects")
+    return metadata, rows
+
+
+def anchor_key(row: dict[str, object]) -> tuple[object, ...]:
+    keys = (
+        "item_code", "transcript_kind", "transcript_language", "passage_seq",
+        "text_sha256",
+    )
+    missing = [key for key in keys if key not in row]
+    if missing:
+        raise ValueError(f"eval-set anchor missing: {', '.join(missing)}")
+    return tuple(row[key] for key in keys)
+
+
+def find_live_snapshot(
+    conn: sqlite3.Connection, row: dict[str, object]
+) -> tuple[object, ...] | None:
+    candidates = conn.execute(
+        """SELECT p.id,t.parser_version,p.text,p.speaker_code,p.t_start,p.t_end,
+                  p.timestamps_synthetic,p.attribution
+           FROM passages AS p
+           JOIN transcripts AS t ON t.id=p.transcript_id
+           WHERE p.item_code=? AND t.kind=? AND t.language=? AND p.seq=?""",
+        anchor_key(row)[:4],
+    ).fetchall()
+    matches = [candidate for candidate in candidates
+               if hashlib.sha256(candidate[2].encode("utf-8")).hexdigest()
+               == row["text_sha256"]]
+    return matches[0] if len(matches) == 1 else None
+
+
+def import_anchor(
+    conn: sqlite3.Connection, row: dict[str, object], created_at: str
+) -> tuple[int, bool]:
+    key = anchor_key(row)
+    snapshot = find_live_snapshot(conn, row)
+    existing = conn.execute(
+        """SELECT id FROM passage_anchors
+           WHERE item_code=? AND transcript_kind=? AND transcript_language=?
+             AND passage_seq=? AND text_sha256=?""",
+        key,
+    ).fetchone()
+    if snapshot is not None:
+        values = (
+            snapshot[0], *key, snapshot[1], snapshot[2], snapshot[3], snapshot[4],
+            snapshot[5], snapshot[6], snapshot[7], "live", created_at,
+        )
+        conn.execute(
+            """INSERT INTO passage_anchors(
+                   passage_id,item_code,transcript_kind,transcript_language,
+                   passage_seq,text_sha256,parser_version,text,speaker_code,t_start,
+                   t_end,timestamps_synthetic,attribution,anchor_status,created_at
+               ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+               ON CONFLICT(item_code,transcript_kind,transcript_language,passage_seq,text_sha256)
+               DO UPDATE SET passage_id=excluded.passage_id,
+                             parser_version=excluded.parser_version,text=excluded.text,
+                             speaker_code=excluded.speaker_code,t_start=excluded.t_start,
+                             t_end=excluded.t_end,
+                             timestamps_synthetic=excluded.timestamps_synthetic,
+                             attribution=excluded.attribution,anchor_status='live'""",
+            values,
+        )
+    elif existing is None:
+        # The tracked format intentionally omits transcript text. These are the
+        # strongest schema-valid placeholders available until re-ingest restores it.
+        conn.execute(
+            """INSERT INTO passage_anchors(
+                   passage_id,item_code,transcript_kind,transcript_language,
+                   passage_seq,text_sha256,parser_version,text,speaker_code,t_start,
+                   t_end,timestamps_synthetic,attribution,anchor_status,created_at
+               ) VALUES(NULL,?,?,?,?,?,'unavailable','','UNK',0,0,1,'inherit','stale',?)""",
+            (*key, created_at),
+        )
+    else:
+        conn.execute(
+            "UPDATE passage_anchors SET passage_id=NULL,anchor_status='stale' WHERE id=?",
+            (existing[0],),
+        )
+    anchor = conn.execute(
+        """SELECT id FROM passage_anchors
+           WHERE item_code=? AND transcript_kind=? AND transcript_language=?
+             AND passage_seq=? AND text_sha256=?""",
+        key,
+    ).fetchone()
+    assert anchor is not None
+    return int(anchor[0]), snapshot is None
+
+
+def export_set(conn: sqlite3.Connection, name: str) -> list[dict[str, object]]:
+    eval_set = conn.execute(
+        "SELECT id,description,sampling_json,created_at FROM eval_sets WHERE name=?",
+        (name,),
+    ).fetchone()
+    if eval_set is None:
+        raise ValueError(f"eval set not found: {name}")
+    params = json.loads(eval_set[2]) if eval_set[2] else {}
+    seed = int(params.get("seed", DEFAULT_SEED))
+    rows = [metadata_row(name, seed, eval_set[3], eval_set[1], params)]
+    members = conn.execute(
+        """SELECT a.item_code,a.transcript_kind,a.transcript_language,a.passage_seq,
+                  a.text_sha256,ep.stratum_json,ep.sample_weight
+           FROM eval_set_passages AS ep
+           JOIN passage_anchors AS a ON a.id=ep.anchor_id
+           WHERE ep.eval_set_id=?
+           ORDER BY a.item_code,a.transcript_kind,a.transcript_language,
+                    a.passage_seq,a.text_sha256""",
+        (eval_set[0],),
+    ).fetchall()
+    for member in members:
+        stratum_json = json.loads(member[5]) if member[5] else None
+        rows.append({
+            "item_code": member[0], "transcript_kind": member[1],
+            "transcript_language": member[2], "passage_seq": member[3],
+            "text_sha256": member[4],
+            "stratum": stratum_json.get("stratum") if stratum_json else None,
+            "sample_weight": member[6],
+        })
+    return rows
+
+
+def verify_existing_set(
+    conn: sqlite3.Connection, eval_set_id: int, rows: list[dict[str, object]]
+) -> None:
+    existing = conn.execute(
+        """SELECT a.item_code,a.transcript_kind,a.transcript_language,a.passage_seq,
+                  a.text_sha256,ep.stratum_json,ep.sample_weight
+           FROM eval_set_passages AS ep
+           JOIN passage_anchors AS a ON a.id=ep.anchor_id
+           WHERE ep.eval_set_id=?""",
+        (eval_set_id,),
+    ).fetchall()
+    if len(existing) != len(rows):
+        raise ValueError(
+            f"existing eval set row count differs: {len(existing)} != {len(rows)}"
+        )
+    actual = {
+        tuple(member[:5]): (json.loads(member[5]) if member[5] else None, member[6])
+        for member in existing
+    }
+    expected = {
+        anchor_key(row): (stratum_from_export(row), float(row.get("sample_weight", 1.0)))
+        for row in rows
+    }
+    if actual != expected:
+        raise ValueError("existing eval set membership, strata, or weights differ")
+
+
+def import_set(
+    conn: sqlite3.Connection, metadata: dict[str, object],
+    rows: list[dict[str, object]],
+) -> tuple[int, int, bool]:
+    name = str(metadata["name"])
+    existing = conn.execute("SELECT id FROM eval_sets WHERE name=?", (name,)).fetchone()
+    if existing is not None:
+        verify_existing_set(conn, int(existing[0]), rows)
+        return len(rows), 0, True
+    if len({anchor_key(row) for row in rows}) != len(rows):
+        raise ValueError("eval-set export contains duplicate anchors")
+    params = metadata["params"]
+    if not isinstance(params, dict):
+        raise ValueError("eval-set metadata params must be an object")
+    cursor = conn.execute(
+        "INSERT INTO eval_sets(name,description,sampling_json,created_at) VALUES(?,?,?,?)",
+        (
+            name, metadata.get("description"), json.dumps(params, sort_keys=True),
+            str(metadata["created_at"]),
+        ),
+    )
+    eval_set_id = int(cursor.lastrowid)
+    stale = 0
+    for row in rows:
+        anchor_id, is_stale = import_anchor(conn, row, str(metadata["created_at"]))
+        stale += int(is_stale)
+        conn.execute(
+            """INSERT INTO eval_set_passages(
+                   eval_set_id,anchor_id,stratum_json,sample_weight
+               ) VALUES(?,?,?,?)""",
+            (
+                eval_set_id, anchor_id,
+                json.dumps(stratum_from_export(row), sort_keys=True)
+                if stratum_from_export(row) is not None else None,
+                float(row.get("sample_weight", 1.0)),
+            ),
+        )
+    return len(rows), stale, False
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--name", required=True, help="unique eval set name")
+    ap.add_argument("--name", help="unique eval set name (build mode)")
     ap.add_argument("--size", type=int, default=500)
     ap.add_argument("--seed", type=int, default=DEFAULT_SEED)
     ap.add_argument("--db", type=Path, default=CORPUS_DB_PATH,
@@ -245,16 +503,55 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--export", type=Path,
                     help="JSONL path (default: concepts/eval/<name>.jsonl)")
+    modes = ap.add_mutually_exclusive_group()
+    modes.add_argument("--import", dest="import_path", type=Path, metavar="PATH",
+                       help="restore an eval set from format-1 JSONL")
+    modes.add_argument("--export-only", metavar="NAME",
+                       help="regenerate an eval-set JSONL from the database")
     args = ap.parse_args()
-    export_path = args.export or ROOT / "concepts" / "eval" / f"{args.name}.jsonl"
+
+    if not args.import_path and not args.export_only and not args.name:
+        ap.error("--name is required in build mode")
+    if args.import_path and args.name:
+        ap.error("--name cannot be combined with --import")
+    selected_name = args.export_only or args.name
+    export_path = args.export or (
+        ROOT / "concepts" / "eval" / f"{selected_name}.jsonl"
+        if selected_name else None
+    )
 
     if not args.db.is_file():
         sys.exit(f"corpus database not found: {args.db}")
     conn = sqlite3.connect(args.db)
     conn.execute("PRAGMA foreign_keys = ON")
     try:
+        if args.import_path:
+            if args.dry_run:
+                raise ValueError("--dry-run is not supported with --import")
+            ensure_concept_schema(conn)
+            conn.commit()
+            metadata, rows = load_export(args.import_path)
+            conn.execute("BEGIN")
+            count, stale, no_op = import_set(conn, metadata, rows)
+            violations = conn.execute("PRAGMA foreign_key_check").fetchall()
+            if violations:
+                raise RuntimeError(f"foreign key violations: {violations}")
+            conn.commit()
+            action = "verified existing" if no_op else "imported"
+            warning = f" warnings_stale={stale}" if stale else ""
+            print(f"{action} eval set {metadata['name']!r}: rows={count}{warning}")
+            return
+
         if not args.dry_run:
             ensure_concept_schema(conn)
+            conn.commit()
+        if args.export_only:
+            assert export_path is not None
+            rows = export_set(conn, args.export_only)
+            export_rows(export_path, rows)
+            print(f"exported eval set {args.export_only!r}: rows={len(rows) - 1} export={export_path}")
+            return
+
         attach_catalog_readonly(conn, args.catalog)
         if not args.dry_run and conn.execute(
             "SELECT 1 FROM eval_sets WHERE name=?", (args.name,)
@@ -282,11 +579,16 @@ def main() -> None:
             return
 
         now = utc_now()
+        description = (
+            "Reproducible stratified sample of manual K passages; "
+            "sampling details in sampling_json."
+        )
+        conn.execute("BEGIN")
         cursor = conn.execute(
             "INSERT INTO eval_sets(name,description,sampling_json,created_at) VALUES(?,?,?,?)",
             (
                 args.name,
-                "Reproducible stratified sample of manual K passages; sampling details in sampling_json.",
+                description,
                 json.dumps(sampling, sort_keys=True),
                 now,
             ),
@@ -306,8 +608,11 @@ def main() -> None:
         violations = conn.execute("PRAGMA foreign_key_check").fetchall()
         if violations:
             raise RuntimeError(f"foreign key violations: {violations}")
+        assert export_path is not None
+        export = [metadata_row(args.name, args.seed, now, description, sampling)]
+        export.extend(sampled_export_rows(sampled))
+        export_rows(export_path, export)
         conn.commit()
-        export_rows(export_path, sampled)
         print(
             f"created eval set {args.name!r}: frame={len(frame)} "
             f"sampled={len(sampled)} strata={len(strata_summary)} export={export_path}"
