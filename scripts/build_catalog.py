@@ -28,7 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 from footage_schema import footage_type_from_media_type  # noqa: E402
 from media_schema import ITEM_MEDIA_DDL  # noqa: E402
-from segment_schema import ensure_segment_schema  # noqa: E402
+from segment_schema import ensure_corpus_tiers  # noqa: E402
 
 PDF_DEFAULT = ROOT / "Krishnamurti-Foundation-Trust-–-Full-Length-Directory-2026.pdf"
 PLACES_FILE = Path(__file__).resolve().parent / "places.json"
@@ -744,19 +744,16 @@ def init_db(conn: sqlite3.Connection) -> None:
     )
     # item_media (download tracking) shares its DDL with the download scripts.
     conn.executescript(ITEM_MEDIA_DDL)
-    # L1/L2 teachings-corpus tables (transcripts/segments/passages/FTS), populated
-    # by scripts/parse_vtt.py. Created empty here; see PHASE2_TABLES note below.
-    ensure_segment_schema(conn)
+    # The generated L1/L2 corpus lives in corpus/krishnamurti-corpus.db. Only
+    # its catalog-side tier and derived scope flag belong in this rebuilt database.
+    ensure_corpus_tiers(conn)
 
 
 # Tables populated by phase-2 scripts (discover_links.py, download_*.py).
 # A rebuild drops the DB, so their rows are carried across keyed by item code.
 #
-# The L1/L2 corpus tables (transcripts/segments/passages/passages_fts) are
-# DELIBERATELY NOT listed here: snapshot/restore re-keys rows by items.code with
-# fresh autoincrement ids, which would break their internal transcript_id/
-# segment_id cross-references. They are instead regenerated from the on-disk VTTs
-# by parse_vtt.py (idempotent per item+kind), so just re-run it after a rebuild.
+# The generated L1/L2 tables live in a separate, gitignored corpus database and
+# are therefore outside both catalog rebuilds and this snapshot/restore list.
 PHASE2_TABLES = ("item_links", "item_subtitles", "item_media")
 
 
@@ -1002,9 +999,8 @@ def save_db(
     print("Applying overlays (10A education directory, 11A channel recordings)...")
     add_education_directory.apply(conn)
     add_channel_recordings.apply(conn)
-    # Corpus scope gate: EBM excerpts are re-cuts of parent talks and would
-    # duplicate passages in FTS. (Runs after inserts; init_db only adds the column.)
-    conn.execute("UPDATE items SET corpus_include = 0 WHERE event_type = 'EBM'")
+    # Populate explicit corpus tiers after every PDF and overlay item exists.
+    ensure_corpus_tiers(conn)
     # apply() seeded JSON-default links for the overlay items. For any item the
     # OLD DB already knew (known_codes), its snapshotted link state is the live
     # truth — including URL/note corrections AND intentional deletions (no rows)

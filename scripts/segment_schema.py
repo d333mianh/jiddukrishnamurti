@@ -1,98 +1,124 @@
-"""SQLite schema for the L1/L2 teachings-corpus layer (transcripts → segments → passages).
+"""SQLite schema for the generated L1/L2 teachings corpus.
 
-Built on top of the catalog (items) and download-state (item_subtitles) tables.
-One row per ingested transcript file (L1), one per speaker turn (L2 segments),
-and K monologues sub-chunked into ~150-200-word passages (the citation unit).
-A K-only FTS5 index sits over passages for full-text search of Krishnamurti's words.
-
-Deliberately NOT registered in build_catalog.py PHASE2_TABLES: that snapshot/restore
-re-keys rows by items.code with fresh autoincrement ids, which would corrupt the
-transcript_id/segment_id cross-references here. Instead these tables are rebuilt by
-parse_vtt.py, which is idempotent per (item, kind) and safe to re-run after any
-catalog rebuild. ensure_segment_schema() is called from build_catalog.init_db so a
-fresh DB always has an empty-but-valid corpus schema.
+The corpus lives in ``corpus/krishnamurti-corpus.db``, separate from the
+catalog and pipeline-state database. Corpus rows use the stable catalog item
+code rather than ``items.id``: SQLite foreign keys cannot cross an attached
+database, and catalog row ids may change on rebuild.
 """
 
 from __future__ import annotations
 
 import sqlite3
 from datetime import datetime, timezone
+from pathlib import Path
 
-PARSER_VERSION = "l2-parser-v1"
+PARSER_VERSION = "l2-parser-v3"
+
+TIER_A_EVENT_TYPES = frozenset({
+    "T", "TS", "TSS", "TYP", "TR", "Q", "S", "SBR", "D", "DT", "DS", "DSS",
+})
+TIER_B_EVENT_TYPES = frozenset({"DSG", "DYP", "DCO", "DTV", "WOL", "HF"})
 
 SEGMENT_DDL = """
+CREATE TABLE IF NOT EXISTS corpus_meta (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL
+);
+
 -- L1: one row per ingested transcript file (provenance).
 CREATE TABLE IF NOT EXISTS transcripts (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
-    item_id        INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-    kind           TEXT    NOT NULL,            -- mirrors item_subtitles.kind: 'manual' | 'whisper-large-v3-turbo' | future 'scribe-v2'
-    language       TEXT    NOT NULL,            -- 'en' OR 'en-GB' (do NOT filter to 'en' only)
-    source_path    TEXT    NOT NULL,            -- resolved on-disk path actually parsed (relative to media root)
-    resolved_via   TEXT    NOT NULL,            -- 'direct' | 'combined-multipart' | 'override'
+    item_code      TEXT    NOT NULL,
+    event_type     TEXT,
+    corpus_tier    TEXT    NOT NULL CHECK(corpus_tier IN ('A','B','C','X')),
+    kind           TEXT    NOT NULL,
+    language       TEXT    NOT NULL,
+    source_path    TEXT    NOT NULL,
+    resolved_via   TEXT    NOT NULL,
     cue_count      INTEGER,
     segment_count  INTEGER,
     passage_count  INTEGER,
     word_count     INTEGER,
     duration_secs  REAL,
     parser_version TEXT    NOT NULL,
+    assumed_k      INTEGER NOT NULL DEFAULT 0,
     parsed_at      TEXT    NOT NULL,
-    UNIQUE(item_id, kind, language)
+    UNIQUE(item_code, kind, language)
 );
-CREATE INDEX IF NOT EXISTS idx_transcripts_item ON transcripts(item_id);
+CREATE INDEX IF NOT EXISTS idx_transcripts_item ON transcripts(item_code);
 CREATE INDEX IF NOT EXISTS idx_transcripts_kind ON transcripts(kind);
 
--- L2a: per-item speaker-label registry, learned by scanning the file's actual labels.
+-- L2a: per-transcript speaker-label registry.
 CREATE TABLE IF NOT EXISTS speaker_labels (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     transcript_id INTEGER NOT NULL REFERENCES transcripts(id) ON DELETE CASCADE,
-    raw_label     TEXT    NOT NULL,             -- as seen, sans trailing ': '  e.g. 'K','Krishnamurti','DB','David Bohm','Q'
-    speaker_code  TEXT    NOT NULL,             -- canonical: 'K' | 'Q' | 'DB' | 'AWA' | 'ANN' | 'UNK' | ...
-    display_name  TEXT,                         -- 'Krishnamurti' | 'David Bohm' | 'Questioner'
-    cue_hits      INTEGER NOT NULL DEFAULT 0,   -- how many cues opened with this raw label
+    raw_label     TEXT    NOT NULL,
+    speaker_code  TEXT    NOT NULL,
+    display_name  TEXT,
+    cue_hits      INTEGER NOT NULL DEFAULT 0,
     UNIQUE(transcript_id, raw_label)
 );
 CREATE INDEX IF NOT EXISTS idx_speaker_labels_transcript ON speaker_labels(transcript_id);
 
 -- L2b: atomic speaker turns (one contiguous same-speaker run of cues).
 CREATE TABLE IF NOT EXISTS segments (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    transcript_id INTEGER NOT NULL REFERENCES transcripts(id) ON DELETE CASCADE,
-    item_id       INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,  -- denormalized for stats joins
-    seq           INTEGER NOT NULL,             -- 0-based turn order within the transcript
-    speaker_code  TEXT    NOT NULL,
-    raw_label     TEXT,                         -- label that opened the turn; NULL if inherited
-    t_start       REAL    NOT NULL,             -- seconds, from first cue of the turn
-    t_end         REAL    NOT NULL,             -- seconds, from last cue of the turn
-    text          TEXT    NOT NULL,             -- cues joined, label stripped
-    word_count    INTEGER NOT NULL,
-    answers_seq   INTEGER,                      -- for a K turn answering a Q: that Q turn's seq (else NULL)
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    transcript_id        INTEGER NOT NULL REFERENCES transcripts(id) ON DELETE CASCADE,
+    item_code            TEXT    NOT NULL,
+    seq                  INTEGER NOT NULL,
+    speaker_code         TEXT    NOT NULL,
+    raw_label            TEXT,
+    t_start              REAL    NOT NULL,
+    t_end                REAL    NOT NULL,
+    timestamps_synthetic INTEGER NOT NULL DEFAULT 0,
+    text                 TEXT    NOT NULL,
+    word_count           INTEGER NOT NULL,
+    answers_seq          INTEGER,
+    attribution          TEXT    NOT NULL DEFAULT 'inherit'
+                                CHECK(attribution IN ('label','inherit','assumed_k','q_boundary_heuristic')),
     UNIQUE(transcript_id, seq)
 );
-CREATE INDEX IF NOT EXISTS idx_segments_item ON segments(item_id);
+CREATE INDEX IF NOT EXISTS idx_segments_item ON segments(item_code);
 CREATE INDEX IF NOT EXISTS idx_segments_transcript ON segments(transcript_id);
 CREATE INDEX IF NOT EXISTS idx_segments_speaker ON segments(speaker_code);
 
--- L2c: passages — K monologues sub-chunked to ~150-200 words at sentence boundaries;
--- non-K turns are one passage each. This is the unit L3 tags and L4 cites.
+-- L2c: K monologues are sub-chunked; non-K turns remain one passage each.
 CREATE TABLE IF NOT EXISTS passages (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    transcript_id INTEGER NOT NULL REFERENCES transcripts(id) ON DELETE CASCADE,
-    segment_id    INTEGER NOT NULL REFERENCES segments(id) ON DELETE CASCADE,
-    item_id       INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-    seq           INTEGER NOT NULL,             -- 0-based passage order within the transcript
-    speaker_code  TEXT    NOT NULL,
-    t_start       REAL    NOT NULL,
-    t_end         REAL    NOT NULL,
-    text          TEXT    NOT NULL,
-    word_count    INTEGER NOT NULL,
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    transcript_id        INTEGER NOT NULL REFERENCES transcripts(id) ON DELETE CASCADE,
+    segment_id           INTEGER NOT NULL REFERENCES segments(id) ON DELETE CASCADE,
+    item_code            TEXT    NOT NULL,
+    seq                  INTEGER NOT NULL,
+    speaker_code         TEXT    NOT NULL,
+    t_start              REAL    NOT NULL,
+    t_end                REAL    NOT NULL,
+    timestamps_synthetic INTEGER NOT NULL DEFAULT 0,
+    text                 TEXT    NOT NULL,
+    word_count           INTEGER NOT NULL,
+    attribution          TEXT    NOT NULL DEFAULT 'inherit'
+                                CHECK(attribution IN ('label','inherit','assumed_k','q_boundary_heuristic')),
     UNIQUE(transcript_id, seq)
 );
-CREATE INDEX IF NOT EXISTS idx_passages_item ON passages(item_id);
+CREATE INDEX IF NOT EXISTS idx_passages_item ON passages(item_code);
 CREATE INDEX IF NOT EXISTS idx_passages_segment ON passages(segment_id);
 CREATE INDEX IF NOT EXISTS idx_passages_speaker ON passages(speaker_code);
 
--- L2d: full-text index over K-only passage text. Plain FTS5 (not external-content) so
--- K-only population and per-item re-ingest deletes stay simple. rowid == passages.id.
+CREATE TABLE IF NOT EXISTS transcript_qa (
+    transcript_id    INTEGER PRIMARY KEY REFERENCES transcripts(id) ON DELETE CASCADE,
+    item_code        TEXT    NOT NULL,
+    status           TEXT    NOT NULL CHECK(status IN ('pass', 'warn')),
+    validation_rule  TEXT    NOT NULL,
+    failure_codes    TEXT,
+    detail           TEXT,
+    speaker_count    INTEGER NOT NULL,
+    k_passage_count  INTEGER NOT NULL,
+    k_word_count     INTEGER NOT NULL,
+    checked_at       TEXT    NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_transcript_qa_status ON transcript_qa(status);
+CREATE INDEX IF NOT EXISTS idx_transcript_qa_item ON transcript_qa(item_code);
+
+-- Plain FTS5 (not external-content) keeps K-only population and re-ingest simple.
 CREATE VIRTUAL TABLE IF NOT EXISTS passages_fts USING fts5(
     text,
     tokenize = 'unicode61 remove_diacritics 2'
@@ -100,27 +126,110 @@ CREATE VIRTUAL TABLE IF NOT EXISTS passages_fts USING fts5(
 """
 
 
-def ensure_corpus_include(conn: sqlite3.Connection) -> None:
-    """Scope gate for corpus ingestion (STRATEGY: Tier-C/EBM exclusion).
+def corpus_tier_for_event_type(event_type: str | None) -> str:
+    """Return the explicit corpus tier for a catalog event type."""
+    normalized = (event_type or "").strip().upper()
+    if normalized == "EBM":
+        return "X"
+    if normalized in TIER_A_EVENT_TYPES:
+        return "A"
+    if normalized.startswith("F"):
+        return "C"
+    if normalized.startswith(("C", "I")) or normalized in TIER_B_EVENT_TYPES:
+        return "B"
+    return "B"
 
-    Adds items.corpus_include (default 1) and, only when the column is newly
-    created, marks the EBM excerpts 0 — they are re-cuts of parent talks and
-    would duplicate passages in the FTS index. An existing column is left
-    untouched so manual overrides survive re-runs.
-    """
+
+def _event_type_is_mapped(event_type: str | None) -> bool:
+    normalized = (event_type or "").strip().upper()
+    return (
+        normalized == "EBM"
+        or normalized in TIER_A_EVENT_TYPES
+        or normalized.startswith(("F", "C", "I"))
+        or normalized in TIER_B_EVENT_TYPES
+    )
+
+
+def ensure_corpus_tiers(conn: sqlite3.Connection) -> None:
+    """Add and populate catalog-side corpus tier and derived include columns."""
+    tables = {
+        r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )
+    }
+    if "items" not in tables:
+        return
     cols = {r[1] for r in conn.execute("PRAGMA table_info(items)")}
-    if "items" in {r[0] for r in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")} and \
-            "corpus_include" not in cols:
+    if "corpus_include" not in cols:
         conn.execute(
             "ALTER TABLE items ADD COLUMN corpus_include INTEGER NOT NULL DEFAULT 1"
         )
-        conn.execute("UPDATE items SET corpus_include = 0 WHERE event_type = 'EBM'")
+    if "corpus_tier" not in cols:
+        conn.execute("ALTER TABLE items ADD COLUMN corpus_tier TEXT")
+
+    rows = conn.execute("SELECT id,event_type FROM items").fetchall()
+    unknown = sorted({
+        "<NULL>" if event_type is None else str(event_type)
+        for _, event_type in rows
+        if not _event_type_is_mapped(event_type)
+    })
+    if unknown:
+        print(
+            "WARN unmapped event_type(s) defaulting to corpus tier B: "
+            + ", ".join(unknown)
+        )
+    for item_id, event_type in rows:
+        tier = corpus_tier_for_event_type(event_type)
+        include = int(tier != "X")
+        conn.execute(
+            """UPDATE items SET corpus_tier=?, corpus_include=?
+               WHERE id=? AND (corpus_tier IS NOT ? OR corpus_include != ?)""",
+            (tier, include, item_id, tier, include),
+        )
 
 
-def ensure_segment_schema(conn: sqlite3.Connection) -> None:
+def ensure_corpus_include(conn: sqlite3.Connection) -> None:
+    """Backward-compatible alias for the catalog tier populator."""
+    ensure_corpus_tiers(conn)
+
+
+def ensure_corpus_schema(
+    conn: sqlite3.Connection, catalog_db_path: Path | str | None = None
+) -> None:
+    """Ensure corpus tables and record database-level provenance."""
     conn.executescript(SEGMENT_DDL)
-    ensure_corpus_include(conn)
+    transcript_cols = {r[1] for r in conn.execute("PRAGMA table_info(transcripts)")}
+    if "corpus_tier" not in transcript_cols:
+        conn.execute(
+            "ALTER TABLE transcripts ADD COLUMN corpus_tier TEXT "
+            "CHECK(corpus_tier IN ('A','B','C','X'))"
+        )
+    # Additive migration for corpora created by parser v2. Full re-ingest fills
+    # these values with cue-level attribution provenance.
+    for table in ("segments", "passages"):
+        cols = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+        if "attribution" not in cols:
+            conn.execute(
+                f"ALTER TABLE {table} ADD COLUMN attribution TEXT NOT NULL "
+                "DEFAULT 'inherit' CHECK(attribution IN "
+                "('label','inherit','assumed_k','q_boundary_heuristic'))"
+            )
+    now = utc_now()
+    conn.execute(
+        "INSERT OR IGNORE INTO corpus_meta(key,value) VALUES('created_at',?)", (now,)
+    )
+    conn.execute(
+        "INSERT INTO corpus_meta(key,value) VALUES('parser_version',?) "
+        "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+        (PARSER_VERSION,),
+    )
+    if catalog_db_path is not None:
+        source = str(Path(catalog_db_path).expanduser().resolve())
+        conn.execute(
+            "INSERT INTO corpus_meta(key,value) VALUES('source_catalog_db',?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (source,),
+        )
 
 
 def utc_now() -> str:
@@ -128,19 +237,23 @@ def utc_now() -> str:
 
 
 if __name__ == "__main__":
-    # Smoke test: ensure the schema against whatever DB path is passed (default: a temp copy is safer).
     import sys
 
-    db = sys.argv[1] if len(sys.argv) > 1 else "catalog/krishnamurti.db"
+    db = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("corpus/krishnamurti-corpus.db")
+    catalog = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("catalog/krishnamurti.db")
+    db.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db)
-    ensure_segment_schema(conn)
+    conn.execute("PRAGMA foreign_keys = ON")
+    ensure_corpus_schema(conn, catalog)
     conn.commit()
     tables = [
         r[0]
         for r in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type IN ('table') OR sql LIKE '%VIRTUAL%' ORDER BY name"
+            "SELECT name FROM sqlite_master WHERE type IN ('table','view') ORDER BY name"
         )
     ]
-    print(f"schema ensured on {db}")
-    print("corpus tables present:", [t for t in tables if t in
-          ("transcripts", "speaker_labels", "segments", "passages", "passages_fts")])
+    print(f"corpus schema ensured on {db}")
+    print("corpus tables present:", [t for t in tables if t in {
+        "corpus_meta", "transcripts", "speaker_labels", "segments", "passages",
+        "passages_fts", "transcript_qa",
+    }])

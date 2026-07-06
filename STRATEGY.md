@@ -159,3 +159,16 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   thematic scaffold for a future learning-pattern / topic-structure phase.
   Note: no per-excerpt provenance mapping exists yet (which source talk each is
   cut from is unrecorded); build that if/when passage-level dedup is needed.
+- 2026-07-05 — `BR74FPL` is the sole item whose full video remains private and
+  unavailable for STT. KFT publishes the complete official prose transcript, so
+  it is archived as `item_subtitles.kind='kft-web-transcript'` (`format='txt'`)
+  with source/checksum metadata. The source has no timecodes: do not manufacture
+  VTT cues or timestamped citations, and do not ingest it into timed L2 passages
+  unless the media or authoritative timings become available.
+- 2026-07-05 — corpus relevance is recorded per item as explicit tiers: **A**
+  (core talks, Q&A, seminars, and named dialogues), **B** (conversations,
+  interviews, group/young-people discussions, and related archive material),
+  **C** (films/documentaries), and **X** (the 12 duplicate `EBM` excerpts).
+  Tiers A/B/C remain fully ingested; FTS contains K passages from A/B only.
+  Films remain archival L1/L2 but are FTS-excluded pending provenance review.
+  Unknown future event types default to B with a warning.

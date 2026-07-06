@@ -4,12 +4,10 @@
 Pipeline per item:
   1. resolve the on-disk VTT (heals multi-part path drift; brctl-materializes iCloud)
   2. parse cues (HH:MM:SS.mmm timestamps; cue text = wrapped lines joined)
-  3. build a PER-ITEM speaker-label registry by scanning the file's own labels
-     (admit a label only if it is a trusted seed OR recurs >=2x — this is what
-     defeats false positives like "There is extraordinary change:" which look like
-     "Label:" but appear once and are not seeds)
-  4. tag each cue's speaker via the registry allowlist; unlabeled cues inherit the
-     previous speaker; leading unlabeled cues = ANN (announcer intro)
+  3. build a PER-ITEM speaker-label registry from cue-start labels and trusted
+     labels embedded inside cues
+  4. tag each cue via that allowlist; entirely unlabeled single-speaker talks
+     default to K (obvious opening housekeeping may remain ANN)
   5. merge contiguous same-speaker cues into atomic turn segments
   6. sub-chunk K monologues into ~150-200-word passages at sentence boundaries
      (non-K turns = one passage each); timestamps come from the bounding cues
@@ -18,10 +16,10 @@ Pipeline per item:
 Idempotent per (item, kind, language): re-ingesting deletes the prior rows first.
 
 Usage:
-  # standalone slice / validation (no DB lookups; provide the file directly):
+  # standalone slice / validation (item metadata still comes from the catalog):
   parse_vtt.py --db /tmp/k_test.db --vtt "/path/to/LO61T1.en.vtt" --item LO61T1
   # batch from the catalog (resolves VTTs under the media root):
-  parse_vtt.py --db catalog/krishnamurti.db --event-type T [--limit N]
+  parse_vtt.py --event-type T [--limit N]
 """
 from __future__ import annotations
 
@@ -36,14 +34,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DB_PATH = ROOT / "catalog" / "krishnamurti.db"
+CATALOG_DB_PATH = ROOT / "catalog" / "krishnamurti.db"
+CORPUS_DB_PATH = ROOT / "corpus" / "krishnamurti-corpus.db"
 MEDIA_ROOT = (
     Path.home()
     / "Library/Mobile Documents/com~apple~CloudDocs/00-cod3/jiddu-krishnamurti"
 )
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from segment_schema import PARSER_VERSION, ensure_segment_schema  # noqa: E402
+from segment_schema import PARSER_VERSION, ensure_corpus_schema  # noqa: E402
 
 # ── passage sizing ────────────────────────────────────────────────────────────
 TARGET_MIN, HARD_MAX, MIN_TAIL = 150, 260, 60
@@ -70,6 +69,14 @@ SEED_MAP = {
 # "Yes:absolutely" from being minted as a speaker.
 SEED_LABELS = ALWAYS_SEED | set(SEED_MAP)
 
+# Event types whose unlabeled manual subtitles are expected to be K monologues.
+# Discussion, conversation, interview, seminar, and film families are deliberately
+# absent: without labels or diarization they must remain unresolved.
+SINGLE_SPEAKER_K_EVENTS = {"T", "TS", "TYP", "TR", "FTPL", "EBM"}
+MIN_DIALOGUE_K_WORDS = 20
+Q_BOUNDARY_MAX_CUES = 12
+Q_BOUNDARY_MAX_WORDS = 180
+
 # A cue may open with a speaker label ("K: ...", "David Bohm: ..."). The space and
 # the tail are captured separately so parse_cues can accept a multi-word label only
 # when a space (or end-of-cue) follows the colon — leaving a prose colon like
@@ -83,6 +90,12 @@ TS_RE = re.compile(
 ABBREV = {"mr", "mrs", "ms", "dr", "st", "sr", "jr", "vs", "etc", "no", "vol"}
 # Quote/bracket wrappers stripped from BOTH ends of a token before sentence-end tests.
 WRAP = "\"'’‘“”()[]"
+ANNOUNCER_RE = re.compile(
+    r"\b(?:ladies and gentlemen|please (?:welcome|switch off|turn off)|"
+    r"welcome to|an announcement|before (?:we|the talk)|mr\.? krishnamurti "
+    r"will|this (?:is|was) the \w+ (?:talk|meeting))\b",
+    re.I,
+)
 
 
 @dataclass
@@ -92,12 +105,14 @@ class Cue:
     text: str
     label: str | None = None  # raw label that opened the cue, if any (pre-registry)
     rest: str = ""            # cue text with the label stripped
+    timestamps_synthetic: bool = False
 
 
 @dataclass
 class Segment:
     speaker_code: str
     raw_label: str | None
+    attribution: str
     cues: list[Cue] = field(default_factory=list)
 
 
@@ -139,16 +154,37 @@ def parse_cues(text: str) -> list[Cue]:
 
 
 def build_registry(cues: list[Cue]) -> dict[str, tuple[str, str, int]]:
-    """raw_label -> (speaker_code, display_name, cue_hits). Admit a label only if it
-    is a trusted seed or recurs >=2x; everything else is a sentence-internal colon."""
+    """Return raw_label -> (speaker_code, display_name, cue_hits).
+
+    Known/registered labels are admitted wherever they occur. Unknown labels
+    must recur at cue start and look like short initials; recurring prose and
+    arbitrary multiword strings are never promoted to speakers.
+    """
     counts: dict[str, int] = {}
     for c in cues:
         if c.label is not None:
             counts[c.label] = counts.get(c.label, 0) + 1
+    trusted_alt = "|".join(
+        re.escape(label) for label in sorted(SEED_LABELS, key=len, reverse=True)
+    )
+    trusted_embedded = re.compile(
+        r"(?<![A-Za-z0-9])(" + trusted_alt + r"):\s*", re.I
+    )
+    for c in cues:
+        for match in trusted_embedded.finditer(c.text):
+            if match.start() == 0:
+                continue  # already counted as a cue-start candidate
+            raw = match.group(1)
+            counts[raw] = counts.get(raw, 0) + 1
     registry: dict[str, tuple[str, str, int]] = {}
     for raw, n in counts.items():
         token = raw.lower().strip()
-        admit = token in ALWAYS_SEED or n >= 2
+        short_cue_start = (
+            n >= 2
+            and " " not in raw.strip()
+            and re.fullmatch(r"[A-Z][A-Z0-9]{0,3}", raw.strip()) is not None
+        )
+        admit = token in SEED_LABELS or short_cue_start
         if not admit:
             continue
         if token in SEED_MAP:
@@ -171,13 +207,19 @@ def split_embedded(cues: list[Cue], registry: dict) -> list[Cue]:
     # match a registry label's colon whether or not a space follows ("Q:No." as well
     # as "Q: No.") — same no-space tolerance as LABEL_RE, so a cue that packs a speaker
     # change with no space ("Q:No. K:Right.") splits instead of collapsing to one tag.
-    splitter = re.compile(r"(?:^|(?<=\s))(" + alt + r"):\s*")
+    splitter = re.compile(
+        r"(?:^|(?<=[\s.!?]))(" + alt + r"):\s*", re.I
+    )
+    canonical_raw = {raw.casefold(): raw for raw in registry}
     out: list[Cue] = []
     for c in cues:
         body = c.text
         matches = list(splitter.finditer(body))
         if not matches:
-            out.append(Cue(c.t_start, c.t_end, body, label=None, rest=body))
+            label = canonical_raw.get(c.label.casefold()) if c.label else None
+            rest = c.rest if label else body
+            out.append(Cue(c.t_start, c.t_end, body, label=label, rest=rest,
+                           timestamps_synthetic=c.timestamps_synthetic))
             continue
         pieces: list[tuple[str | None, str]] = []
         if matches[0].start() > 0:
@@ -186,7 +228,8 @@ def split_embedded(cues: list[Cue], registry: dict) -> list[Cue]:
                 pieces.append((None, lead))
         for i, m in enumerate(matches):
             end = matches[i + 1].start() if i + 1 < len(matches) else len(body)
-            pieces.append((m.group(1), body[m.end():end].strip()))
+            pieces.append((canonical_raw[m.group(1).casefold()], body[m.end():end].strip()))
+        interpolated = len(pieces) > 1
         total = sum(len(t.split()) for _, t in pieces) or 1
         dur = c.t_end - c.t_start
         acc = 0
@@ -194,28 +237,88 @@ def split_embedded(cues: list[Cue], registry: dict) -> list[Cue]:
             ps = c.t_start + dur * (acc / total)
             acc += len(t.split())
             pe = c.t_start + dur * (acc / total)
-            out.append(Cue(ps, pe, t, label=lbl, rest=t))
+            out.append(Cue(
+                ps, pe, t, label=lbl, rest=t,
+                timestamps_synthetic=c.timestamps_synthetic or interpolated,
+            ))
     return out
 
 
-def build_segments(cues: list[Cue], registry: dict) -> list[Segment]:
+def build_segments(
+    cues: list[Cue], registry: dict, *, assume_unlabeled_k: bool = False,
+    enable_q_boundary: bool = False,
+) -> list[Segment]:
     """Tag speakers via the registry allowlist, inherit across unlabeled cues
     (leading unlabeled cues = ANN), then merge contiguous same-speaker cues."""
     segments: list[Segment] = []
-    current = "ANN"
+    current = "K" if assume_unlabeled_k else "ANN"
+    current_attribution = "assumed_k" if assume_unlabeled_k else "inherit"
     seen_speaker = False
-    for c in cues:
+    seen_k_content = False
+    q_boundary_at: int | None = None
+    for ci, c in enumerate(cues):
         if c.label in registry:
             code, raw, text, seen_speaker = registry[c.label][0], c.label, c.rest, True
+            attribution = "label"
+            q_boundary_at = (
+                _question_boundary(cues, ci, registry)
+                if code == "Q" and enable_q_boundary else None
+            )
+        elif assume_unlabeled_k:
+            if current == "Q" and q_boundary_at is not None and ci <= q_boundary_at:
+                code, raw, text, attribution = "Q", None, c.text, "inherit"
+            elif current == "Q":
+                code, raw, text, attribution = "K", None, c.text, "q_boundary_heuristic"
+                q_boundary_at = None
+                seen_k_content = True
+            else:
+                is_intro = not seen_k_content and ANNOUNCER_RE.search(c.text) is not None
+                code, raw, text = ("ANN" if is_intro else "K"), None, c.text
+                attribution = "inherit" if is_intro else "assumed_k"
+                if code == "K":
+                    seen_k_content = True
         else:
-            code, raw, text = (current if seen_speaker else "ANN"), None, c.text
+            if current == "Q" and q_boundary_at is not None and ci > q_boundary_at:
+                code, attribution = "K", "q_boundary_heuristic"
+                q_boundary_at = None
+            else:
+                code, attribution = (current if seen_speaker else "ANN"), current_attribution
+                if attribution == "label":
+                    attribution = "inherit"
+            raw, text = None, c.text
         current = code
-        piece = Cue(c.t_start, c.t_end, text, label=raw, rest=text)
+        current_attribution = attribution
+        piece = Cue(c.t_start, c.t_end, text, label=raw, rest=text,
+                    timestamps_synthetic=c.timestamps_synthetic)
+        # A speaker turn is atomic.  Its attribution records how the turn was
+        # established; unlabeled continuation cues neither split the turn nor
+        # replace that provenance.
         if segments and segments[-1].speaker_code == code:
             segments[-1].cues.append(piece)
         else:
-            segments.append(Segment(code, raw, [piece]))
+            segments.append(Segment(code, raw, attribution, [piece]))
     return segments
+
+
+def _question_boundary(cues: list[Cue], start: int, registry: dict) -> int:
+    """Return the last cue in a short labeled question block.
+
+    KFT subtitles commonly label only the question. Scan no more than twelve
+    cues / 180 words, stop at another admitted label, and end at the last cue
+    containing a question mark. If punctuation is absent (for example
+    ``Q: (Inaudible)``), only the explicitly labeled cue is considered Q.
+    """
+    last_question = start if "?" in cues[start].rest else None
+    words = 0
+    for i in range(start, min(len(cues), start + Q_BOUNDARY_MAX_CUES)):
+        if i > start and cues[i].label in registry:
+            break
+        words += len(cues[i].rest.split())
+        if words > Q_BOUNDARY_MAX_WORDS:
+            break
+        if "?" in cues[i].rest:
+            last_question = i
+    return last_question if last_question is not None else start
 
 
 def _is_sentence_end(word: str) -> bool:
@@ -235,7 +338,7 @@ def _is_sentence_end(word: str) -> bool:
     return True
 
 
-def chunk_passages(seg: Segment) -> list[tuple[float, float, str, int]]:
+def chunk_passages(seg: Segment) -> list[tuple[float, float, str, int, bool]]:
     """K turns: split into ~150-200-word passages at sentence boundaries (tiny tail
     merges upward). Non-K turns: one passage. Timestamps from the bounding cues."""
     words: list[str] = []
@@ -250,7 +353,13 @@ def chunk_passages(seg: Segment) -> list[tuple[float, float, str, int]]:
     if n == 0:
         return []
     if seg.speaker_code != "K":
-        return [(seg.cues[0].t_start, seg.cues[-1].t_end, " ".join(words), n)]
+        return [(
+            seg.cues[0].t_start,
+            seg.cues[-1].t_end,
+            " ".join(words),
+            n,
+            any(c.timestamps_synthetic for c in seg.cues),
+        )]
 
     bounds: list[tuple[int, int]] = []
     start = 0
@@ -271,16 +380,75 @@ def chunk_passages(seg: Segment) -> list[tuple[float, float, str, int]]:
     for a, b in bounds:
         t_start = seg.cues[cue_of[a]].t_start
         t_end = seg.cues[cue_of[b]].t_end
-        out.append((t_start, t_end, " ".join(words[a:b + 1]), b - a + 1))
+        synthetic = any(
+            seg.cues[ci].timestamps_synthetic
+            for ci in set(cue_of[a:b + 1])
+        )
+        out.append((
+            t_start, t_end, " ".join(words[a:b + 1]), b - a + 1, synthetic
+        ))
     return out
 
 
-def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) -> dict:
+def _is_dialogue_event(event_type: str | None) -> bool:
+    value = (event_type or "").upper()
+    return value == "Q" or value.startswith(("D", "C", "I"))
+
+
+def _qa_result(
+    event_type: str | None, segments: list[Segment], k_passages: int
+) -> dict[str, object]:
+    content_speakers = {
+        seg.speaker_code for seg in segments if seg.speaker_code not in {"ANN", "UNK"}
+    }
+    k_words = sum(
+        len(c.rest.split())
+        for seg in segments if seg.speaker_code == "K"
+        for c in seg.cues
+    )
+    failures: list[str] = []
+    signals: list[str] = []
+    rule = "none"
+    if _is_dialogue_event(event_type):
+        rule = "dialogue"
+        if len(content_speakers) < 2:
+            signals.append("single_speaker_source")
+        if 0 < k_words < MIN_DIALOGUE_K_WORDS:
+            failures.append("trivial_k_speech")
+    elif (event_type or "").upper() == "T":
+        rule = "public_talk"
+    if k_passages == 0:
+        failures.append("zero_k_passages")
+        if rule == "none":
+            rule = "k_presence"
+    return {
+        "status": "warn" if failures else "pass",
+        "rule": rule,
+        "failure_codes": failures,
+        "signals": signals,
+        "speaker_count": len(content_speakers),
+        "k_words": k_words,
+    }
+
+
+def ingest(
+    conn,
+    *,
+    item_code,
+    event_type,
+    corpus_tier,
+    kind,
+    language,
+    source_path,
+    resolved_via,
+    cues,
+) -> dict:
     if not cues:
         raise ValueError(
-            f"refusing to ingest 0 cues for item_id={item_id} ({source_path}): "
+            f"refusing to ingest 0 cues for item={item_code} ({source_path}): "
             "would delete the prior transcript and write an empty one"
         )
+    source_cue_count = len(cues)
     registry = build_registry(cues)
     cues = split_embedded(cues, registry)  # expose two-speaker cues
     hits: dict[str, int] = {}
@@ -288,12 +456,23 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
         if c.label in registry:
             hits[c.label] = hits.get(c.label, 0) + 1
     registry = {k: (v[0], v[1], hits.get(k, v[2])) for k, v in registry.items()}
-    segments = build_segments(cues, registry)
+    registry_codes = {value[0] for value in registry.values()}
+    question_only_registry = bool(registry_codes) and registry_codes == {"Q"}
+    assumed_k = (
+        (not registry or question_only_registry)
+        and (event_type or "").upper() in SINGLE_SPEAKER_K_EVENTS
+    )
+    segments = build_segments(
+        cues,
+        registry,
+        assume_unlabeled_k=assumed_k,
+        enable_q_boundary=(event_type or "").upper() == "Q" or assumed_k,
+    )
 
     # idempotent: drop any prior transcript for this (item, kind, language)
     prev = conn.execute(
-        "SELECT id FROM transcripts WHERE item_id=? AND kind=? AND language=?",
-        (item_id, kind, language),
+        "SELECT id FROM transcripts WHERE item_code=? AND kind=? AND language=?",
+        (item_code, kind, language),
     ).fetchone()
     if prev:
         tid0 = prev[0]
@@ -301,18 +480,19 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
             "DELETE FROM passages_fts WHERE rowid IN (SELECT id FROM passages WHERE transcript_id=?)",
             (tid0,),
         )
-        for t in ("passages", "segments", "speaker_labels"):
+        for t in ("transcript_qa", "passages", "segments", "speaker_labels"):
             conn.execute(f"DELETE FROM {t} WHERE transcript_id=?", (tid0,))
         conn.execute("DELETE FROM transcripts WHERE id=?", (tid0,))
 
     now = datetime.now(timezone.utc).isoformat()
     duration = cues[-1].t_end if cues else 0.0
     tid = conn.execute(
-        """INSERT INTO transcripts(item_id,kind,language,source_path,resolved_via,
-             cue_count,segment_count,passage_count,word_count,duration_secs,parser_version,parsed_at)
-           VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
-        (item_id, kind, language, source_path, resolved_via, len(cues), 0, 0, 0,
-         duration, PARSER_VERSION, now),
+        """INSERT INTO transcripts(item_code,event_type,corpus_tier,kind,language,source_path,
+             resolved_via,cue_count,segment_count,passage_count,word_count,
+             duration_secs,parser_version,assumed_k,parsed_at)
+           VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (item_code, event_type, corpus_tier, kind, language, source_path, resolved_via,
+         source_cue_count, 0, 0, 0, duration, PARSER_VERSION, int(assumed_k), now),
     ).lastrowid
     # speaker_labels is the per-item label registry: it stores EVERY raw surface form a
     # transcript used (UNIQUE is on raw_label), so two forms of one speaker — "K:" and
@@ -335,19 +515,25 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
         total_words += wc
         answers = prev_seq if (seg.speaker_code == "K" and prev_speaker == "Q") else None
         sid = conn.execute(
-            """INSERT INTO segments(transcript_id,item_id,seq,speaker_code,raw_label,
-                 t_start,t_end,text,word_count,answers_seq) VALUES(?,?,?,?,?,?,?,?,?,?)""",
-            (tid, item_id, sseq, seg.speaker_code, seg.raw_label,
-             seg.cues[0].t_start, seg.cues[-1].t_end, text, wc, answers),
+            """INSERT INTO segments(transcript_id,item_code,seq,speaker_code,raw_label,
+                 t_start,t_end,timestamps_synthetic,text,word_count,answers_seq,attribution)
+               VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (tid, item_code, sseq, seg.speaker_code, seg.raw_label,
+             seg.cues[0].t_start, seg.cues[-1].t_end,
+             int(any(c.timestamps_synthetic for c in seg.cues)), text, wc, answers,
+             seg.attribution),
         ).lastrowid
-        for (t_start, t_end, ptext, pwc) in chunk_passages(seg):
+        for (t_start, t_end, ptext, pwc, synthetic) in chunk_passages(seg):
             pid = conn.execute(
-                """INSERT INTO passages(transcript_id,segment_id,item_id,seq,speaker_code,
-                     t_start,t_end,text,word_count) VALUES(?,?,?,?,?,?,?,?,?)""",
-                (tid, sid, item_id, pseq, seg.speaker_code, t_start, t_end, ptext, pwc),
+                """INSERT INTO passages(transcript_id,segment_id,item_code,seq,speaker_code,
+                     t_start,t_end,timestamps_synthetic,text,word_count,attribution)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                (tid, sid, item_code, pseq, seg.speaker_code, t_start, t_end,
+                 int(synthetic), ptext, pwc, seg.attribution),
             ).lastrowid
-            if seg.speaker_code == "K":
+            if seg.speaker_code == "K" and corpus_tier in ("A", "B"):
                 conn.execute("INSERT INTO passages_fts(rowid,text) VALUES(?,?)", (pid, ptext))
+            if seg.speaker_code == "K":
                 k_pass += 1
             pseq += 1
         prev_speaker, prev_seq = seg.speaker_code, sseq
@@ -356,10 +542,28 @@ def ingest(conn, *, item_id, kind, language, source_path, resolved_via, cues) ->
         "UPDATE transcripts SET segment_count=?, passage_count=?, word_count=? WHERE id=?",
         (len(segments), pseq, total_words, tid),
     )
+    qa = _qa_result(event_type, segments, k_pass)
+    failures = qa["failure_codes"]
+    detail = (
+        f"rule={qa['rule']}; speakers={qa['speaker_count']}; "
+        f"k_passages={k_pass}; k_words={qa['k_words']}; "
+        f"signals={','.join(qa['signals']) or 'none'}"
+    )
+    conn.execute(
+        """INSERT INTO transcript_qa(
+             transcript_id,item_code,status,validation_rule,failure_codes,detail,
+             speaker_count,k_passage_count,k_word_count,checked_at
+           ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+        (tid, item_code, qa["status"], qa["rule"], ",".join(failures) or None,
+         detail, qa["speaker_count"], k_pass, qa["k_words"], now),
+    )
     conn.commit()
+    if qa["status"] == "warn":
+        print(f"WARN QA {item_code}: {','.join(failures)} ({detail})")
     return {"transcript_id": tid, "segments": len(segments), "passages": pseq,
             "k_passages": k_pass, "speakers": sorted({s.speaker_code for s in segments}),
-            "words": total_words, "registry": registry}
+            "words": total_words, "registry": registry, "assumed_k": assumed_k,
+            "qa": qa}
 
 
 # ── on-disk resolution (batch mode) ───────────────────────────────────────────
@@ -403,9 +607,20 @@ def read_vtt(path: Path) -> str:
     return path.read_text(encoding="utf-8-sig", errors="replace")
 
 
+def attach_catalog_readonly(conn: sqlite3.Connection, catalog_db: Path) -> None:
+    catalog_db = catalog_db.expanduser().resolve()
+    if not catalog_db.is_file():
+        raise FileNotFoundError(f"catalog database not found: {catalog_db}")
+    uri = catalog_db.as_uri() + "?mode=ro"
+    conn.execute("ATTACH DATABASE ? AS catalog", (uri,))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", type=Path, default=DB_PATH)
+    ap.add_argument("--db", type=Path, default=CORPUS_DB_PATH,
+                    help="generated corpus DB (default: corpus/krishnamurti-corpus.db)")
+    ap.add_argument("--catalog-db", type=Path, default=CATALOG_DB_PATH,
+                    help="catalog DB attached read-only for item/subtitle metadata")
     ap.add_argument("--vtt", type=Path, help="parse this file directly (standalone mode)")
     ap.add_argument("--item", help="item code (required with --vtt)")
     ap.add_argument("--kind", default="manual",
@@ -417,36 +632,42 @@ def main() -> None:
     ap.add_argument("--media-root", type=Path, default=MEDIA_ROOT)
     args = ap.parse_args()
 
+    args.db.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(args.db)
     conn.execute("PRAGMA foreign_keys = ON")  # make ON DELETE CASCADE real (SP-3)
-    ensure_segment_schema(conn)
+    ensure_corpus_schema(conn, args.catalog_db)
+    conn.commit()  # persist schema/provenance even when a filtered batch has no rows
+    attach_catalog_readonly(conn, args.catalog_db)
 
     if args.vtt:
         if not args.item:
             sys.exit("--item CODE required with --vtt")
         row = conn.execute(
-            "SELECT id, corpus_include FROM items WHERE code=?", (args.item,)
+            "SELECT code,event_type,corpus_include,corpus_tier "
+            "FROM catalog.items WHERE code=?",
+            (args.item,),
         ).fetchone()
         if not row:
             sys.exit(f"item not in catalog: {args.item}")
-        if not row[1]:
+        if not row[2]:
             print(f"WARN {args.item}: corpus_include=0 (scope-excluded item) — "
                   "ingesting anyway (explicit --vtt override)")
         cues = parse_cues(read_vtt(args.vtt))
         if not cues:
             sys.exit(f"0 cues parsed from {args.vtt} — refusing to overwrite "
                      "any existing transcript with an empty one")
-        r = ingest(conn, item_id=row[0], kind=args.kind, language=args.language,
-                   source_path=str(args.vtt), resolved_via="override", cues=cues)
+        r = ingest(conn, item_code=row[0], event_type=row[1], corpus_tier=row[3], kind=args.kind,
+                   language=args.language, source_path=str(args.vtt),
+                   resolved_via="override", cues=cues)
         print(f"{args.item}: {len(cues)} cues -> {r['segments']} segments, "
               f"{r['passages']} passages, {r['words']} words")
         print("registry:", {k: v[0] for k, v in r["registry"].items()})
         return
 
     # batch mode
-    q = """SELECT i.id, i.code, s.future_path, s.language, s.kind
-           FROM items i
-           JOIN item_subtitles s ON s.item_id=i.id
+    q = """SELECT i.code,i.event_type,i.corpus_tier,s.future_path,s.language,s.kind
+           FROM catalog.items i
+           JOIN catalog.item_subtitles s ON s.item_id=i.id
              AND s.kind='manual' AND s.status='downloaded' AND s.language IN ('en','en-GB')
            WHERE i.corpus_include = 1"""
     params: list = []
@@ -458,7 +679,7 @@ def main() -> None:
         q += f" LIMIT {int(args.limit)}"
     rows = conn.execute(q, params).fetchall()
     done = skipped = empty = collapsed = 0
-    for item_id, code, future_path, language, kind in rows:
+    for code, event_type, corpus_tier, future_path, language, kind in rows:
         path, via = resolve_vtt(code, future_path, args.media_root)
         if path is None:
             print(f"  SKIP {code}: VTT not found ({future_path})")
@@ -471,8 +692,9 @@ def main() -> None:
             print(f"  WARN {code}: 0 cues parsed from {path} (evicted/not-VTT?) — not written")
             empty += 1
             continue
-        r = ingest(conn, item_id=item_id, kind=kind, language=language,
-                   source_path=str(path), resolved_via=via, cues=cues)
+        r = ingest(conn, item_code=code, event_type=event_type, corpus_tier=corpus_tier, kind=kind,
+                   language=language, source_path=str(path), resolved_via=via,
+                   cues=cues)
         done += 1
         # collapse guard: a manual item that yields no K passages almost always means
         # the speaker labels failed to parse (e.g. an unseen label style) — surface it.

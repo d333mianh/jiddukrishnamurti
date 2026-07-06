@@ -20,12 +20,12 @@ KFT PDF ─ build_catalog.py ─→ krishnamurti.db + catalog/exports/ + obsidia
              ├─ backfill_media.py            (disk → item_media reconcile)
              ├─ download_subtitles.py        (manual VTTs → item_subtitles)
              ├─ transcribe_whisper.py        (interim STT where no manual subs)
-             └─ parse_vtt.py                 (VTT → transcripts/segments/passages/passages_fts)
+             └─ parse_vtt.py                 (VTT → corpus/krishnamurti-corpus.db)
 ```
 
-Key DB tables: `sections` (22), `items` (1,541), `series` (259), `item_links`, `item_media`, `item_subtitles`, plus corpus tables `transcripts`, `segments`, `passages`, `speaker_labels`, `passages_fts`.
+Catalog DB tables include `sections` (22), `items` (1,541), `series` (259), `item_links`, `item_media`, and `item_subtitles`. The separate gitignored corpus DB contains `transcripts`, `segments`, `passages`, `speaker_labels`, `transcript_qa`, `corpus_meta`, and `passages_fts`.
 
-**Critical rebuild semantics**: `build_catalog.py` recreates the DB from the PDF every run — **atomically** (builds `krishnamurti.db.rebuild`, `os.replace()` after commit; a failed rebuild leaves the old DB intact). `validate_parse` aborts before anything is touched on unknown section numbers, a >2% item-count drop vs the last import, or PDF items reaching the overlay range (`pdf_order >= 1484`). `--force` overrides the item-count check and permits manual-subtitle orphan drops; it does NOT bypass the unknown-section or overlay-range guards. Phase-2 tables (`item_links`, `item_subtitles`, `item_media`) are snapshotted/restored keyed by `code` — overlay items included, since overlays are applied before the restore. A restore that would drop `kind='manual'` subtitle rows fails the rebuild listing the codes. Corpus tables are **not** restored — re-run `parse_vtt.py` after any rebuild. Canonical order: `build_catalog` (includes 10A/11A) → `discover_links` → downloads → `backfill_media` → `parse_vtt`.
+**Critical rebuild semantics**: `build_catalog.py` recreates the catalog DB from the PDF every run — **atomically** (builds `krishnamurti.db.rebuild`, `os.replace()` after commit; a failed rebuild leaves the old DB intact). `validate_parse` aborts before anything is touched on unknown section numbers, a >2% item-count drop vs the last import, or PDF items reaching the overlay range (`pdf_order >= 1484`). `--force` overrides the item-count check and permits manual-subtitle orphan drops; it does NOT bypass the unknown-section or overlay-range guards. Phase-2 tables (`item_links`, `item_subtitles`, `item_media`) are snapshotted/restored keyed by `code` — overlay items included, since overlays are applied before the restore. A restore that would drop `kind='manual'` subtitle rows fails the rebuild listing the codes. The separate corpus DB is keyed by item code and is not touched by catalog rebuilds. Canonical order: `build_catalog` (includes 10A/11A) → `discover_links` → downloads → `backfill_media` → `parse_vtt`.
 
 **Link discovery is destructive**: each `discover_links.py` run deletes and rebuilds `item_links`, preserving only rows whose notes start with "Manually verified". Mark hand-checked links that way or they will be wiped.
 
@@ -33,6 +33,7 @@ Key DB tables: `sections` (22), `items` (1,541), `series` (259), `item_links`, `
 
 - `scripts/` — all pipeline code (~21 Python scripts + 2 shell wrappers). Schema DDL lives in `scripts/*_schema.py` (`footage_schema`, `media_schema`, `subtitle_schema`, `segment_schema`); never alter table shape with ad-hoc SQL.
 - `catalog/` — SQLite DB, `manifest.json`, supplement JSONs (`education_directory_2026.json`, `channel_recordings_2026.json`), `link_cache.json`, `exports/` (CSV/XLSX), `logs/` (gitignored run logs).
+- `corpus/` — generated, gitignored L1/L2 SQLite DB (`krishnamurti-corpus.db`); tracked README only.
 - `library/` — gitignored media tree: `{section-slug}/{pdf_order:04d}-{series_code}/{CODE} - Title.{m4a|mp4|en.vtt|whisper.*}` (e.g. `library/1A-public-meetings-england/0000-LO61T1-12/`). Paths stored in `items.future_path`.
 - `obsidian/` — generated vault (index + 10 mega-group notes). `build_catalog.py` runs `shutil.rmtree` on the whole directory — never hand-edit these files.
 - `compare/` — gitignored STT evaluation sandbox (WER/CER scoring vs manual VTT references). Not part of the production pipeline; verdict (ElevenLabs Scribe v2 + keyterms) is recorded in `STRATEGY.md`.
@@ -53,6 +54,8 @@ python3 scripts/backfill_media.py [--dry-run]
 python3 scripts/transcribe_whisper.py [--limit N] [--dry-run]
 python3 scripts/parse_vtt.py --event-type T --limit 50           # batch corpus ingest
 python3 scripts/parse_vtt.py --vtt path/to/X.en.vtt --item X --kind manual
+python3 scripts/corpus_stats.py [--csv catalog/exports/corpus-stats.csv]
+python3 -m unittest discover tests
 sqlite3 catalog/krishnamurti.db          # .tables / .schema for inspection
 ```
 
@@ -62,7 +65,7 @@ External binaries required (not in `requirements.txt`): `pdftotext` (poppler), `
 
 - **Style**: Python 3.10+, `from __future__ import annotations`, `pathlib.Path`, union types. No formatter/linter config — match surrounding code.
 - **Script anatomy**: standalone `argparse` CLI + `main()` + `if __name__ == "__main__"`. Most support `--help`, `--dry-run`, `--limit N`. Exceptions: `build_catalog.py`, `add_*.py` take no args.
-- **Paths**: every script derives `ROOT = Path(__file__).resolve().parents[1]`; DB is always `catalog/krishnamurti.db`; `future_path` values are repo-relative `library/...`. Media root override: `KRISHNAMURTI_MEDIA_ROOT` env or `--library-root`; reuse `media_root()` / `resolve_media_path()` from `scripts/download_series.py`.
+- **Paths**: every script derives `ROOT = Path(__file__).resolve().parents[1]`; catalog state is `catalog/krishnamurti.db`, generated L1/L2 data is `corpus/krishnamurti-corpus.db`, and `future_path` values are repo-relative `library/...`. Media root override: `KRISHNAMURTI_MEDIA_ROOT` env or `--library-root`; reuse `media_root()` / `resolve_media_path()` from `scripts/download_series.py`.
 - **Cross-module reuse**: shared download/auth helpers live in `scripts/download_series.py`; siblings use `sys.path.insert(0, scripts_dir)` + lazy imports.
 - **Idempotency**: DB writes use `INSERT ... ON CONFLICT DO UPDATE`; `parse_vtt.py` is idempotent per `(item, kind, language)` via delete-before-reinsert. Re-add scripts are safe to re-run.
 - **Error handling / logging**: `print()` to stdout; `sys.exit(1)` after failure counts; `transcribe_whisper.py` uses a timestamped `log()` and a graceful stop file (`catalog/logs/whisper_backfill.stop`). No logging framework.
@@ -88,9 +91,10 @@ External binaries required (not in `requirements.txt`): `pdftotext` (poppler), `
 
 ## Testing & QA
 
-- **No automated test suite, linter, or CI** (confirmed: no `test_*.py`, no pytest/unittest anywhere). Verification is manual and script-level:
+- Parser regression tests use stdlib `unittest`; there is no linter or CI. Verification is otherwise script-level:
+  - `.venv/bin/python -m unittest discover tests`
   - Most CLIs offer `--dry-run` and `--limit N` — use them to smoke-test changes before full runs.
-  - `python3 scripts/segment_schema.py catalog/krishnamurti.db` smoke-ensures corpus schema.
-  - Inspect effects directly: `sqlite3 catalog/krishnamurti.db` and `catalog/exports/*.csv`.
+  - `python3 scripts/segment_schema.py corpus/krishnamurti-corpus.db catalog/krishnamurti.db` smoke-ensures corpus schema.
+  - Inspect effects with `scripts/corpus_stats.py`, SQLite, and `catalog/exports/*.csv`.
 - **Transcription QA** lives in `compare/`: `run_stt.sh elevenlabs|xai <audio> <label> [keyterms.json]` generates hypotheses; `compare_texts.py` / `compare_piece.py` score WER/CER vs manual `.en.vtt` references and emit `.diff.txt` word alignments. Avoid keyterm leakage when evaluating (exclude the eval item from `build_keyterms.py`).
 - `.claude/workflows/quick-finish-review.js` defines an adversarial diff-review workflow for `parse_vtt.py` / `build_catalog.py` changes.
