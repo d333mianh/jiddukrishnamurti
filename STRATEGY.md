@@ -172,3 +172,37 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   Tiers A/B/C remain fully ingested; FTS contains K passages from A/B only.
   Films remain archival L1/L2 but are FTS-excluded pending provenance review.
   Unknown future event types default to B with a warning.
+- 2026-07-07 — L3 concept registry finalized as **36 fundamental "roots"**
+  (`concepts/concepts.jsonl`), grouped as four *non-sequential facets*
+  (Structures of Consciousness; Human Experience & Relationship; Observation,
+  Inquiry & Action; Ending, Transformation & the Sacred). The facets are
+  entry-points, **not stages** — freedom is at the beginning of inquiry, not a
+  reward, and the immeasurable is not a destination reached by working through
+  the others. The set was triangulated from four independent sources: K's core
+  vocabulary, corpus FTS frequencies, the published book/chapter canon (The
+  First and Last Freedom, The Book of Life, Freedom from the Known, The
+  Awakening of Intelligence, The Ending of Time, …), and an 18-book
+  content-group map (`content_groups.md`, 54 groupings). Reviewed by both
+  advisors (Codex gpt-5.5 high + Opus 4.8 high); fixes applied: de-conflated
+  joy from "Desire & Pleasure" (joy → love/sacred), added **Comparison &
+  Measurement** and **The Word & Naming** as roots, renamed "psychological
+  revolution" → **Transformation & Mutation** and "Consciousness, the Brain &
+  the Mind" → **Consciousness & Its Content**, removed the misleading `reality`
+  alias from Truth, disjoined the awareness/truth criteria, and de-duplicated
+  cross-owned aliases. Each entry carries definition, include/exclude criteria,
+  aliases (with period notes for K's shifting vocabulary), and typed relations.
+  **Provisional root:** "The Word & Naming" (`word-naming`) — the pilot
+  confirms whether it tags as an independent field or folds into Thought.
+  **Pilot-probation merge pairs:** `self`↔`self-knowledge` and
+  `religious-mind`↔`sacred` — kept separate; merge only if the pilot shows
+  unreliable per-passage separation.
+- 2026-07-07 — L3 tagging pilot (run `pilot-2026-07-r1`) drifted from the plan
+  above in two ways, now recorded: (a) it ran **Claude Sonnet 5 single-arm**,
+  not the written "Opus 4.8 vs Sonnet 4.6" comparison — model choice for the
+  full ~75k-passage pass is still open pending a cost/quality check. (b)
+  Round-1 used **binary applies/confidence** labels, not the full
+  substantive / mention_only / definition_like set. Next pilot re-scores the
+  500-passage eval set with the full labels against the new/contested roots and
+  specifically measures confusion among boundary pairs
+  (self/self-knowledge/consciousness, awareness/observer-observed,
+  truth/what-is, conflict/violence, desire/pleasure, religious-mind/sacred).
