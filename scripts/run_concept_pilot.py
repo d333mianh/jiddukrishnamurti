@@ -17,10 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = ROOT / "corpus" / "krishnamurti-corpus.db"
 RUNS_DIR = ROOT / "concepts" / "pilot-runs"
 EVAL_SET = "pilot-2026-07"
-MODEL = "claude-sonnet-5"
-CONCEPT_SLUGS = ("fear", "thought", "freedom")
-PROMPT_VERSION = "concept-pilot-v1"
+DEFAULT_MODEL = "claude-sonnet-5"
+PROMPT_VERSION = "concept-pilot-v2"
 CONFIDENCE = {"low": 0.33, "medium": 0.67, "high": 1.0}
+RELEVANCE = ("substantive", "mention_only", "not_relevant")
+DEFINITION_LIKE = ("yes", "no", "unsure", "not_applicable")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from concept_schema import ensure_concept_schema  # noqa: E402
@@ -44,8 +45,17 @@ def connect(path: Path) -> sqlite3.Connection:
     return conn
 
 
-def load_concepts(conn: sqlite3.Connection) -> list[Concept]:
-    placeholders = ",".join("?" for _ in CONCEPT_SLUGS)
+def load_concepts(
+    conn: sqlite3.Connection, slugs: list[str] | tuple[str, ...] | None = None
+) -> list[Concept]:
+    where = "WHERE c.status IN ('active','pilot')"
+    params: tuple[str, ...] = ()
+    if slugs is not None:
+        if not slugs:
+            raise ValueError("concept list is empty")
+        placeholders = ",".join("?" for _ in slugs)
+        where = f"WHERE c.slug IN ({placeholders})"
+        params = tuple(slugs)
     rows = conn.execute(
         f"""SELECT c.id,cv.id,c.slug,c.name,cv.definition,
                    cv.include_criteria,cv.exclude_criteria
@@ -53,20 +63,27 @@ def load_concepts(conn: sqlite3.Connection) -> list[Concept]:
               JOIN concept_versions AS cv ON cv.id=(
                   SELECT id FROM concept_versions
                    WHERE concept_id=c.id ORDER BY version DESC LIMIT 1)
-             WHERE c.slug IN ({placeholders})""",
-        CONCEPT_SLUGS,
+             {where}
+             ORDER BY c.id""",
+        params,
     ).fetchall()
+    if slugs is None:
+        return [Concept(*row) for row in rows]
     by_slug = {row[2]: Concept(*row) for row in rows}
-    missing = [slug for slug in CONCEPT_SLUGS if slug not in by_slug]
+    missing = [slug for slug in slugs if slug not in by_slug]
     if missing:
         raise ValueError(f"missing concepts/current versions: {', '.join(missing)}")
-    return [by_slug[slug] for slug in CONCEPT_SLUGS]
+    return [by_slug[slug] for slug in slugs]
 
 
 def system_prompt(concepts: list[Concept]) -> str:
     sections = [
-        "Classify whether each concept is substantively addressed by the passage. "
-        "A mere word mention does not apply. Return only the requested JSON. "
+        "Judge each concept's relevance to the passage. Use substantive when the "
+        "passage develops or examines the concept; mention_only when the concept is "
+        "named or touched but not developed; and not_relevant when it is absent. "
+        "Set definition_like to yes only when the passage gives a crisp definition or "
+        "formulation of the concept, no when it does not, unsure when borderline, and "
+        "not_applicable when the concept is not relevant. Return only the requested JSON. "
         "Keep each rationale to one short sentence."
     ]
     for concept in concepts:
@@ -83,11 +100,12 @@ def output_schema(concepts: list[Concept]) -> dict[str, Any]:
     judgment = {
         "type": "object",
         "properties": {
-            "applies": {"type": "boolean"},
+            "relevance": {"type": "string", "enum": list(RELEVANCE)},
             "confidence": {"type": "string", "enum": list(CONFIDENCE)},
+            "definition_like": {"type": "string", "enum": list(DEFINITION_LIKE)},
             "rationale": {"type": "string", "maxLength": 300},
         },
-        "required": ["applies", "confidence", "rationale"],
+        "required": ["relevance", "confidence", "definition_like", "rationale"],
         "additionalProperties": False,
     }
     return {
@@ -118,9 +136,10 @@ def load_passages(conn: sqlite3.Connection, eval_set: str) -> list[sqlite3.Row]:
 
 
 def assemble_requests(
-    conn: sqlite3.Connection, eval_set: str = EVAL_SET
+    conn: sqlite3.Connection, eval_set: str = EVAL_SET,
+    model: str = DEFAULT_MODEL, concept_slugs: list[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[Concept], str]:
-    concepts = load_concepts(conn)
+    concepts = load_concepts(conn, concept_slugs)
     prompt = system_prompt(concepts)
     schema = output_schema(concepts)
     requests = []
@@ -137,8 +156,8 @@ def assemble_requests(
         requests.append({
             "custom_id": str(row["id"]),
             "params": {
-                "model": MODEL,
-                "max_tokens": 1500,
+                "model": model,
+                "max_tokens": 8000,
                 "thinking": {"type": "disabled"},
                 "system": [{
                     "type": "text", "text": prompt,
@@ -211,23 +230,28 @@ def validate_payload(payload: dict[str, Any], concepts: list[Concept]) -> None:
     if not isinstance(payload, dict) or set(payload) != expected:
         raise ValueError("result concept keys do not match requested concepts")
     for slug, judgment in payload.items():
-        if not isinstance(judgment, dict) or set(judgment) != {"applies", "confidence", "rationale"}:
+        if not isinstance(judgment, dict) or set(judgment) != {
+            "relevance", "confidence", "definition_like", "rationale"
+        }:
             raise ValueError(f"invalid judgment shape for {slug}")
-        if type(judgment["applies"]) is not bool:
-            raise ValueError(f"invalid applies value for {slug}")
-        if judgment["confidence"] not in CONFIDENCE:
+        if not isinstance(judgment["relevance"], str) or judgment["relevance"] not in RELEVANCE:
+            raise ValueError(f"invalid relevance for {slug}")
+        if not isinstance(judgment["confidence"], str) or judgment["confidence"] not in CONFIDENCE:
             raise ValueError(f"invalid confidence for {slug}")
-        if not isinstance(judgment["rationale"], str):
+        if not isinstance(judgment["definition_like"], str) or judgment["definition_like"] not in DEFINITION_LIKE:
+            raise ValueError(f"invalid definition_like value for {slug}")
+        if not isinstance(judgment["rationale"], str) or len(judgment["rationale"]) > 300:
             raise ValueError(f"invalid rationale for {slug}")
 
 
 def ensure_run(
     conn: sqlite3.Connection, run_name: str, concepts: list[Concept], prompt: str,
+    model: str = DEFAULT_MODEL, eval_set: str = EVAL_SET,
     batch_id: str | None = None,
 ) -> int:
     prompt_hash = hashlib.sha256(prompt.encode()).hexdigest()
     params = json.dumps({
-        "eval_set": EVAL_SET, "max_tokens": 1500,
+        "eval_set": eval_set, "model": model, "max_tokens": 8000,
         "thinking": {"type": "disabled"},
         "concept_version_ids": {c.slug: c.version_id for c in concepts},
     }, sort_keys=True)
@@ -239,7 +263,7 @@ def ensure_run(
                model=excluded.model,prompt_sha256=excluded.prompt_sha256,
                prompt_version=excluded.prompt_version,params_json=excluded.params_json,
                status='running',started_at=COALESCE(model_runs.started_at,excluded.started_at)""",
-        (run_name, MODEL, prompt_hash, PROMPT_VERSION, params, utc_now()),
+        (run_name, model, prompt_hash, PROMPT_VERSION, params, utc_now()),
     )
     run_id = int(conn.execute("SELECT id FROM model_runs WHERE run_key=?", (run_name,)).fetchone()[0])
     if batch_id:
@@ -254,13 +278,15 @@ def ensure_run(
 def import_results(
     conn: sqlite3.Connection, run_name: str, batch_id: str,
     results: Iterable[Any], raw_path: Path | None = None,
+    model: str = DEFAULT_MODEL, eval_set: str = EVAL_SET,
+    concept_slugs: list[str] | None = None,
 ) -> dict[str, int]:
-    concepts = load_concepts(conn)
+    concepts = load_concepts(conn, concept_slugs)
     prompt = system_prompt(concepts)
-    run_id = ensure_run(conn, run_name, concepts, prompt, batch_id)
+    run_id = ensure_run(conn, run_name, concepts, prompt, model, eval_set, batch_id)
     anchor_ids = {str(row[0]) for row in conn.execute(
         """SELECT ep.anchor_id FROM eval_sets es JOIN eval_set_passages ep
-             ON ep.eval_set_id=es.id WHERE es.name=?""", (EVAL_SET,)
+             ON ep.eval_set_id=es.id WHERE es.name=?""", (eval_set,)
     )}
     counts = {"completed": 0, "api_error": 0, "parse_error": 0, "unknown_custom_id": 0}
     raw_handle = raw_path.open("w", encoding="utf-8") if raw_path else None
@@ -296,9 +322,11 @@ def import_results(
                            rationale=excluded.rationale,error_detail=excluded.error_detail,
                            created_at=excluded.created_at""",
                     (run_id, concept.id, int(custom_id), custom_id, outcome,
-                     ("substantive" if judgment["applies"] else "not_relevant") if judgment else None,
+                     judgment["relevance"] if judgment else None,
                      CONFIDENCE[judgment["confidence"]] if judgment else None,
-                     "not_applicable" if judgment else None, None,
+                     judgment["definition_like"] if judgment else None,
+                     (CONFIDENCE[judgment["confidence"]]
+                      if judgment and judgment["definition_like"] != "not_applicable" else None),
                      judgment["rationale"] if judgment else None, error, utc_now()),
                 )
             counts[outcome] += 1
@@ -325,20 +353,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-name", required=True)
     parser.add_argument("--db", type=Path, default=DEFAULT_DB)
     parser.add_argument("--eval-set", default=EVAL_SET)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument(
+        "--concepts", help="comma-separated concept slugs (default: all active/pilot)"
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
+    concept_slugs = args.concepts.split(",") if args.concepts else None
+    if concept_slugs is not None and any(not slug for slug in concept_slugs):
+        parser.error("--concepts must be a comma-separated list of non-empty slugs")
     run_dir = RUNS_DIR / args.run_name
     requests_path = run_dir / "requests.jsonl"
     try:
         if args.build:
             conn = connect(args.db)
-            requests, _, _ = assemble_requests(conn, args.eval_set)
-            if not args.dry_run:
-                run_dir.mkdir(parents=True, exist_ok=True)
-                with requests_path.open("w", encoding="utf-8") as handle:
-                    for request in requests:
-                        handle.write(json.dumps(request, ensure_ascii=False, sort_keys=True) + "\n")
-            print(f"{'Would write' if args.dry_run else 'Wrote'} {len(requests)} requests to {requests_path}")
+            requests, _, _ = assemble_requests(
+                conn, args.eval_set, args.model, concept_slugs
+            )
+            run_dir.mkdir(parents=True, exist_ok=True)
+            with requests_path.open("w", encoding="utf-8") as handle:
+                for request in requests:
+                    handle.write(json.dumps(request, ensure_ascii=False, sort_keys=True) + "\n")
+            print(f"Wrote {len(requests)} requests to {requests_path}")
             return 0
         state = read_state(run_dir) if not args.submit else {}
         if args.submit:
@@ -350,13 +386,16 @@ def main(argv: list[str] | None = None) -> int:
                 return 0
             batch = require_client().messages.batches.create(requests=requests)
             batch_data = sdk_dict(batch)
+            conn = connect(args.db)
+            concepts = load_concepts(conn, concept_slugs)
             state = {"run_name": args.run_name, "batch_id": batch_data["id"],
-                     "model": MODEL, "request_count": len(requests),
+                     "model": args.model,
+                     "concept_slugs": [concept.slug for concept in concepts],
+                     "eval_set": args.eval_set, "request_count": len(requests),
                      "submitted_at": utc_now()}
             write_json(run_dir / "state.json", state)
-            conn = connect(args.db)
-            concepts = load_concepts(conn)
-            ensure_run(conn, args.run_name, concepts, system_prompt(concepts), state["batch_id"])
+            ensure_run(conn, args.run_name, concepts, system_prompt(concepts),
+                       args.model, args.eval_set, state["batch_id"])
             conn.commit()
             print(f"Submitted batch {state['batch_id']} with {len(requests)} requests")
             return 0
@@ -386,7 +425,10 @@ def main(argv: list[str] | None = None) -> int:
         conn = connect(args.db)
         counts = import_results(conn, args.run_name, state["batch_id"],
                                 client.messages.batches.results(state["batch_id"]),
-                                run_dir / "results.jsonl")
+                                run_dir / "results.jsonl",
+                                state.get("model", args.model),
+                                state.get("eval_set", args.eval_set),
+                                state.get("concept_slugs"))
         print("Fetch results:", json.dumps(counts, sort_keys=True))
         return 0
     except (OSError, sqlite3.Error, ValueError, TypeError) as exc:

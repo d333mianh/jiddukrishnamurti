@@ -6,13 +6,16 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from concept_schema import ensure_concept_schema  # noqa: E402
-from run_concept_pilot import assemble_requests, import_results  # noqa: E402
+import run_concept_pilot  # noqa: E402
+from run_concept_pilot import (  # noqa: E402
+    assemble_requests, import_results, load_concepts, main, validate_payload,
+)
 from segment_schema import ensure_corpus_schema, utc_now  # noqa: E402
 
 
@@ -29,10 +32,13 @@ class ConceptPilotTest(unittest.TestCase):
             """INSERT INTO transcripts(item_code,event_type,corpus_tier,kind,language,
                       source_path,resolved_via,parser_version,parsed_at)
                VALUES('AB70T1','T','A','manual','en','x','test','v1',?)""", (now,))
-        for slug in ("fear", "thought", "freedom"):
+        for slug, status in (
+            ("fear", "active"), ("thought", "pilot"),
+            ("freedom", "active"), ("deprecated-one", "deprecated"),
+        ):
             cursor = self.conn.execute(
-                "INSERT INTO concepts(slug,name,created_at) VALUES(?,?,?)",
-                (slug, slug.title(), now))
+                "INSERT INTO concepts(slug,name,status,created_at) VALUES(?,?,?,?)",
+                (slug, slug.title(), status, now))
             self.conn.execute(
                 """INSERT INTO concept_versions(concept_id,version,definition,
                            include_criteria,exclude_criteria,created_at)
@@ -63,16 +69,65 @@ class ConceptPilotTest(unittest.TestCase):
         self.assertEqual(str(self.anchor_id), requests[0]["custom_id"])
         params = requests[0]["params"]
         self.assertEqual("claude-sonnet-5", params["model"])
+        self.assertEqual(8000, params["max_tokens"])
         self.assertEqual({"type": "disabled"}, params["thinking"])
         schema = params["output_config"]["format"]["schema"]
         self.assertEqual({"fear", "thought", "freedom"}, set(schema["properties"]))
         self.assertFalse(schema["additionalProperties"])
+        judgment = schema["properties"]["fear"]
+        self.assertEqual(
+            ["substantive", "mention_only", "not_relevant"],
+            judgment["properties"]["relevance"]["enum"],
+        )
+        self.assertEqual(
+            {"type": "string", "enum": ["yes", "no", "unsure", "not_applicable"]},
+            judgment["properties"]["definition_like"])
+        self.assertEqual(
+            {"relevance", "confidence", "definition_like", "rationale"},
+            set(judgment["required"]),
+        )
         self.assertEqual({"type": "ephemeral"}, params["system"][-1]["cache_control"])
         for slug in ("fear", "thought", "freedom"):
             self.assertIn(f"Definition of {slug}", prompt)
 
-    def result(self, applies: bool = True) -> Mock:
-        payload = {slug: {"applies": applies, "confidence": "high", "rationale": slug}
+        self.assertIn("mention_only", prompt)
+        self.assertIn("crisp definition", prompt)
+
+    def test_default_and_explicit_concept_sets(self) -> None:
+        self.assertEqual(
+            ["fear", "thought", "freedom"],
+            [concept.slug for concept in load_concepts(self.conn)],
+        )
+        self.assertEqual(
+            ["freedom", "fear"],
+            [concept.slug for concept in load_concepts(
+                self.conn, ["freedom", "fear"]
+            )],
+        )
+        with self.assertRaisesRegex(ValueError, "missing concepts"):
+            load_concepts(self.conn, ["missing"])
+
+    def test_model_flag_and_explicit_concepts(self) -> None:
+        with patch.object(run_concept_pilot, "RUNS_DIR", Path(self.temp.name)):
+            result = main([
+                "--build", "--run-name", "custom", "--db", str(self.db),
+                "--model", "custom-model", "--concepts", "freedom,fear",
+                "--dry-run",
+            ])
+        self.assertEqual(0, result)
+        request = json.loads(
+            (Path(self.temp.name) / "custom" / "requests.jsonl")
+            .read_text(encoding="utf-8").splitlines()[0]
+        )
+        self.assertEqual("custom-model", request["params"]["model"])
+        schema = request["params"]["output_config"]["format"]["schema"]
+        self.assertEqual(["freedom", "fear"], schema["required"])
+
+    def result(
+        self, relevance: str = "substantive", definition_like: str = "yes"
+    ) -> Mock:
+        payload = {slug: {"relevance": relevance, "confidence": "high",
+                          "definition_like": definition_like, "rationale": slug}
                    for slug in ("fear", "thought", "freedom")}
         value = {"custom_id": str(self.anchor_id), "result": {"type": "succeeded",
                  "message": {"content": [{"type": "text", "text": json.dumps(payload)}]}}}
@@ -85,13 +140,32 @@ class ConceptPilotTest(unittest.TestCase):
             "SELECT relevance_label,relevance_confidence,definition_like FROM concept_predictions"
         ).fetchall()
         self.assertEqual(3, len(rows))
-        self.assertTrue(all(row == ("substantive", 1.0, "not_applicable") for row in rows))
-        import_results(self.conn, "test-run", "batch-1", [self.result(False)])
+        self.assertTrue(all(row == ("substantive", 1.0, "yes") for row in rows))
+        confidence = self.conn.execute(
+            "SELECT definition_confidence FROM concept_predictions LIMIT 1"
+        ).fetchone()[0]
+        self.assertEqual(1.0, confidence)
+        import_results(self.conn, "test-run", "batch-1",
+                       [self.result("mention_only", "not_applicable")])
         rows = self.conn.execute(
-            "SELECT relevance_label FROM concept_predictions"
+            "SELECT relevance_label,definition_like,definition_confidence "
+            "FROM concept_predictions"
         ).fetchall()
         self.assertEqual(3, len(rows))
-        self.assertTrue(all(row[0] == "not_relevant" for row in rows))
+        self.assertTrue(all(row == ("mention_only", "not_applicable", None) for row in rows))
+
+    def test_validation_rejects_old_and_invalid_shapes(self) -> None:
+        concepts = load_concepts(self.conn)
+        old = {concept.slug: {"applies": True, "confidence": "high",
+                              "rationale": "old"} for concept in concepts}
+        with self.assertRaisesRegex(ValueError, "invalid judgment shape"):
+            validate_payload(old, concepts)
+        invalid = {concept.slug: {
+            "relevance": "maybe", "confidence": "high",
+            "definition_like": "no", "rationale": "invalid",
+        } for concept in concepts}
+        with self.assertRaisesRegex(ValueError, "invalid relevance"):
+            validate_payload(invalid, concepts)
 
     def test_api_error_is_recorded(self) -> None:
         result = {"custom_id": str(self.anchor_id),
