@@ -215,10 +215,12 @@ def render_map(concepts: dict[str, dict]) -> str:
             tag = "" if badge == "active" else f" — **{badge}**"
             hook = first_sentence(c["definition"])
             lines.append(f"{n}. [[{slug}|{c['name']}]]{tag}  ")
-            # Continuation must align to the marker width ("10. " = 4 cols) or
-            # Obsidian detaches the <small> line from two-digit list items.
+            # Continuation aligns to the marker width ("10. " = 4 cols) so it
+            # stays inside the list item. Use native italic, not raw <small>:
+            # inline HTML that wraps inside a list item makes Obsidian break the
+            # text out of the list and render overflow one word per line.
             indent = " " * len(f"{n}. ")
-            lines.append(f"{indent}<small>{hook}</small>")
+            lines.append(f"{indent}*{hook}*")
         lines.append("")
     lines += [
         "---",
