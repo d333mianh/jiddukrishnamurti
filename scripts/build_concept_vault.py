@@ -215,7 +215,10 @@ def render_map(concepts: dict[str, dict]) -> str:
             tag = "" if badge == "active" else f" — **{badge}**"
             hook = first_sentence(c["definition"])
             lines.append(f"{n}. [[{slug}|{c['name']}]]{tag}  ")
-            lines.append(f"   <small>{hook}</small>")
+            # Continuation must align to the marker width ("10. " = 4 cols) or
+            # Obsidian detaches the <small> line from two-digit list items.
+            indent = " " * len(f"{n}. ")
+            lines.append(f"{indent}<small>{hook}</small>")
         lines.append("")
     lines += [
         "---",
