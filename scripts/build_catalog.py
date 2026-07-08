@@ -1366,9 +1366,20 @@ def build_obsidian_series(conn: sqlite3.Connection) -> int:
     """Compact vault: one combined row per series + standalone recordings."""
     import shutil
 
+    # Regenerate the catalog notes this function owns, but preserve reserved
+    # subtrees that other generators own — notably obsidian/roots/ (the L3
+    # "Roots of Knowledge" concept vault built by build_concept_vault.py and the
+    # hand-authored decision notes). Wiping the whole vault would delete them.
+    reserved = {"roots"}
     if OBSIDIAN_DIR.exists():
-        shutil.rmtree(OBSIDIAN_DIR)
-    OBSIDIAN_DIR.mkdir(parents=True)
+        for child in OBSIDIAN_DIR.iterdir():
+            if child.name in reserved:
+                continue
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
+    OBSIDIAN_DIR.mkdir(parents=True, exist_ok=True)
 
     total = conn.execute("SELECT COUNT(*) FROM items").fetchone()[0]
     series_total = conn.execute(
