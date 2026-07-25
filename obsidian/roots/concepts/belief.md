@@ -9,7 +9,7 @@ aliases: ["Belief & Ideals", "faith", "ideology", "dogma"]
 
 > [!note] Active
 
-**Facet:** I. Structures of Consciousness · **Root 7 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** I. Structures of Consciousness · **Root 7 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Belief, faith, ideology, and dogma are for Krishnamurti forms of psychological security that thought invents and that prevent seeing 'what is'. He regards belief as divisive and as a barrier to direct perception, whether it concerns God, the future, or a better self to become. (The ideal as 'what should be' belongs primarily to psychological time.)

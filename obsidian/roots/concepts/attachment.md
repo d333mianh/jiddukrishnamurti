@@ -9,7 +9,7 @@ aliases: ["Security & Attachment", "dependence", "security", "detachment", "jeal
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 17 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 16 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 The craving for psychological security drives attachment — to people, beliefs, possessions, and self-images — and Krishnamurti shows that attachment breeds fear, dependence, jealousy, and sorrow. Detachment is only its opposite and equally bound; freedom lies in understanding the demand for security itself.

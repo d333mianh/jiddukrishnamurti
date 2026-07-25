@@ -9,7 +9,7 @@ aliases: ["Division / Fragmentation", "fragmentation", "wholeness"]
 
 > [!note] Active
 
-**Facet:** I. Structures of Consciousness · **Root 6 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** I. Structures of Consciousness · **Root 6 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Division is thought's fragmenting action: inner and outer, observer and observed, me and not-me, nationality and belief. Krishnamurti argues that psychological division breeds conflict and violence, and that wholeness is not the assembling of fragments but perception unbroken by the divider.

@@ -9,7 +9,7 @@ aliases: ["Insight & Intelligence", "intelligence", "seeing is doing", "direct p
 
 > [!note] Active
 
-**Facet:** III. Observation, Inquiry & Action · **Root 22 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 22 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Insight is direct, immediate perception of truth that is not the conclusion of thought, memory, or analysis; Krishnamurti holds that seeing the false as false is itself the action that frees. Intelligence, distinct from mere intellect or cleverness, is the sensitivity and clarity that flowers when thought is in its right place.

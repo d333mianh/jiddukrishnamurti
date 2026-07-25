@@ -9,7 +9,7 @@ aliases: ["Comparison & Measurement", "measurement", "comparing", "envy", "compe
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 16 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 15 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Psychological comparison — measuring oneself against another, against an ideal, against yesterday — is for Krishnamurti a root of becoming, envy, competition, conformity, and the sense of insufficiency; 'all comparison is violence.' Measurement is the mind's instrument, and the immeasurable is precisely what lies beyond it.

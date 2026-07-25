@@ -9,7 +9,7 @@ aliases: ["Consciousness & Its Content", "the individual and society", "the brai
 
 > [!note] Active
 
-**Facet:** I. Structures of Consciousness · **Root 8 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** I. Structures of Consciousness · **Root 8 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Consciousness is its content — the whole field of thought, memory, fear, and conditioning shared by humankind. Because that content is common, 'you are the world': the individual is mankind, not separate from it. In his later work Krishnamurti sharpened a distinction between the conditioned brain and a mind not bound by the known; earlier he used brain and mind more interchangeably.

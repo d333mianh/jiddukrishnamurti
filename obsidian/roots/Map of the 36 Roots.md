@@ -7,7 +7,7 @@ The most fundamental concepts of Krishnamurti's teachings, as the **L3 concept l
 
 **36 roots** · 33 active · 3 pilot · **4 facets** (entry-points, *not* stages).
 
-See [[Roots of Knowledge]] for the hub and [[Open Decisions]] for what is still unsettled. Canonical source: `concepts/concepts.jsonl`.
+See [[Roots of Knowledge]] for the hub and [[Strategy]] for what is still open. Canonical source: `concepts/concepts.jsonl`.
 
 ## I. Structures of Consciousness
 
@@ -17,8 +17,8 @@ See [[Roots of Knowledge]] for the hub and [[Open Decisions]] for what is still 
    *Thought is the material response of memory, knowledge, and experience operating through the brain.*
 2. [[conditioning|Conditioning]]  
    *Conditioning is the shaping of the mind by culture, tradition, religion, nationality, education, and accumulated experience, so that response arises from the past rather than from direct perception.*
-3. [[self|The Self ("the me")]] — **probation pair**  
-   *The self, the 'me', the ego, is for Krishnamurti a bundle of memories, images, wants, and self-centred activity built by thought, not a permanent entity.*
+3. [[will-effort|Will, Effort & Escape]] — **new root**  
+   *Krishnamurti treats will as desire hardened into resolve — the self asserting itself as 'I will' or 'I will not' — and effort as the friction of that assertion against what is.*
 4. [[psychological-time|Psychological Time & Becoming]]  
    *Beyond chronological time, Krishnamurti describes psychological time as the mind's movement from 'what is' toward 'what should be' — the becoming, achieving, and postponement by which thought avoids facing the present fact.*
 5. [[relationship|Relationship & Image-making]]  
@@ -29,42 +29,42 @@ See [[Roots of Knowledge]] for the hub and [[Open Decisions]] for what is still 
    *Belief, faith, ideology, and dogma are for Krishnamurti forms of psychological security that thought invents and that prevent seeing 'what is'.*
 8. [[consciousness|Consciousness & Its Content]]  
    *Consciousness is its content — the whole field of thought, memory, fear, and conditioning shared by humankind.*
-9. [[word-naming|The Word & Naming]] — **provisional root**  
-   *'The word is not the thing.' Krishnamurti investigates how naming, verbal association, symbols, and description substitute for direct perception — how the description is mistaken for the described, and how naming a state (fear, anger) can sustain the very reaction being named.*
 
 ## II. Human Experience & Relationship
 
 *The felt symptoms that machinery produces in daily life.*
 
-10. [[fear|Fear]] — **pilot**  
-    *Fear is the psychological response produced when thought projects remembered pain or imagined danger into the future.*
-11. [[pleasure|Desire & Pleasure]]  
+9. [[fear|Fear]] — **pilot**  
+   *Fear is the psychological response produced when thought projects remembered pain or imagined danger into the future.*
+10. [[pleasure|Desire & Pleasure]]  
     *Krishnamurti traces desire as the movement from perception to sensation to thought's image and pursuit, and pleasure as thought's demand to continue a sensation.*
-12. [[suffering|Suffering (Sorrow)]]  
+11. [[suffering|Suffering (Sorrow)]]  
     *Sorrow, for Krishnamurti, is not only personal grief but the sorrow of humankind, arising from self-concern, attachment, and thought's resistance to loss.*
-13. [[loneliness|Loneliness & Aloneness]]  
+12. [[loneliness|Loneliness & Aloneness]]  
     *Loneliness is the ache of self-isolation and inner emptiness that thought and activity try to cover.*
-14. [[conflict|Conflict]]  
+13. [[conflict|Conflict]]  
     *Conflict is the friction of duality — between what is and what should be, desire and desire, the observer and the observed.*
-15. [[violence|Violence]]  
+14. [[violence|Violence]]  
     *Violence, for Krishnamurti, is far wider than physical harm: it includes anger, comparison, conformity, ambition, and the imitation of an ideal — including the ideal of non-violence.*
-16. [[comparison|Comparison & Measurement]]  
+15. [[comparison|Comparison & Measurement]]  
     *Psychological comparison — measuring oneself against another, against an ideal, against yesterday — is for Krishnamurti a root of becoming, envy, competition, conformity, and the sense of insufficiency; 'all comparison is violence.' Measurement is the mind's instrument, and the immeasurable is precisely what lies beyond it.*
-17. [[attachment|Security & Attachment]]  
+16. [[attachment|Security & Attachment]]  
     *The craving for psychological security drives attachment — to people, beliefs, possessions, and self-images — and Krishnamurti shows that attachment breeds fear, dependence, jealousy, and sorrow.*
-18. [[authority|Authority & Following]]  
+17. [[authority|Authority & Following]]  
     *Krishnamurti rejects spiritual and psychological authority — gurus, saviours, systems, and the authority of one's own accumulated experience — as incompatible with the discovery of truth.*
 
 ## III. Observation, Inquiry & Action
 
 *The turning — seeing without the observer, and acting from that seeing.*
 
-19. [[freedom|Freedom]] — **pilot**  
+18. [[freedom|Freedom]] — **pilot**  
     *Freedom is not choice, permissiveness, or movement toward an ideal; it is freedom from psychological conditioning, authority, fear, and the known.*
-20. [[observer-observed|The Observer Is the Observed]]  
+19. [[observer-observed|The Observer Is the Observed]]  
     *Krishnamurti's central perceptual discovery: the thinker is the thought, the experiencer the experience, the observer the observed.*
-21. [[awareness|Awareness & Attention]]  
+20. [[awareness|Awareness & Attention]]  
     *Awareness is choiceless observation — inward and outward — without judgement, condemnation, or the effort of concentration.*
+21. [[listening|Listening]] — **new root**  
+    *Krishnamurti treats listening as an art in its own right: to hear without the screen of opinion, conclusion, agreement, or the running commentary of comparison with what one already knows.*
 22. [[insight|Insight & Intelligence]]  
     *Insight is direct, immediate perception of truth that is not the conclusion of thought, memory, or analysis; Krishnamurti holds that seeing the false as false is itself the action that frees.*
 23. [[learning|Learning & Education]]  
@@ -77,7 +77,7 @@ See [[Roots of Knowledge]] for the hub and [[Open Decisions]] for what is still 
     *Krishnamurti examines action that springs from an idea, ideal, or conclusion — always incomplete and productive of conflict — versus action that is the immediate expression of perception, where the seeing and the doing are one.*
 27. [[responsibility|Responsibility]] — **new root**  
     *For Krishnamurti responsibility is total, not partial: because your consciousness is the consciousness of mankind — 'you are the world' — you are responsible for the whole of it: for the wars, for society, for the education of children, for the earth.*
-28. [[self-knowledge|Self-knowledge]] — **probation pair**  
+28. [[self-knowledge|Self-knowledge & The Self]] — **merged root**  
     *Self-knowledge is for Krishnamurti the foundation of all understanding: the ceaseless observation of oneself in the mirror of relationship, moment to moment, without accumulating a conclusion about oneself.*
 
 ## IV. Ending, Transformation & the Sacred

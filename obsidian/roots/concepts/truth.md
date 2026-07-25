@@ -9,7 +9,7 @@ aliases: ["Truth & \"What Is\"", "what is", "the fact", "actuality"]
 
 > [!note] Active
 
-**Facet:** III. Observation, Inquiry & Action · **Root 24 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 24 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Krishnamurti holds that truth is a pathless land, to be discovered directly and never through belief, authority, or method — it is not produced by thought. Understanding begins with facing 'what is', the actual fact, without escape into 'what should be'; the fact, observed without distortion, undergoes its own transformation. He sometimes uses 'reality' for what thought constructs, in contrast to truth.

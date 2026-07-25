@@ -9,7 +9,7 @@ aliases: ["Violence", "anger", "aggression", "non-violence", "war"]
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 15 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 14 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Violence, for Krishnamurti, is far wider than physical harm: it includes anger, comparison, conformity, ambition, and the imitation of an ideal — including the ideal of non-violence. He holds that understanding the fact of one's own violence, without the ideal, is what ends it.

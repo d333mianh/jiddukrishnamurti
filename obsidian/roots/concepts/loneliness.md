@@ -9,7 +9,7 @@ aliases: ["Loneliness & Aloneness", "aloneness", "emptiness", "isolation", "soli
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 13 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 12 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Loneliness is the ache of self-isolation and inner emptiness that thought and activity try to cover. Krishnamurti distinguishes it from aloneness — an uncorrupted, unconditioned state free of influence and dependence — which is discovered only when loneliness is fully faced rather than escaped.

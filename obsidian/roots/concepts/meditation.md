@@ -9,7 +9,7 @@ aliases: ["Meditation & Silence", "silence", "stillness", "the quiet mind"]
 
 > [!note] Active
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 31 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 31 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 For Krishnamurti meditation is not a method, practice, mantra, or system — all of which condition the mind — but the emptying of consciousness of the known, out of which comes a silence not induced by thought. It cannot be pursued or achieved; it is the whole movement of a mind free of the self.

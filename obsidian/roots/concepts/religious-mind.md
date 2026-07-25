@@ -10,7 +10,7 @@ aliases: ["The Religious Mind & the Sacred", "the religious spirit", "true relig
 > [!info] Merged Root
 > Absorbed The Sacred / The Immeasurable (2026-07-16) — the closest pair in the set; the freed slot became [[responsibility|Responsibility]].
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 36 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 36 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 The religious mind, for Krishnamurti, has nothing to do with organized religion, belief, ritual, or authority. It is a mind that is free, without fear, in a state of inquiry and negation, that has understood itself — and only such a mind may come upon what he points to, always by negation, as the sacred: something nameless and immeasurable that may be when the mind is empty of the self and of thought — 'that benediction', 'the otherness', the timeless. It cannot be sought, named, or held, and is not the God of belief.

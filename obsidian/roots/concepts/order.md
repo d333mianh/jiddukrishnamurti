@@ -3,13 +3,13 @@ tags: [krishnamurti, root, concept, status/active]
 slug: order
 facet: "III. Observation, Inquiry & Action"
 status: active
-aliases: ["Order & Disorder", "disorder", "discipline", "virtue"]
+aliases: ["Order & Disorder", "disorder", "virtue"]
 ---
 # Order & Disorder
 
 > [!note] Active
 
-**Facet:** III. Observation, Inquiry & Action · **Root 25 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 25 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Order, for Krishnamurti, is not imposed discipline, conformity, or a blueprint, but the natural outcome of understanding disorder in oneself. Discipline is the act of learning, not suppression or control; virtue and order flower when the causes of inner disorder — conflict, contradiction, fear — are seen.
@@ -22,7 +22,6 @@ Exclude neutral references to tidiness, sequence, or rules that do not inquire i
 
 ## Also called
 - disorder
-- discipline
 - virtue
 
 ## Related roots

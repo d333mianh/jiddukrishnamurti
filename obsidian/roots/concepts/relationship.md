@@ -9,7 +9,7 @@ aliases: ["Relationship & Image-making", "the mirror of relationship", "images i
 
 > [!note] Active
 
-**Facet:** I. Structures of Consciousness · **Root 5 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** I. Structures of Consciousness · **Root 5 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Relationship is the mirror in which the self is revealed. Krishnamurti holds that we relate not to the person but to the image thought has made of them; these images divide people and produce conflict. To be related without images is a form of love and self-knowledge.
@@ -27,7 +27,7 @@ Exclude incidental narrative mentions of people relating that do not examine rel
 - the nature of hurt
 
 ## Related roots
-- [[self-knowledge|Self-knowledge]] · *related* — Relationship is the field in which the self is seen.
+- [[self-knowledge|Self-knowledge & The Self]] · *related* — Relationship is the field in which the self is seen.
 - [[attachment|Security & Attachment]] · *related* — Dependence and attachment corrupt relationship.
 
 ---

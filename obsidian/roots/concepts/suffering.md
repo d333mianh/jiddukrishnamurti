@@ -9,7 +9,7 @@ aliases: ["Suffering (Sorrow)", "sorrow", "grief", "pain"]
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 12 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 11 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Sorrow, for Krishnamurti, is not only personal grief but the sorrow of humankind, arising from self-concern, attachment, and thought's resistance to loss. He holds that remaining wholly with sorrow, without escape, ends it — and that the ending of sorrow is the beginning of compassion and wisdom.

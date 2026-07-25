@@ -9,7 +9,7 @@ aliases: ["Learning & Education", "education", "the art of learning", "the right
 
 > [!note] Active
 
-**Facet:** III. Observation, Inquiry & Action · **Root 23 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 23 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Learning, for Krishnamurti, is a living movement of observing and understanding, not the accumulation of knowledge to be stored and repeated. Right education awakens intelligence and self-knowledge and frees the mind from fear and conformity, rather than merely training it for a career or shaping it to society.

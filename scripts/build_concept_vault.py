@@ -4,17 +4,18 @@
 This renders the L3 concept canon (``concepts/concepts.jsonl``) into browsable
 Obsidian notes under ``obsidian/roots/`` so the 36 fundamental roots — their
 definitions, criteria, aliases, and typed relations — can be read and navigated
-as a linked graph, and so the open project decisions have a durable home.
+as a linked graph.
 
-The concept set is **not** final: the tagging pilot still has to resolve the
-provisional root (word-naming) and the two probation merge pairs, so these notes
-are *generated*, never hand-edited. Edit ``concepts/concepts.jsonl`` and re-run.
+The registry closed at a final 36 roots on 2026-07-25 (STRATEGY.md, "Concept
+registry — current state"): no root carries provisional or probation status. The
+notes are *generated*, never hand-edited — edit ``concepts/concepts.jsonl`` and
+re-run.
 
 Ownership: this script owns only ``obsidian/roots/Map of the 36 Roots.md`` and
-everything under ``obsidian/roots/concepts/``. The curated hub, ``Open
-Decisions.md``, and ``reference/`` notes are authored by hand and left untouched
-(so a regen never clobbers them). ``build_catalog.py`` preserves the whole
-``obsidian/roots/`` subtree across catalog rebuilds.
+everything under ``obsidian/roots/concepts/``. The curated hub and ``reference/``
+notes are authored by hand and left untouched (so a regen never clobbers them).
+``build_catalog.py`` preserves the whole ``obsidian/roots/`` subtree across
+catalog rebuilds.
 
     python3 scripts/build_concept_vault.py            # regenerate
     python3 scripts/build_concept_vault.py --check     # non-zero if stale (CI-friendly)
@@ -39,8 +40,8 @@ FACETS: list[tuple[str, str, list[str]]] = [
     (
         "I. Structures of Consciousness",
         "The machinery of the conditioned mind — how the known is built and sustained.",
-        ["thought", "conditioning", "self", "psychological-time", "relationship",
-         "division", "belief", "consciousness", "word-naming"],
+        ["thought", "conditioning", "will-effort", "psychological-time",
+         "relationship", "division", "belief", "consciousness"],
     ),
     (
         "II. Human Experience & Relationship",
@@ -51,8 +52,9 @@ FACETS: list[tuple[str, str, list[str]]] = [
     (
         "III. Observation, Inquiry & Action",
         "The turning — seeing without the observer, and acting from that seeing.",
-        ["freedom", "observer-observed", "awareness", "insight", "learning",
-         "truth", "order", "action", "responsibility", "self-knowledge"],
+        ["freedom", "observer-observed", "awareness", "listening", "insight",
+         "learning", "truth", "order", "action", "responsibility",
+         "self-knowledge"],
     ),
     (
         "IV. Ending, Transformation & the Sacred",
@@ -69,20 +71,22 @@ STATUS_NOTES: dict[str, tuple[str, str]] = {
     "thought": ("pilot", "One of three round-1 pilot concepts."),
     "fear": ("pilot", "One of three round-1 pilot concepts."),
     "freedom": ("pilot", "One of three round-1 pilot concepts."),
-    "word-naming": (
-        "provisional root",
-        "The pilot confirms whether this tags as an independent field or folds "
-        "into [[thought|Thought & Knowledge]].",
-    ),
-    "self": (
-        "probation pair",
-        "Merge-probation with [[self-knowledge|Self-knowledge]]: kept separate; "
-        "merge only if the pilot shows unreliable per-passage separation.",
-    ),
     "self-knowledge": (
-        "probation pair",
-        "Merge-probation with [[self|The Self]]: kept separate; merge only if the "
-        "pilot shows unreliable per-passage separation.",
+        "merged root",
+        "Absorbed The Self (\"the me\") on 2026-07-25 — the last probation pair, "
+        "decided ahead of the pilot: the knowing and the thing known are one "
+        "movement.",
+    ),
+    "listening": (
+        "new root",
+        "Promoted 2026-07-25 out of [[awareness|Awareness & Attention]]'s "
+        "aliases — K treats the art of listening as its own field.",
+    ),
+    "will-effort": (
+        "new root",
+        "Added 2026-07-25 to fill the slot freed by the self/self-knowledge "
+        "merge. Claims `effort` from [[conflict|Conflict]] and `discipline` "
+        "from [[order|Order & Disorder]], which owned them only as aliases.",
     ),
     "religious-mind": (
         "merged root",
@@ -149,7 +153,7 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
         + (f"\n> {note}" if note else ""),
         "",
         f"**Facet:** {facet} · **Root {index} of 36** · "
-        f"[[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]",
+        f"[[Map of the 36 Roots|↩ Map]] · [[Strategy]]",
         "",
         "## Definition",
         concept["definition"],
@@ -206,8 +210,8 @@ def render_map(concepts: dict[str, dict]) -> str:
         f"**36 roots** · {active} active · {pilot} pilot · **4 facets** "
         "(entry-points, *not* stages).",
         "",
-        "See [[Roots of Knowledge]] for the hub and [[Open Decisions]] for what "
-        "is still unsettled. Canonical source: `concepts/concepts.jsonl`.",
+        "See [[Roots of Knowledge]] for the hub and [[Strategy]] for what is "
+        "still open. Canonical source: `concepts/concepts.jsonl`.",
         "",
     ]
     n = 0

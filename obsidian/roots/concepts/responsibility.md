@@ -10,7 +10,7 @@ aliases: ["Responsibility", "you are the world", "total responsibility", "you ar
 > [!info] New Root
 > Added 2026-07-16 in the slot freed by the religious-mind/sacred merge. Total responsibility — 'you are the world' — spanning consciousness, relationship, and action.
 
-**Facet:** III. Observation, Inquiry & Action · **Root 27 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 27 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 For Krishnamurti responsibility is total, not partial: because your consciousness is the consciousness of mankind — 'you are the world' — you are responsible for the whole of it: for the wars, for society, for the education of children, for the earth. It is not duty, guilt, or obligation but the ability to respond wholly to what is, out of relationship rather than out of ideals.

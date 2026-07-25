@@ -9,7 +9,7 @@ aliases: ["Conditioning", "the conditioned mind", "tradition", "culture", "progr
 
 > [!note] Active
 
-**Facet:** I. Structures of Consciousness · **Root 2 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** I. Structures of Consciousness · **Root 2 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Conditioning is the shaping of the mind by culture, tradition, religion, nationality, education, and accumulated experience, so that response arises from the past rather than from direct perception. Krishnamurti asks whether the conditioned mind can become aware of its own conditioning and be free of it, not gradually but through immediate seeing.

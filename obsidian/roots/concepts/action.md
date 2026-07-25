@@ -9,7 +9,7 @@ aliases: ["Action", "action and idea", "right action", "right livelihood"]
 
 > [!note] Active
 
-**Facet:** III. Observation, Inquiry & Action · **Root 26 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 26 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Krishnamurti examines action that springs from an idea, ideal, or conclusion — always incomplete and productive of conflict — versus action that is the immediate expression of perception, where the seeing and the doing are one. Complete action leaves no residue of regret or division.

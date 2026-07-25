@@ -9,7 +9,7 @@ aliases: ["The Observer Is the Observed", "the thinker is the thought", "the exp
 
 > [!note] Active
 
-**Facet:** III. Observation, Inquiry & Action · **Root 20 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 19 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Krishnamurti's central perceptual discovery: the thinker is the thought, the experiencer the experience, the observer the observed. The division between the one who watches and the thing watched is created by thought; when it is seen that they are one movement, conflict and the effort to control dissolve.
@@ -27,7 +27,7 @@ Exclude ordinary uses of 'observe' or 'notice', and general talk of awareness, t
 - the observer
 
 ## Related roots
-- [[self|The Self ("the me")]] · *related* — The observer is the self set apart by thought.
+- [[self-knowledge|Self-knowledge & The Self]] · *related* — The observer is the self set apart by thought.
 - [[awareness|Awareness & Attention]] · *related* — Choiceless awareness is observation without the observer.
 
 ---

@@ -10,7 +10,7 @@ aliases: ["Freedom", "liberation", "inward freedom", "freedom from the known"]
 > [!warning] Pilot
 > One of three round-1 pilot concepts.
 
-**Facet:** III. Observation, Inquiry & Action · **Root 19 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 18 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Freedom is not choice, permissiveness, or movement toward an ideal; it is freedom from psychological conditioning, authority, fear, and the known. In Krishnamurti's usage it is present at the beginning of inquiry rather than awarded at its end, and arises with direct perception of conditioning rather than through effort or gradual achievement.

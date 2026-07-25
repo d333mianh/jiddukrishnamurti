@@ -9,7 +9,7 @@ aliases: ["Desire & Pleasure", "desire", "gratification", "sensation", "sex"]
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 11 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 10 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Krishnamurti traces desire as the movement from perception to sensation to thought's image and pursuit, and pleasure as thought's demand to continue a sensation. Both are the counterpart of fear. He sets pursued pleasure against joy and bliss, which are uninvited and cannot be sought — joy belongs with love and the sacred, not with this mechanism.

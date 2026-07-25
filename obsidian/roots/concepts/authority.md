@@ -9,7 +9,7 @@ aliases: ["Authority & Following", "the guru", "following", "obedience", "power"
 
 > [!note] Active
 
-**Facet:** II. Human Experience & Relationship · **Root 18 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 17 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Krishnamurti rejects spiritual and psychological authority — gurus, saviours, systems, and the authority of one's own accumulated experience — as incompatible with the discovery of truth. 'Truth is a pathless land'; following another only conforms the mind and prevents self-knowledge.
@@ -28,7 +28,7 @@ Exclude references to practical or legal authority (expertise, law) that do not 
 
 ## Related roots
 - [[freedom|Freedom]] · *contrasts_with* — Freedom requires the ending of psychological authority.
-- [[self-knowledge|Self-knowledge]] · *related* — Only self-knowledge, not authority, uncovers truth.
+- [[self-knowledge|Self-knowledge & The Self]] · *related* — Only self-knowledge, not authority, uncovers truth.
 
 ---
 *Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

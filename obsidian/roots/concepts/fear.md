@@ -10,7 +10,7 @@ aliases: ["Fear", "anxiety", "fright"]
 > [!warning] Pilot
 > One of three round-1 pilot concepts.
 
-**Facet:** II. Human Experience & Relationship · **Root 10 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** II. Human Experience & Relationship · **Root 9 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Fear is the psychological response produced when thought projects remembered pain or imagined danger into the future. In Krishnamurti's usage, it persists through time, avoidance, and the division between an observer and the feeling observed; the thought-and-time account is his principal analysis, and direct attention without that division is central to understanding it.

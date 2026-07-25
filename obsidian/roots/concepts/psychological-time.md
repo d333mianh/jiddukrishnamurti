@@ -9,7 +9,7 @@ aliases: ["Psychological Time & Becoming", "becoming", "psychological time", "th
 
 > [!note] Active
 
-**Facet:** I. Structures of Consciousness · **Root 4 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** I. Structures of Consciousness · **Root 4 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
 
 ## Definition
 Beyond chronological time, Krishnamurti describes psychological time as the mind's movement from 'what is' toward 'what should be' — the becoming, achieving, and postponement by which thought avoids facing the present fact. This inward time is itself sorrow and fear; its ending is transformation now rather than gradual change. Chronological time is granted to the practical and is the necessary contrast, not a separate psychological root.
