@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: authority
 facet: "II. Human Experience & Relationship"
 status: active
+iching_gates: [xun, gen]
 aliases: ["Authority & Following", "the guru", "following", "obedience", "power"]
 ---
 # Authority & Following
 
-> [!note] Active
-
 **Facet:** II. Human Experience & Relationship · **Root 17 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☴☶ ䷑ 18 / ䷴ 53 *(navigation only)*
+> Conditioning met as fixed ground: the guru, the system, one's own accumulated experience.
+> 
+> Gates: [[xun|☴ Penetrating]] · [[gen|☶ Stillness]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti rejects spiritual and psychological authority — gurus, saviours, systems, and the authority of one's own accumulated experience — as incompatible with the discovery of truth. 'Truth is a pathless land'; following another only conforms the mind and prevents self-knowledge.

@@ -3,14 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: religious-mind
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
+iching_gates: [gen, dui]
 aliases: ["The Religious Mind & the Sacred", "the religious spirit", "true religion", "the sacred", "the immeasurable", "the nameless", "benediction", "the otherness", "the timeless", "bliss", "ecstasy"]
 ---
 # The Religious Mind & the Sacred
 
-> [!info] Merged Root
-> Absorbed The Sacred / The Immeasurable (2026-07-16) — the closest pair in the set; the freed slot became [[responsibility|Responsibility]].
-
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 36 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☶☱ ䷞ 31 / ䷨ 41 *(navigation only)*
+> Stillness meeting communion — the mind that may come upon the sacred.
+> 
+> Gates: [[gen|☶ Stillness]] · [[dui|☱ Joyous]] · [[I Ching Navigator]]
 
 ## Definition
 The religious mind, for Krishnamurti, has nothing to do with organized religion, belief, ritual, or authority. It is a mind that is free, without fear, in a state of inquiry and negation, that has understood itself — and only such a mind may come upon what he points to, always by negation, as the sacred: something nameless and immeasurable that may be when the mind is empty of the self and of thought — 'that benediction', 'the otherness', the timeless. It cannot be sought, named, or held, and is not the God of belief.

@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: learning
 facet: "III. Observation, Inquiry & Action"
 status: active
+iching_gates: [kun, zhen]
 aliases: ["Learning & Education", "education", "the art of learning", "the right kind of education"]
 ---
 # Learning & Education
 
-> [!note] Active
-
 **Facet:** III. Observation, Inquiry & Action · **Root 23 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☷☳ ䷏ 16 / ䷗ 24 *(navigation only)*
+> Receptivity meeting change: learning as a living movement, not accumulation.
+> 
+> Gates: [[kun|☷ Receptive]] · [[zhen|☳ Arousing]] · [[I Ching Navigator]]
 
 ## Definition
 Learning, for Krishnamurti, is a living movement of observing and understanding, not the accumulation of knowledge to be stored and repeated. Right education awakens intelligence and self-knowledge and frees the mind from fear and conformity, rather than merely training it for a career or shaping it to society.

@@ -7,31 +7,63 @@ definitions, criteria, aliases, and typed relations — can be read and navigate
 as a linked graph.
 
 The registry closed at a final 36 roots on 2026-07-25 (STRATEGY.md, "Concept
-registry — current state"): no root carries provisional or probation status. The
-notes are *generated*, never hand-edited — edit ``concepts/concepts.jsonl`` and
-re-run.
+registry — current state"): every root is ``active``, and none carries
+provisional or probation status. The notes are *generated*, never hand-edited —
+edit ``concepts/concepts.jsonl`` and re-run.
 
-Ownership: this script owns only ``obsidian/roots/Map of the 36 Roots.md`` and
-everything under ``obsidian/roots/concepts/``. The curated hub and ``reference/``
-notes are authored by hand and left untouched (so a regen never clobbers them).
-``build_catalog.py`` preserves the whole ``obsidian/roots/`` subtree across
-catalog rebuilds.
+It also renders the optional **I Ching navigation layer** from
+``concepts/iching_navigation.json`` (see ``scripts/iching_data.py``): a
+navigator note, one note per trigram gate, and a bridge line on every concept
+note. That mapping is navigation only — it is not part of any root's definition,
+and ``concepts.jsonl`` stays canonical.
+
+Ownership: this script owns only ``obsidian/roots/Map of the 36 Roots.md``,
+``obsidian/roots/I Ching Navigator.md``, and everything under
+``obsidian/roots/concepts/`` and ``obsidian/roots/gates/``. The curated hub and
+``reference/`` notes are authored by hand and left untouched (so a regen never
+clobbers them). ``build_catalog.py`` preserves the whole ``obsidian/roots/``
+subtree across catalog rebuilds.
 
     python3 scripts/build_concept_vault.py            # regenerate
     python3 scripts/build_concept_vault.py --check     # non-zero if stale (CI-friendly)
+
+``--check`` also fails on dead ``[[wikilinks]]`` anywhere in the vault, so a
+renamed or deleted note cannot silently rot the graph.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import iching_data as ich  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 CONCEPTS_JSONL = ROOT / "concepts" / "concepts.jsonl"
-VAULT = ROOT / "obsidian" / "roots"
+OBSIDIAN = ROOT / "obsidian"
+VAULT = OBSIDIAN / "roots"
 CONCEPTS_DIR = VAULT / "concepts"
+GATES_DIR = VAULT / "gates"
 MAP_NOTE = VAULT / "Map of the 36 Roots.md"
+NAVIGATOR_NOTE = VAULT / "I Ching Navigator.md"
+
+# Where the I Ching arises in the archive itself — Allan W. Anderson raises it
+# in the 1972/1974 San Diego conversations. These are the only three passages in
+# the corpus that mention it, and they are why this layer exists at all.
+ARCHIVE_GROUNDING: list[tuple[str, str, str, int, str]] = [
+    ("SD72CA1", "Vgu8-31SJiw", "Listening is a great miracle", 188,
+     "Anderson reads K's readiness for the unexpected against the hexagram "
+     "called Innocence / The Unexpected."),
+    ("SD74CA4", "bUuvpNuX4rM", "What is a responsible human being?", 488,
+     "\"The superior man does not let his thoughts go beyond his situation\" — "
+     "offered as a reflection of what K had just said about responsibility."),
+    ("SD74CA5", "z46n67DiiLg", "Order comes from the understanding of our disorder", 3303,
+     "The hexagram called *conduct*, also translated *treading*, raised while "
+     "K is examining order."),
+]
 
 # The four non-sequential facets (STRATEGY.md, 2026-07-07). Facets are
 # entry-points, not stages: freedom is at the beginning of inquiry, not a reward,
@@ -64,46 +96,12 @@ FACETS: list[tuple[str, str, list[str]]] = [
     ),
 ]
 
-# Curated status annotations layered on top of the JSONL status enum
-# (active|pilot). These track the STRATEGY.md 2026-07-07 open questions; keep in
-# sync with the decision log. slug -> (short badge, longer note or "").
-STATUS_NOTES: dict[str, tuple[str, str]] = {
-    "thought": ("pilot", "One of three round-1 pilot concepts."),
-    "fear": ("pilot", "One of three round-1 pilot concepts."),
-    "freedom": ("pilot", "One of three round-1 pilot concepts."),
-    "self-knowledge": (
-        "merged root",
-        "Absorbed The Self (\"the me\") on 2026-07-25 — the last probation pair, "
-        "decided ahead of the pilot: the knowing and the thing known are one "
-        "movement.",
-    ),
-    "listening": (
-        "new root",
-        "Promoted 2026-07-25 out of [[awareness|Awareness & Attention]]'s "
-        "aliases — K treats the art of listening as its own field.",
-    ),
-    "will-effort": (
-        "new root",
-        "Added 2026-07-25 to fill the slot freed by the self/self-knowledge "
-        "merge. Claims `effort` from [[conflict|Conflict]] and `discipline` "
-        "from [[order|Order & Disorder]], which owned them only as aliases.",
-    ),
-    "religious-mind": (
-        "merged root",
-        "Absorbed The Sacred / The Immeasurable (2026-07-16) — the closest pair "
-        "in the set; the freed slot became [[responsibility|Responsibility]].",
-    ),
-    "responsibility": (
-        "new root",
-        "Added 2026-07-16 in the slot freed by the religious-mind/sacred merge. "
-        "Total responsibility — 'you are the world' — spanning consciousness, "
-        "relationship, and action.",
-    ),
-}
+# The registry closed on 2026-07-25: every root is `active`, so no per-root
+# status badge is rendered any more. The history of each merge and promotion
+# lives in the STRATEGY.md decision log, which is the right place for it — a
+# badge on a closed registry only reads as unfinished business.
 
-CALLOUT = {"pilot": "warning", "provisional root": "warning",
-           "probation pair": "question", "active": "note",
-           "merged root": "info", "new root": "info"}
+WIKILINK_RE = re.compile(r"\[\[([^\]|#^]+)")
 
 
 def load_concepts() -> list[dict]:
@@ -129,12 +127,40 @@ def first_sentence(text: str) -> str:
     return text.strip()
 
 
+def short_name(name: str) -> str:
+    """Compact label for the bridge matrix, where full names are unreadable."""
+    for sep in (" & ", " / ", " ("):
+        if sep in name:
+            name = name.split(sep)[0]
+    return name.strip()
+
+
+def gate_label(key: str) -> str:
+    g = ich.GATE_BY_KEY[key]
+    return f"{g['symbol']} {g['name'].split(' / ')[0]}"
+
+
+def bridge_figures(pair: tuple[str, str]) -> str:
+    """Both hexagram figures for a gate pair (one for a self-pair).
+
+    A cast produces an *ordered* pair — lower gate then upper — so an unordered
+    bridge such as ☰☷ is reached by two different figures (䷊ 11 and ䷋ 12).
+    Showing both is the honest rendering; picking one would invent a canonical
+    hexagram the mapping does not have.
+    """
+    a, b = pair
+    if a == b:
+        n = ich.hexagram_number(a, b)
+        return f"{ich.glyph(n)} {n}"
+    n1, n2 = ich.hexagram_number(a, b), ich.hexagram_number(b, a)
+    return f"{ich.glyph(n1)} {n1} / {ich.glyph(n2)} {n2}"
+
+
 def render_concept(concept: dict, names: dict[str, str], index: int,
-                   facet: str) -> str:
+                   facet: str, pair: tuple[str, str], note: str) -> str:
     slug = concept["slug"]
     name = concept["name"]
-    badge, note = STATUS_NOTES.get(slug, (concept["status"], ""))
-    callout = CALLOUT.get(badge, "note")
+    symbols = "".join(ich.GATE_BY_KEY[k]["symbol"] for k in pair)
 
     alias_forms = [a["alias"] for a in concept.get("aliases", [])]
     fm_aliases = ", ".join(json.dumps(a) for a in [name, *alias_forms])
@@ -145,15 +171,21 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
         f"slug: {slug}",
         f'facet: "{facet}"',
         f"status: {concept['status']}",
+        f"iching_gates: [{pair[0]}, {pair[1]}]",
         f"aliases: [{fm_aliases}]",
         "---",
         f"# {name}",
         "",
-        f"> [!{callout}] {badge.title()}"
-        + (f"\n> {note}" if note else ""),
-        "",
         f"**Facet:** {facet} · **Root {index} of 36** · "
         f"[[Map of the 36 Roots|↩ Map]] · [[Strategy]]",
+        "",
+        f"> [!abstract]- I Ching bridge — {symbols} {bridge_figures(pair)} "
+        f"*(navigation only)*\n"
+        f"> {note}\n"
+        f"> \n"
+        f"> Gates: [[{pair[0]}|{gate_label(pair[0])}]]"
+        + (f" · [[{pair[1]}|{gate_label(pair[1])}]]" if pair[0] != pair[1] else "")
+        + " · [[I Ching Navigator]]",
         "",
         "## Definition",
         concept["definition"],
@@ -193,9 +225,7 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
     return "\n".join(lines) + "\n"
 
 
-def render_map(concepts: dict[str, dict]) -> str:
-    active = sum(1 for c in concepts.values() if c["status"] == "active")
-    pilot = sum(1 for c in concepts.values() if c["status"] == "pilot")
+def render_map(concepts: dict[str, dict], by_root: dict[str, tuple[str, str]]) -> str:
     lines = [
         "---",
         "tags: [krishnamurti, root, index]",
@@ -207,11 +237,16 @@ def render_map(concepts: dict[str, dict]) -> str:
         "across the ~1,540-recording archive get tagged to these, so any concept "
         "can later be read back in K's own words with timestamped links.",
         "",
-        f"**36 roots** · {active} active · {pilot} pilot · **4 facets** "
-        "(entry-points, *not* stages).",
+        "**36 roots**, all active · **4 facets** (entry-points, *not* stages). "
+        "The registry closed on 2026-07-25; see [[Strategy]] for the decision "
+        "log. Canonical source: `concepts/concepts.jsonl`.",
         "",
-        "See [[Roots of Knowledge]] for the hub and [[Strategy]] for what is "
-        "still open. Canonical source: `concepts/concepts.jsonl`.",
+        "> [!tip] Another way in",
+        "> The 36 roots also sit on the 36 unordered pairs of I Ching trigrams "
+        "— see [[I Ching Navigator]]. That layer selects *what to inquire into*; "
+        "it never answers, predicts, or advises.",
+        "",
+        "See [[Roots of Knowledge]] for the hub.",
         "",
     ]
     n = 0
@@ -220,10 +255,9 @@ def render_map(concepts: dict[str, dict]) -> str:
         for slug in slugs:
             c = concepts[slug]
             n += 1
-            badge, _ = STATUS_NOTES.get(slug, (c["status"], ""))
-            tag = "" if badge == "active" else f" — **{badge}**"
+            symbols = "".join(ich.GATE_BY_KEY[k]["symbol"] for k in by_root[slug])
             hook = first_sentence(c["definition"])
-            lines.append(f"{n}. [[{slug}|{c['name']}]]{tag}  ")
+            lines.append(f"{n}. [[{slug}|{c['name']}]] · {symbols}  ")
             # Continuation aligns to the marker width ("10. " = 4 cols) so it
             # stays inside the list item. Use native italic, not raw <small>:
             # inline HTML that wraps inside a list item makes Obsidian break the
@@ -238,46 +272,273 @@ def render_map(concepts: dict[str, dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def build() -> list[Path]:
+def render_gate(gate: dict, by_pair: dict[tuple[str, str], str],
+                names: dict[str, str], notes: dict[tuple[str, str], str]) -> str:
+    key = gate["key"]
+    lines = [
+        "---",
+        "tags: [krishnamurti, iching, gate]",
+        f"gate: {key}",
+        f'symbol: "{gate["symbol"]}"',
+        f'lines: "{gate["lines"]}"',
+        f'aliases: ["{gate["name"]}", "{gate["symbol"]}"]',
+        "---",
+        f"# {gate['symbol']} {gate['name']}",
+        "",
+        f"**Gate {ich.GATE_ORDER.index(key) + 1} of 8** · lines "
+        f"`{gate['lines']}` (bottom to top) · [[I Ching Navigator|↩ Navigator]]",
+        "",
+        f"Reading this gate: **{gate['inquiry_phrase']}**.",
+        "",
+        "A gate is not a concept. It is one half of a cast — the eight gates "
+        "pair up into the 36 bridges, and each bridge opens onto exactly one "
+        "root.",
+        "",
+        "## The eight bridges from this gate",
+        "",
+        "| With | Figures | Root | Why |",
+        "|---|---|---|---|",
+    ]
+    for other in ich.GATE_ORDER:
+        pair = ich.bridge_key(key, other)
+        slug = by_pair[pair]
+        og = ich.GATE_BY_KEY[other]
+        with_label = (f"{og['symbol']} *(doubled)*" if other == key
+                      else f"{og['symbol']} {og['name'].split(' / ')[0]}")
+        lines.append(
+            f"| {with_label} | {bridge_figures(pair)} | "
+            f"[[{slug}\\|{names[slug]}]] | {notes[pair]} |")
+    lines += [
+        "",
+        "---",
+        "*Generated by `scripts/build_concept_vault.py` from "
+        "`concepts/iching_navigation.json`.*",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def render_navigator(nav: dict, by_pair: dict[tuple[str, str], str],
+                     names: dict[str, str]) -> str:
+    lines = [
+        "---",
+        "tags: [krishnamurti, iching, index]",
+        "aliases: [\"I Ching Navigator\", \"36 Bridges\"]",
+        "---",
+        "# I Ching Navigator",
+        "",
+        "> [!warning] Navigator, not oracle",
+        "> A cast selects **what to inquire into**. It does not answer, "
+        "predict, advise, or judge. There are no line texts and no judgements "
+        "here — restoring that authority would restore exactly what "
+        "Krishnamurti spent his life dismantling. The figure is a door handle, "
+        "nothing more; what is behind the door is K's own words.",
+        "",
+        "> [!note] Status: provisional",
+        "> This layer is navigation metadata. It is not part of any root's "
+        "definition, it does not enter the L3 concept schema, and "
+        "`concepts/concepts.jsonl` remains canonical. Assignments may be "
+        "revised; the roots will not move because of them.",
+        "",
+        "## Why exactly 36",
+        "",
+        "The number is *derived*, not chosen to fit:",
+        "",
+        "```",
+        "8 gates doubled with themselves       =  8",
+        "8 gates paired with the other seven   = 28",
+        "                                        --",
+        "                                        36 bridges",
+        "```",
+        "",
+        "Eight trigrams combine into 36 unordered pairs, and the L3 registry "
+        "closed independently at 36 roots. Each root therefore sits on exactly "
+        "one bridge, and every bridge is occupied. Nothing is left over in "
+        "either direction — which is the only reason this mapping is worth "
+        "having.",
+        "",
+        "## How to cast",
+        "",
+        "1. Sit with the question you actually have. Not a question about the "
+        "future — a question about what is going on in you now.",
+        "2. Generate six lines bottom to top by any method you like (three "
+        "coins, yarrow, dice). Odd is solid, even is broken.",
+        "3. Lines 1–3 are the **lower gate**, lines 4–6 the **upper gate**.",
+        "4. Look the pair up in the matrix below. Read the root — the "
+        "definition, then the passages. That is the whole procedure.",
+        "",
+        "Because a bridge is *unordered*, ☰ over ☷ and ☷ over ☰ arrive at the "
+        "same root by two different figures (䷊ 11 and ䷋ 12). Both are shown "
+        "throughout; neither is treated as the canonical one.",
+        "",
+        "## The eight gates",
+        "",
+        "| Gate | Lines | Reading |",
+        "|---|---|---|",
+    ]
+    for g in nav["gates"]:
+        lines.append(f"| [[{g['key']}\\|{g['symbol']} {g['name']}]] | "
+                     f"`{g['lines']}` | {g['inquiry_phrase']} |")
+
+    lines += [
+        "",
+        "## The 36 bridges",
+        "",
+        "Rows are the **lower** gate (lines 1–3), columns the **upper** gate "
+        "(lines 4–6). The table is symmetric — the figure differs across the "
+        "diagonal, the root does not.",
+        "",
+        "| ↓lower \\ upper→ | " + " | ".join(
+            ich.GATE_BY_KEY[k]["symbol"] for k in ich.GATE_ORDER) + " |",
+        "|---" * 9 + "|",
+    ]
+    for lower in ich.GATE_ORDER:
+        cells = []
+        for upper in ich.GATE_ORDER:
+            slug = by_pair[ich.bridge_key(lower, upper)]
+            n = ich.hexagram_number(lower, upper)
+            cells.append(f"{ich.glyph(n)} {n}<br>[[{slug}\\|"
+                         f"{short_name(names[slug])}]]")
+        lines.append(f"| **{ich.GATE_BY_KEY[lower]['symbol']}** | "
+                     + " | ".join(cells) + " |")
+
+    lines += [
+        "",
+        "## Where this comes from",
+        "",
+        "The I Ching is not imported from outside the archive. It surfaces "
+        "inside it: Allan W. Anderson raises it three times across the San "
+        "Diego conversations, each time to test a translation of what K has "
+        "just said — and each time K neither adopts nor dismisses it, but "
+        "turns back to the fact under discussion. That is the posture this "
+        "layer copies.",
+        "",
+    ]
+    for code, video, title, seconds, gloss in ARCHIVE_GROUNDING:
+        stamp = f"{seconds // 60}:{seconds % 60:02d}"
+        lines.append(
+            f"- **{code}** — [{title}](https://youtu.be/{video}?t={seconds}) "
+            f"@ {stamp} — {gloss}")
+    lines += [
+        "",
+        "Two of those three conversations are titled *\"Listening is a great "
+        "miracle\"* and *\"What is a responsible human being?\"*, and the third "
+        "turns on order — [[listening|listening]], "
+        "[[responsibility|responsibility]], and [[order|order]] are all roots "
+        "in the registry. The convergence is a coincidence worth noticing, not "
+        "evidence of anything.",
+        "",
+        "## What is deliberately absent",
+        "",
+        "- **Judgements, images, and line texts.** Copyrighted in every modern "
+        "translation, and worse, they would make this an oracle.",
+        "- **Changing lines and derived hexagrams.** A cast points at one root; "
+        "sequences of roots would be a narrative about the future.",
+        "- **Any claim of equivalence.** A root does not mean what its King Wen "
+        "hexagram means. The King Wen numbering is used for one purpose only: "
+        "the Unicode block `U+4DC0–U+4DFF` is laid out in that order, so a "
+        "number is what produces a glyph.",
+        "",
+        "---",
+        "*Generated by `scripts/build_concept_vault.py` from "
+        "`concepts/iching_navigation.json` and `scripts/iching_data.py`. "
+        "See [[Map of the 36 Roots]] and [[Strategy]].*",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def build() -> list[tuple[Path, str]]:
     concepts = load_concepts()
     by_slug = {c["slug"]: c for c in concepts}
     names = {c["slug"]: c["name"] for c in concepts}
     facet_of = {s: facet for facet, _, slugs in FACETS for s in slugs}
+
+    nav = ich.load_navigation()
+    ich.validate_navigation(nav, known_roots=set(by_slug))
+    by_root = ich.bridges_by_root(nav)
+    by_pair = ich.bridges_by_pair(nav)
+    notes = {ich.bridge_key(*b["gates"]): b.get("note", "") for b in nav["bridges"]}
 
     written: list[tuple[Path, str]] = []
     n = 0
     for facet, _, slugs in FACETS:
         for slug in slugs:
             n += 1
-            written.append((CONCEPTS_DIR / f"{slug}.md",
-                            render_concept(by_slug[slug], names, n, facet_of[slug])))
-    written.append((MAP_NOTE, render_map(by_slug)))
+            pair = by_root[slug]
+            written.append((
+                CONCEPTS_DIR / f"{slug}.md",
+                render_concept(by_slug[slug], names, n, facet_of[slug],
+                               pair, notes[pair])))
+    written.append((MAP_NOTE, render_map(by_slug, by_root)))
+    written.append((NAVIGATOR_NOTE, render_navigator(nav, by_pair, names)))
+    for gate in nav["gates"]:
+        written.append((GATES_DIR / f"{gate['key']}.md",
+                        render_gate(gate, by_pair, names, notes)))
     return written
+
+
+def dead_wikilinks(outputs: list[tuple[Path, str]]) -> list[tuple[Path, str]]:
+    """``[[targets]]`` in the vault that resolve to no note.
+
+    Obsidian resolves a wikilink by basename anywhere in the vault, so the
+    resolvable set is every ``.md`` stem under ``obsidian/`` — with the pending
+    generated notes substituted in, so ``--check`` describes the vault as it
+    *will* be, not a half-regenerated state.
+    """
+    pending = dict(outputs)
+    stems = {p.stem for p in OBSIDIAN.rglob("*.md")} | {p.stem for p in pending}
+    sources = {p: p.read_text(encoding="utf-8") for p in OBSIDIAN.rglob("*.md")}
+    sources.update(pending)
+
+    dead: list[tuple[Path, str]] = []
+    for path, text in sorted(sources.items()):
+        for target in dict.fromkeys(WIKILINK_RE.findall(text)):
+            # Escaped pipes inside table cells survive the character class.
+            target = target.strip().split("\\")[0].strip()
+            resolved = target[:-3] if target.endswith(".md") else target
+            if resolved and resolved not in stems:
+                dead.append((path, target))
+    return dead
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true",
-                        help="exit non-zero if any generated note is stale")
+                        help="exit non-zero if any generated note is stale "
+                             "or any wikilink in the vault is dead")
     args = parser.parse_args(argv)
 
     outputs = build()
     if args.check:
+        failed = False
         stale = [p for p, content in outputs
                  if not p.exists() or p.read_text(encoding="utf-8") != content]
         if stale:
+            failed = True
             print("stale concept-vault notes:", file=sys.stderr)
             for p in stale:
                 print(f"  {p.relative_to(ROOT)}", file=sys.stderr)
+        dead = dead_wikilinks(outputs)
+        if dead:
+            failed = True
+            print("dead wikilinks:", file=sys.stderr)
+            for path, target in dead:
+                print(f"  {path.relative_to(ROOT)} -> [[{target}]]",
+                      file=sys.stderr)
+        if failed:
             return 1
-        print(f"concept vault up to date ({len(outputs)} notes)")
+        print(f"concept vault up to date ({len(outputs)} notes, no dead links)")
         return 0
 
     CONCEPTS_DIR.mkdir(parents=True, exist_ok=True)
+    GATES_DIR.mkdir(parents=True, exist_ok=True)
     for path, content in outputs:
         path.write_text(content, encoding="utf-8")
     print(f"Wrote {len(outputs)} concept-vault notes to "
           f"{VAULT.relative_to(ROOT)}/")
+    dead = dead_wikilinks(outputs)
+    if dead:
+        print(f"warning: {len(dead)} dead wikilink(s) — run --check for detail",
+              file=sys.stderr)
     return 0
 
 

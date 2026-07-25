@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: psychological-time
 facet: "I. Structures of Consciousness"
 status: active
+iching_gates: [zhen, xun]
 aliases: ["Psychological Time & Becoming", "becoming", "psychological time", "the ideal"]
 ---
 # Psychological Time & Becoming
 
-> [!note] Active
-
 **Facet:** I. Structures of Consciousness · **Root 4 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☳☴ ䷩ 42 / ䷟ 32 *(navigation only)*
+> Movement driven by conditioning — becoming, achieving, postponement.
+> 
+> Gates: [[zhen|☳ Arousing]] · [[xun|☴ Penetrating]] · [[I Ching Navigator]]
 
 ## Definition
 Beyond chronological time, Krishnamurti describes psychological time as the mind's movement from 'what is' toward 'what should be' — the becoming, achieving, and postponement by which thought avoids facing the present fact. This inward time is itself sorrow and fear; its ending is transformation now rather than gradual change. Chronological time is granted to the practical and is the necessary contrast, not a separate psychological root.

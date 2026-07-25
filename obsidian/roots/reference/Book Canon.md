@@ -14,9 +14,10 @@ The roots were not chosen by taste. Grounding them in the book/chapter canon
 gives an outside check: a "root" that no major book organizes around is suspect,
 and a theme every book returns to is almost certainly a root. This map:
 
-- **Confirmed** [[word-naming|The Word & Naming]] independently ("naming" in
-  *On Fear* and *Reflections on the Self*) — supporting its provisional-root
-  status.
+- **Confirmed** naming and the word-thing gap independently ("naming" in *On
+  Fear* and *Reflections on the Self*) — enough to be real, not enough to stand
+  alone, which is why it was folded into [[thought|Thought & Knowledge]] on
+  2026-07-25 rather than kept as its own root.
 - **Confirmed** [[comparison|Comparison & Measurement]] as a distinct root.
 - **Added no new root** beyond the 36 — a signal the set is complete, not thin.
 

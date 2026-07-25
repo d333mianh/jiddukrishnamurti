@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: awareness
 facet: "III. Observation, Inquiry & Action"
 status: active
+iching_gates: [kun, kun]
 aliases: ["Awareness & Attention", "choiceless awareness", "attention", "observation"]
 ---
 # Awareness & Attention
 
-> [!note] Active
-
 **Facet:** III. Observation, Inquiry & Action · **Root 20 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☷☷ ䷁ 2 *(navigation only)*
+> Receptive attention doubled — choiceless observation, without the effort of concentration.
+> 
+> Gates: [[kun|☷ Receptive]] · [[I Ching Navigator]]
 
 ## Definition
 Awareness is choiceless observation — inward and outward — without judgement, condemnation, or the effort of concentration. Krishnamurti distinguishes attention, a total unfragmented seeing free of a centre, from concentration, which is exclusion and resistance. In such attention the observer is absent.

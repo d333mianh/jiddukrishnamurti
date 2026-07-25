@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: consciousness
 facet: "I. Structures of Consciousness"
 status: active
+iching_gates: [li, li]
 aliases: ["Consciousness & Its Content", "the individual and society", "the brain", "the unconscious"]
 ---
 # Consciousness & Its Content
 
-> [!note] Active
-
 **Facet:** I. Structures of Consciousness · **Root 8 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☲☲ ䷝ 30 *(navigation only)*
+> Illumination doubled — consciousness *is* its content, the whole field of thought.
+> 
+> Gates: [[li|☲ Clinging]] · [[I Ching Navigator]]
 
 ## Definition
 Consciousness is its content — the whole field of thought, memory, fear, and conditioning shared by humankind. Because that content is common, 'you are the world': the individual is mankind, not separate from it. In his later work Krishnamurti sharpened a distinction between the conditioned brain and a mind not bound by the known; earlier he used brain and mind more interchangeably.

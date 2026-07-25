@@ -24,13 +24,40 @@ root.
 ## What this project is
 
 A catalog + media library + (in-progress) searchable teachings corpus built on the
-complete Krishnamurti Foundation Trust (KFT) recordings archive (~1,540 items).
-Read **`STRATEGY.md`** first for the multi-phase roadmap and the
-dated decision log — it is the source of truth for *why* things are done a
-certain way (STT engine choice, citation granularity, relevance tiers, etc.).
-`AGENTS.md` mirrors this file with extra detail on code conventions, naming, and
-QA; `.claude/workflows/quick-finish-review.js` is an adversarial diff-review
+complete Krishnamurti Foundation Trust (KFT) recordings archive (1,541 items,
+1,963 h). It parses the KFT 2026 Full-Length Directory PDF into a SQLite catalog,
+resolves YouTube links, downloads media into an iCloud-hosted `library/`,
+transcribes where no manual subtitles exist, and builds a searchable teachings
+corpus (transcripts → speaker segments → citable K passages with FTS) plus an L3
+registry of 36 concept "roots".
+
+Read **`STRATEGY.md`** first — it is the single strategy document (L0–L4
+roadmap, live numbers, open questions, dated decision log) and the source of
+truth for *why* things are done a certain way (STT engine choice, citation
+granularity, relevance tiers, the concept registry). This file is the
+operational contract: *how* to work in the repo.
+`.claude/workflows/quick-finish-review.js` is an adversarial diff-review
 workflow for `parse_vtt.py` / `build_catalog.py` changes.
+
+### Key directories
+
+- **`scripts/`** — all pipeline code. Schema DDL lives in `scripts/*_schema.py`;
+  never alter table shape with ad-hoc SQL.
+- **`catalog/`** — SQLite DB, `manifest.json` (import-run metadata only; its
+  counts lag the live DB — trust SQLite), supplement JSONs
+  (`education_directory_2026.json`, `channel_recordings_2026.json`),
+  `link_cache.json`, `exports/` (CSV/XLSX), `logs/` (gitignored).
+- **`corpus/`** — generated, gitignored L1/L2 DB (`krishnamurti-corpus.db`);
+  tracked README only.
+- **`concepts/`** — tracked L3 registry: `concepts.jsonl` (36 roots + 3
+  deprecated tombstones) and `iching_navigation.json`.
+- **`library/`** — gitignored media tree:
+  `{section-slug}/{pdf_order:04d}-{series_code}/{CODE} - Title.{m4a|mp4|en.vtt|whisper.*}`.
+  Paths stored in `items.future_path`.
+- **`obsidian/`** — generated vault. Two generators own disjoint parts of it;
+  see "Obsidian vault" below. Never hand-edit generated notes.
+- **`compare/`** — gitignored STT evaluation sandbox; not part of the production
+  pipeline.
 
 ## Commands
 
@@ -209,6 +236,111 @@ Filter/supersede by `kind`; never overwrite manual subs.
 for items whose media can't be downloaded. It deliberately writes **plain text,
 not synthetic VTT** — estimated timestamps would create false citations in the
 L2 passage pipeline; keep it that way.
+
+## Concept registry & the Obsidian vault — L3/L4
+
+The concept layer is **tracked, hand-curated data**, not generated output:
+
+- **`concepts/concepts.jsonl`** — one JSON object per line, keyed by `slug` (not
+  `id`). 36 `active` roots + 3 `deprecated` tombstones (`sacred`, `self`,
+  `word-naming`), each with definition, include/exclude criteria, aliases (with
+  period notes for K's shifting vocabulary), and typed relations. Tombstones stay
+  so predictions keyed to their ids remain resolvable; consumers filter by
+  `status`. **The registry is closed at 36** — see STRATEGY.md before proposing a
+  change.
+- **Facet membership lives in code**, in `FACETS` inside
+  `scripts/build_concept_vault.py` (4 facets of 8/9/11/8), not in the JSONL.
+- **`concepts/iching_navigation.json`** + **`scripts/iching_data.py`** — the
+  navigation-only I Ching layer: 8 trigram "gates" whose 36 unordered pairs
+  (8 self-pairs + 28 distinct) map one-to-one onto the 36 roots. `iching_data.py`
+  owns the King Wen table, Unicode glyphs (`U+4DC0–U+4DFF`, `glyph(n) =
+  chr(0x4DBF + n)`), cast decoding (`lines_to_gates`), and `validate_navigation`.
+  It is **navigation only**: never part of a root's definition, and
+  `concepts.jsonl` stays canonical.
+- **`scripts/import_concepts.py`** is the only supported path from the JSONL into
+  the corpus DB's `concepts`/alias/relation tables. Never hand-edit those tables;
+  re-run the importer after touching the JSONL.
+
+**Obsidian vault ownership** — two generators, disjoint subtrees:
+
+| Path | Owner |
+|---|---|
+| `obsidian/*.md` (index + mega-group notes) | `build_catalog.py` |
+| `obsidian/roots/**` (46 notes: 36 concepts + Map + Navigator + 8 gates) | `build_concept_vault.py` |
+
+`build_catalog.py` clears the vault on every rebuild but **reserves `roots/`**
+(`reserved = {"roots"}` in `build_obsidian_series`). `obsidian/roots/reference/`
+holds the few hand-authored notes; everything else under `roots/` is generated.
+
+```bash
+python3 scripts/build_concept_vault.py           # regenerate the 46 root notes
+python3 scripts/build_concept_vault.py --check    # CI-style gate: fails on stale
+                                                  # notes AND on dead wikilinks
+python3 scripts/import_concepts.py                # JSONL → corpus DB
+python3 scripts/iching_data.py                    # smoke-test the gate/hexagram data
+```
+
+`--check` resolves every `[[wikilink]]` in the whole `obsidian/` tree by
+basename (the vault root is `obsidian/`, not `obsidian/roots/`), tolerating the
+`[[Note.md]]` form. Run it after editing any vault note or the registry.
+
+## Code conventions
+
+- **Style**: Python 3.10+, `from __future__ import annotations`, `pathlib.Path`,
+  union types. No formatter or linter config — match surrounding code.
+- **Script anatomy**: standalone `argparse` CLI + `main()` +
+  `if __name__ == "__main__"`. Most support `--help`, `--dry-run`, `--limit N`.
+  Exceptions: `build_catalog.py` and `add_*.py` take no args.
+- **Paths**: every script derives `ROOT = Path(__file__).resolve().parents[1]`.
+  Media-root override: `KRISHNAMURTI_MEDIA_ROOT` env or `--library-root`; reuse
+  `media_root()` / `resolve_media_path()` from `scripts/download_series.py`.
+- **Cross-module reuse**: shared download/auth helpers live in
+  `download_series.py`; siblings use `sys.path.insert(0, scripts_dir)` + lazy
+  imports.
+- **Idempotency**: DB writes use `INSERT ... ON CONFLICT DO UPDATE`;
+  `parse_vtt.py` is idempotent per `(item, kind, language)` via
+  delete-before-reinsert. Re-add scripts are safe to re-run.
+- **Error handling / logging**: `print()` to stdout, `sys.exit(1)` after failure
+  counts. No logging framework.
+- **Naming**: item codes = place + year + event + number (`LO61T1`,
+  `GSBR74DT01`); section slugs `{number}{letter}-{kebab-title}`.
+- **YouTube auth**: cookies resolved via `resolve_yt_auth()` — env vars
+  (`KRISHNAMURTI_YT_COOKIES_FILE`, `KRISHNAMURTI_YT_COOKIES_BROWSER`),
+  `www.youtube.com_cookies.txt`, `catalog/.yt-browser-cookies.txt`, or
+  `--cookies-from-browser chrome` (preferred for video; stale Netscape files
+  403). Cookie files are gitignored — keep them out of git.
+- **Git hygiene**: `library/`, `compare/`, `corpus/*.db`, `catalog/logs/`, all
+  `*cookies*.txt`, and venvs are gitignored. Never commit media or cookies.
+
+## Files worth knowing
+
+- `scripts/build_catalog.py` — largest module; PDF parse, DB save, exports,
+  Obsidian generation, phase-2 snapshot/restore.
+- `scripts/parse_vtt.py` — corpus ingest (`Cue`/`Segment` dataclasses, speaker
+  registry, passage chunking).
+- `scripts/download_series.py` — hub for media paths and yt-dlp auth; the other
+  download scripts delegate to it.
+- `scripts/*_schema.py` — the only place table DDL may change.
+- `scripts/transcribe_whisper.py` — interim STT; settings are pilot-frozen.
+- `scripts/build_concept_vault.py` / `scripts/iching_data.py` — L3/L4 vault and
+  I Ching navigation data.
+- `CLAUDE.md` (operational contract) and `STRATEGY.md` (roadmap, state, open
+  questions, decision log) — the only two docs. Don't add a third.
+
+## Testing & QA
+
+```bash
+.venv/bin/python -m unittest discover tests      # stdlib unittest; no linter, no CI
+python3 scripts/build_concept_vault.py --check   # vault staleness + dead links
+python3 scripts/segment_schema.py corpus/krishnamurti-corpus.db catalog/krishnamurti.db
+python3 scripts/corpus_stats.py [--csv catalog/exports/corpus-stats.csv]
+```
+
+Most CLIs offer `--dry-run` and `--limit N` — use them to smoke-test before full
+runs, and inspect effects with `corpus_stats.py`, `sqlite3`, and
+`catalog/exports/*.csv`.
+
+Transcription QA lives in `compare/` (below).
 
 ## STT evaluation (`compare/`)
 

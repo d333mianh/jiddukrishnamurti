@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: love
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
+iching_gates: [qian, dui]
 aliases: ["Love & Compassion", "compassion", "affection", "tenderness", "joy"]
 ---
 # Love & Compassion
 
-> [!note] Active
-
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 29 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☰☱ ䷪ 43 / ䷉ 10 *(navigation only)*
+> Unbounded energy as communion; love approached by negation, never as desire.
+> 
+> Gates: [[qian|☰ Creative]] · [[dui|☱ Joyous]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti approaches love by negation — it is not desire, pleasure, attachment, jealousy, dependence, or the image thought builds. What remains when these end is love, inseparable from compassion and intelligence; compassion arises with the ending of sorrow and the self. Joy is its natural note, not something to be pursued.

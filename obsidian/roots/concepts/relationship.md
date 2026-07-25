@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: relationship
 facet: "I. Structures of Consciousness"
 status: active
+iching_gates: [dui, dui]
 aliases: ["Relationship & Image-making", "the mirror of relationship", "images in relationship", "hurt", "the nature of hurt"]
 ---
 # Relationship & Image-making
 
-> [!note] Active
-
 **Facet:** I. Structures of Consciousness · **Root 5 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☱☱ ䷹ 58 *(navigation only)*
+> Communion doubled; relationship as the mirror in which the self is revealed.
+> 
+> Gates: [[dui|☱ Joyous]] · [[I Ching Navigator]]
 
 ## Definition
 Relationship is the mirror in which the self is revealed. Krishnamurti holds that we relate not to the person but to the image thought has made of them; these images divide people and produce conflict. To be related without images is a form of love and self-knowledge.

@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: truth
 facet: "III. Observation, Inquiry & Action"
 status: active
+iching_gates: [kun, li]
 aliases: ["Truth & \"What Is\"", "what is", "the fact", "actuality"]
 ---
 # Truth & "What Is"
 
-> [!note] Active
-
 **Facet:** III. Observation, Inquiry & Action · **Root 24 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☷☲ ䷢ 35 / ䷣ 36 *(navigation only)*
+> What is, met through illumination — a pathless land, not a conclusion.
+> 
+> Gates: [[kun|☷ Receptive]] · [[li|☲ Clinging]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti holds that truth is a pathless land, to be discovered directly and never through belief, authority, or method — it is not produced by thought. Understanding begins with facing 'what is', the actual fact, without escape into 'what should be'; the fact, observed without distortion, undergoes its own transformation. He sometimes uses 'reality' for what thought constructs, in contrast to truth.

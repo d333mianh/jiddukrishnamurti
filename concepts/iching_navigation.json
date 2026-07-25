@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "status": "provisional",
+  "description": "Navigation-only mapping of the 36 L3 roots onto the 36 unordered pairs of I Ching trigrams (8 self-pairs + 28 distinct pairs). Not part of any root's definition; concepts/concepts.jsonl remains canonical.",
+  "gates": [
+    {
+      "key": "qian",
+      "symbol": "☰",
+      "lines": "111",
+      "name": "Creative / Heaven",
+      "inquiry_phrase": "unbounded energy and possibility"
+    },
+    {
+      "key": "kun",
+      "symbol": "☷",
+      "lines": "000",
+      "name": "Receptive / Earth",
+      "inquiry_phrase": "receptive attention to what is"
+    },
+    {
+      "key": "zhen",
+      "symbol": "☳",
+      "lines": "100",
+      "name": "Arousing / Thunder",
+      "inquiry_phrase": "disturbance, movement, and change"
+    },
+    {
+      "key": "xun",
+      "symbol": "☴",
+      "lines": "011",
+      "name": "Penetrating / Wind",
+      "inquiry_phrase": "subtle influence, thought, and conditioning"
+    },
+    {
+      "key": "kan",
+      "symbol": "☵",
+      "lines": "010",
+      "name": "Abysmal / Water",
+      "inquiry_phrase": "fear, insecurity, and human depth"
+    },
+    {
+      "key": "li",
+      "symbol": "☲",
+      "lines": "101",
+      "name": "Clinging / Fire",
+      "inquiry_phrase": "image, consciousness, and illumination"
+    },
+    {
+      "key": "gen",
+      "symbol": "☶",
+      "lines": "001",
+      "name": "Stillness / Mountain",
+      "inquiry_phrase": "ending, stillness, and order"
+    },
+    {
+      "key": "dui",
+      "symbol": "☱",
+      "lines": "110",
+      "name": "Joyous / Lake",
+      "inquiry_phrase": "relationship, feeling, and communion"
+    }
+  ],
+  "bridges": [
+    {
+      "gates": [
+        "qian",
+        "qian"
+      ],
+      "root": "energy",
+      "note": "Undivided energy — the creative doubled, met as both ground and lens."
+    },
+    {
+      "gates": [
+        "qian",
+        "kun"
+      ],
+      "root": "responsibility",
+      "note": "Heaven and earth together: the whole. Responsibility is total because 'you are the world'."
+    },
+    {
+      "gates": [
+        "qian",
+        "zhen"
+      ],
+      "root": "psychological-revolution",
+      "note": "Creative force meeting movement and change — mutation, not gradual reform."
+    },
+    {
+      "gates": [
+        "qian",
+        "xun"
+      ],
+      "root": "thought",
+      "note": "Unbounded possibility working through the subtle, persistent instrument of thought."
+    },
+    {
+      "gates": [
+        "qian",
+        "kan"
+      ],
+      "root": "freedom",
+      "note": "Possibility met through insecurity and depth — freedom *from*, not freedom to choose."
+    },
+    {
+      "gates": [
+        "qian",
+        "li"
+      ],
+      "root": "insight",
+      "note": "Energy and illumination: seeing the false as false, immediately."
+    },
+    {
+      "gates": [
+        "qian",
+        "gen"
+      ],
+      "root": "death",
+      "note": "The creative met through ending and stillness — dying each day to the known."
+    },
+    {
+      "gates": [
+        "qian",
+        "dui"
+      ],
+      "root": "love",
+      "note": "Unbounded energy as communion; love approached by negation, never as desire."
+    },
+    {
+      "gates": [
+        "kun",
+        "kun"
+      ],
+      "root": "awareness",
+      "note": "Receptive attention doubled — choiceless observation, without the effort of concentration."
+    },
+    {
+      "gates": [
+        "kun",
+        "zhen"
+      ],
+      "root": "learning",
+      "note": "Receptivity meeting change: learning as a living movement, not accumulation."
+    },
+    {
+      "gates": [
+        "kun",
+        "xun"
+      ],
+      "root": "self-knowledge",
+      "note": "Attention turned on the conditioning that shapes it — the mirror of relationship."
+    },
+    {
+      "gates": [
+        "kun",
+        "kan"
+      ],
+      "root": "suffering",
+      "note": "Receptive attention held to human depth: sorrow neither escaped nor explained away."
+    },
+    {
+      "gates": [
+        "kun",
+        "li"
+      ],
+      "root": "truth",
+      "note": "What is, met through illumination — a pathless land, not a conclusion."
+    },
+    {
+      "gates": [
+        "kun",
+        "gen"
+      ],
+      "root": "nature",
+      "note": "Earth and mountain: the trees, the light, the living world as a doorway out of the self."
+    },
+    {
+      "gates": [
+        "kun",
+        "dui"
+      ],
+      "root": "beauty",
+      "note": "Attention and communion — beauty where the 'me' is momentarily absent."
+    },
+    {
+      "gates": [
+        "zhen",
+        "zhen"
+      ],
+      "root": "action",
+      "note": "Movement doubled: action that is the immediate expression of perception."
+    },
+    {
+      "gates": [
+        "zhen",
+        "xun"
+      ],
+      "root": "psychological-time",
+      "note": "Movement driven by conditioning — becoming, achieving, postponement."
+    },
+    {
+      "gates": [
+        "zhen",
+        "kan"
+      ],
+      "root": "conflict",
+      "note": "Disturbance meeting insecurity: the friction of what is against what should be."
+    },
+    {
+      "gates": [
+        "zhen",
+        "li"
+      ],
+      "root": "violence",
+      "note": "Movement clinging to an image — including the image of non-violence."
+    },
+    {
+      "gates": [
+        "zhen",
+        "gen"
+      ],
+      "root": "order",
+      "note": "Change met through stillness; order as the outcome of understanding disorder."
+    },
+    {
+      "gates": [
+        "zhen",
+        "dui"
+      ],
+      "root": "pleasure",
+      "note": "Movement and sensation: thought's demand that a sensation continue."
+    },
+    {
+      "gates": [
+        "xun",
+        "xun"
+      ],
+      "root": "conditioning",
+      "note": "Conditioning doubled — the shaping so pervasive it is mistaken for oneself."
+    },
+    {
+      "gates": [
+        "xun",
+        "kan"
+      ],
+      "root": "attachment",
+      "note": "Subtle influence meeting insecurity: the craving for psychological security."
+    },
+    {
+      "gates": [
+        "xun",
+        "li"
+      ],
+      "root": "will-effort",
+      "note": "Thought's persistent pressure clinging to an image of what should be — will as hardened desire."
+    },
+    {
+      "gates": [
+        "xun",
+        "gen"
+      ],
+      "root": "authority",
+      "note": "Conditioning met as fixed ground: the guru, the system, one's own accumulated experience."
+    },
+    {
+      "gates": [
+        "xun",
+        "dui"
+      ],
+      "root": "comparison",
+      "note": "Conditioning entering relationship as measurement — 'all comparison is violence'."
+    },
+    {
+      "gates": [
+        "kan",
+        "kan"
+      ],
+      "root": "fear",
+      "note": "The abysmal doubled: thought projecting remembered pain into the future."
+    },
+    {
+      "gates": [
+        "kan",
+        "li"
+      ],
+      "root": "division",
+      "note": "Depth and image: thought's fragmenting action, me and not-me."
+    },
+    {
+      "gates": [
+        "kan",
+        "gen"
+      ],
+      "root": "loneliness",
+      "note": "Insecurity met as stillness — the ache of isolation, and aloneness that is not it."
+    },
+    {
+      "gates": [
+        "kan",
+        "dui"
+      ],
+      "root": "belief",
+      "note": "Insecurity seeking communion, and inventing it: faith, ideology, dogma."
+    },
+    {
+      "gates": [
+        "li",
+        "li"
+      ],
+      "root": "consciousness",
+      "note": "Illumination doubled — consciousness *is* its content, the whole field of thought."
+    },
+    {
+      "gates": [
+        "li",
+        "gen"
+      ],
+      "root": "observer-observed",
+      "note": "The image met as ground: the thinker is the thought, the observer the observed."
+    },
+    {
+      "gates": [
+        "li",
+        "dui"
+      ],
+      "root": "listening",
+      "note": "The image falling silent so communion is possible — 'listening is a great miracle'."
+    },
+    {
+      "gates": [
+        "gen",
+        "gen"
+      ],
+      "root": "meditation",
+      "note": "Stillness doubled: not a method or a practice, but the emptying of the known."
+    },
+    {
+      "gates": [
+        "gen",
+        "dui"
+      ],
+      "root": "religious-mind",
+      "note": "Stillness meeting communion — the mind that may come upon the sacred."
+    },
+    {
+      "gates": [
+        "dui",
+        "dui"
+      ],
+      "root": "relationship",
+      "note": "Communion doubled; relationship as the mirror in which the self is revealed."
+    }
+  ]
+}

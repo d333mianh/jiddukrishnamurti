@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: order
 facet: "III. Observation, Inquiry & Action"
 status: active
+iching_gates: [zhen, gen]
 aliases: ["Order & Disorder", "disorder", "virtue"]
 ---
 # Order & Disorder
 
-> [!note] Active
-
 **Facet:** III. Observation, Inquiry & Action · **Root 25 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☳☶ ䷚ 27 / ䷽ 62 *(navigation only)*
+> Change met through stillness; order as the outcome of understanding disorder.
+> 
+> Gates: [[zhen|☳ Arousing]] · [[gen|☶ Stillness]] · [[I Ching Navigator]]
 
 ## Definition
 Order, for Krishnamurti, is not imposed discipline, conformity, or a blueprint, but the natural outcome of understanding disorder in oneself. Discipline is the act of learning, not suppression or control; virtue and order flower when the causes of inner disorder — conflict, contradiction, fear — are seen.

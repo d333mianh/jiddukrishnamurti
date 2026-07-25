@@ -1,16 +1,19 @@
 ---
-tags: [krishnamurti, root, concept, status/pilot]
+tags: [krishnamurti, root, concept, status/active]
 slug: freedom
 facet: "III. Observation, Inquiry & Action"
-status: pilot
+status: active
+iching_gates: [qian, kan]
 aliases: ["Freedom", "liberation", "inward freedom", "freedom from the known"]
 ---
 # Freedom
 
-> [!warning] Pilot
-> One of three round-1 pilot concepts.
-
 **Facet:** III. Observation, Inquiry & Action · **Root 18 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☰☵ ䷄ 5 / ䷅ 6 *(navigation only)*
+> Possibility met through insecurity and depth — freedom *from*, not freedom to choose.
+> 
+> Gates: [[qian|☰ Creative]] · [[kan|☵ Abysmal]] · [[I Ching Navigator]]
 
 ## Definition
 Freedom is not choice, permissiveness, or movement toward an ideal; it is freedom from psychological conditioning, authority, fear, and the known. In Krishnamurti's usage it is present at the beginning of inquiry rather than awarded at its end, and arises with direct perception of conditioning rather than through effort or gradual achievement.

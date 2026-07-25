@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: insight
 facet: "III. Observation, Inquiry & Action"
 status: active
+iching_gates: [qian, li]
 aliases: ["Insight & Intelligence", "intelligence", "seeing is doing", "direct perception"]
 ---
 # Insight & Intelligence
 
-> [!note] Active
-
 **Facet:** III. Observation, Inquiry & Action · **Root 22 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☰☲ ䷍ 14 / ䷌ 13 *(navigation only)*
+> Energy and illumination: seeing the false as false, immediately.
+> 
+> Gates: [[qian|☰ Creative]] · [[li|☲ Clinging]] · [[I Ching Navigator]]
 
 ## Definition
 Insight is direct, immediate perception of truth that is not the conclusion of thought, memory, or analysis; Krishnamurti holds that seeing the false as false is itself the action that frees. Intelligence, distinct from mere intellect or cleverness, is the sensitivity and clarity that flowers when thought is in its right place.

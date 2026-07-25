@@ -11,8 +11,17 @@ Structured catalog of KFT full-length recordings, built from the **Krishnamurti 
     download state; preserved across rebuilds (`scripts/backfill_media.py`
     re-syncs `item_media` from disk)
 - `catalog/exports/` — CSV and Excel exports
-- `obsidian/` — Compact series-grouped vault (9 notes)
+- `corpus/krishnamurti-corpus.db` — generated, gitignored transcripts/segments/
+  passages + FTS (see `STRATEGY.md`)
+- `concepts/` — the tracked L3 registry: 36 concept "roots" plus the I Ching
+  navigation map
+- `obsidian/` — compact series-grouped vault, plus `obsidian/roots/` — the
+  generated concept vault (`scripts/build_concept_vault.py`)
 - `scripts/build_catalog.py` — Rebuild catalog from PDF
+
+Docs: **`STRATEGY.md`** (roadmap, live state, open questions, decision log) ·
+**`CLAUDE.md`** (how to work in this repo) · **`L3-SCHEMA.md`** (concept-layer
+DDL).
 
 ## Rebuild
 

@@ -3,13 +3,17 @@ tags: [krishnamurti, root, concept, status/active]
 slug: energy
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
+iching_gates: [qian, qian]
 aliases: ["Energy & Passion", "passion", "vitality"]
 ---
 # Energy & Passion
 
-> [!note] Active
-
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 34 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
+
+> [!abstract]- I Ching bridge — ☰☰ ䷀ 1 *(navigation only)*
+> Undivided energy — the creative doubled, met as both ground and lens.
+> 
+> Gates: [[qian|☰ Creative]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti speaks of the energy dissipated in conflict, fear, and the self, and of the undivided energy released when those wastages end — an energy needed for transformation and for meditation. Passion, distinct from lust or enthusiasm for a cause, is the intensity that comes with the ending of sorrow and total attention.

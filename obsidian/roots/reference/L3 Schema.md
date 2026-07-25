@@ -17,7 +17,10 @@ the repo root (reviewed by two advisors, 2026-07-06). This note is a map.
 
 ## Key tables
 
-- **`concepts`** — slug, name, status (`pilot|active|deprecated`).
+- **`concepts`** — slug, name, status. Since the registry closed on 2026-07-25
+  only two values are in use: **36 `active`** roots and **3 `deprecated`**
+  tombstones (`sacred`, `self`, `word-naming`), kept so predictions keyed to
+  their ids stay resolvable.
 - **`concept_versions`** — definitions are **versioned**; a model run pins the
   exact version it saw (so metrics stay comparable after a wording change).
 - **`concept_aliases`**, **`concept_relations`** — K's shifting vocabulary and
@@ -35,6 +38,10 @@ the repo root (reviewed by two advisors, 2026-07-06). This note is a map.
 2. **LLM judgment** via the **Claude Batches API** (50% discount, prompt-cached
    registry) — substantive vs mention-only, and definition-like. Run by
    `scripts/run_concept_pilot.py`. See [[Strategy]] for the model choice.
+
+The I Ching layer (`concepts/iching_navigation.json`) sits *beside* this schema,
+not inside it: it is navigation metadata over the same 36 slugs and is never
+consulted when tagging a passage. See [[I Ching Navigator]].
 
 ---
 *Hand-authored summary. Read `L3-SCHEMA.md` for the authoritative DDL.*

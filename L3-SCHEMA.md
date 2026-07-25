@@ -2,8 +2,8 @@
 
 Status: **design accepted pending implementation** (2026-07-06). Reviewed by two
 independent advisors (Codex gpt-5.5 xhigh, Opus 4.8 xhigh); this document is the
-reconciled result. Implements plan step 4 ("Build the L3 Concept Pilot") of
-`gpt-05JUL-plan.md`.
+reconciled result. It is the DDL reference for the concept layer; the *why*,
+the live state, and the open questions live in `STRATEGY.md`.
 
 ## Ground rules
 
