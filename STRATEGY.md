@@ -44,8 +44,8 @@ log entries record what was believed on their date.
 | L0 Archive | media (m4a/mp4), manual VTTs, catalog | `catalog/krishnamurti.db` (tracked) + `library/` (iCloud, gitignored) | done |
 | L1 Transcripts | one row per ingested transcript file + provenance | `corpus/krishnamurti-corpus.db` (gitignored) | done |
 | L2 Segments | speaker-attributed turns → passages, FTS5 over K-only text | same corpus DB | done for manual sources |
-| L3 Concepts | 36 roots + aliases/relations + passage tagging | `concepts/concepts.jsonl` (tracked) → corpus DB | registry closed, tagging pending |
-| L4 Synthesis | Obsidian notes, timestamped `youtu.be/ID?t=SECONDS` citations | `obsidian/` (tracked) | vault scaffolding generated |
+| L3 Concepts | 36 roots + aliases/relations + passage tagging | `concepts/concepts.jsonl` (tracked) → corpus DB | registry closed; retrieval works, exhaustive tagging optional |
+| L4 Synthesis | Obsidian notes, timestamped `youtu.be/ID?t=SECONDS` citations | `obsidian/` + `concepts/citations.jsonl` (tracked) | 1 root of 36 cited |
 
 The **two-database split** is deliberate: the catalog is small, tracked, and is
 canonical pipeline state; the corpus is large, generated, and gitignored. A
@@ -76,13 +76,24 @@ triangulated from four independent sources: K's core vocabulary, corpus FTS
 frequencies, the published book/chapter canon, and an 18-book content-group map
 (`content_groups.md`, 54 groupings).
 
-Tagging is two-stage:
+**Retrieval, not classification, is what a note needs.** Writing about one root
+means finding the few dozen passages where K develops it — not knowing the
+verdict for all ~72k. `retrieve_concept.py` runs BM25 over `passages_fts` using
+the root's own `name` and `aliases`, returning ranked candidates a human reads;
+what survives is filed in `concepts/citations.jsonl`. This is free, immediate,
+and is how every note ships.
+
+Exhaustive tagging remains worth doing, but for what retrieval *cannot* give:
+cross-root queries, per-root coverage numbers, and time-sliced views. It stays
+two-stage —
 
 1. *Local, free:* lexicon term-matching + local embeddings for clustering and
    per-concept candidate retrieval.
 2. *LLM judgment via the Claude Batches API* (50% discount, prompt-cached
    registry): does a passage substantively address a concept, merely mention it,
-   or define it? ~80k K-passages ≈ $10–45 one-off depending on the model tier.
+   or define it? ~72k K-passages ≈ $10–45 one-off depending on the model tier.
+
+— and it is now phase 5, behind the notes, not in front of them.
 
 ### The I Ching navigation layer — archived
 
@@ -110,9 +121,14 @@ kind**:
 | `kft-web-transcript` (untimed, `BR74FPL`) | downloaded | 1 |
 | `elevenlabs-scribe-v2` | planned | 540 |
 
-**Corpus (L1/L2)** — 988 transcripts ingested (tier A 809 / B 164 / C 15),
-139,549 segments, 153,360 passages, of which 80,324 are K-passages and 80,030
-are in `passages_fts` (tiers A/B only).
+**Corpus (L1/L2)** — 906 transcripts ingested (tier A 734 / B 157 / C 15),
+123,874 segments, 136,657 passages, of which 71,824 are K-passages and 71,530
+are in `passages_fts` (tiers A/B only). Provenance: 877 matched to their own
+file (`direct`), 29 to a duration-corroborated sibling.
+
+The count fell from 988 on 2026-07-25: 82 of those transcripts were one part's
+VTT handed to every other part of its series, so they carried the wrong words at
+the wrong offsets. They are gone, not lost — see the decision log.
 
 **Tiers** — A 1,197 · B 311 · C 21 · X 12.
 
@@ -131,6 +147,15 @@ onto the current 36**.
 
 **Vault (L4)** — 37 generated notes (36 concepts + Map).
 `scripts/build_concept_vault.py --check` gates staleness *and* dead wikilinks.
+`fear` is the first note carrying citations: 25 curated passages, 1961–1985, in
+eight themes, each linking to the second it is spoken. 1 root of 36 cited.
+
+**Backup** — one checksummed 80 MB `.tar.zst` in `~/Backups/jiddu-krishnamurti/`
+(`scripts/backup_corpus.py`): corpus DB, every manual VTT, catalog DB, registry.
+Off iCloud, not yet off the machine.
+
+**Distribution** — the GitHub remote is **private**, which is what permits
+verbatim quotation in the tracked vault. Publishing anything is a separate call.
 
 ## Relevance tiers
 
@@ -176,14 +201,31 @@ keyterm prompting**, decided after a 6-item evaluation across 1949–1984 (see
 
 ## Phases
 
+Restructured 2026-07-25, after `fear` shipped. The old plan made every note wait
+on an exhaustive tagging pass — up to 2.9M judgments, with note #1 gated on
+judgment #2,900,000. Retrieval-first inverts that: BM25 over the registry's own
+lexicon surfaces a few hundred candidates for one root, a human keeps ~25, and
+the note ships. Tagging became optional enrichment, so phase 3 no longer waits
+on phase 4, and neither waits on the STT spend.
+
 1. **Segments** — schema + VTT parser, L2 for all manual items, FTS5, stats.
    ✅ done.
-2. **Concepts** — registry seed and closure; tagging pilot; full tagging pass.
-   Registry ✅ closed; pilot re-score and the full pass are open.
-3. **Synthesis prototype** — 2–3 concept notes end-to-end in Obsidian with
-   timestamped YouTube links. Vault scaffolding ✅; notes pending L3 tags.
-4. **STT backfill** — Scribe v2 + keyterms on the 541-item cohort, feeding the
-   proven pipeline, then re-run L3 over the new passages. Pending spend.
+2. **Concepts** — registry seeded and closed at 36 roots. ✅ done.
+3. **Cited notes** — the critical path, and the only phase that produces the
+   thing this project is for. Per root: `retrieve_concept.py` → read the
+   candidates → file the keepers in `concepts/citations.jsonl` → `--sync` →
+   regenerate. `fear` ✅ (25 passages); **35 roots to go**. Each is a bounded
+   session of reading, needs no model spend, and ships independently.
+
+Optional, and deliberately after phase 3 — none of it blocks a note:
+
+4. **STT backfill** — Scribe v2 + keyterms on the 541-item cohort (~$130–185),
+   which widens retrieval from the 1,000 manual items to all 1,541. Buy it when
+   phase 3 starts running out of gold-transcript material for a root, not
+   before. Open questions 3–5 gate the spend.
+5. **Exhaustive tagging** — classify all ~72k K-passages against the 36 roots.
+   Buys cross-root queries, per-root coverage numbers, and "what did K say about
+   X in 1972" — none of which phase 3 needs. Open questions 1–2 gate it.
 
 ## Open questions
 
@@ -191,53 +233,58 @@ Undecided calls, most actionable first. Questions only — reasoning belongs in
 the log once a decision is made. When a question is answered, log it and delete
 it here.
 
-1. **Pilot re-score — model arm(s) and spend.** Re-score the 500-passage eval
-   set against the final 36 roots with the full
+**Open** — these gate phases 4 and 5. Nothing here blocks phase 3.
+
+1. **Tagging pilot re-score — arms, spend, and the new roots.** Re-score the
+   500-passage eval set against the final 36 roots with the full
    `substantive` / `mention_only` / `definition_like` labels. Needs a human call
-   on which arms to run and approval of the spend; items 2 and 3 wait on it.
-2. **Model for the full ~80k-passage tagging pass.** Resolved by the re-score on
-   a quality-per-dollar basis — the reason to run more than one arm.
-3. **New-root validation.** The re-score is the first evidence on `listening`,
-   `will-effort`, and `responsibility`, none of which existed at r1. It also
-   measures confusion among self-knowledge/consciousness,
+   on which arms to run and approval of the spend; the arms exist to pick the
+   model for the full pass on quality-per-dollar. It is also the first evidence
+   on `listening`, `will-effort`, and `responsibility` (none existed at r1) and
+   the first measurement of confusion among self-knowledge/consciousness,
    awareness/observer-observed/listening, truth/what-is,
    conflict/violence/will-effort, and desire/pleasure.
-4. **Rights & distribution — the repo is still public.**
-   `github.com/d333mianh/jiddukrishnamurti` is a public remote holding the
-   catalog DB (1,494 item summaries) and, in future, verbatim L4 quotation from
-   KFT-copyright material. Transcript text itself is gitignored. Decide the
-   distribution scope and either make the remote private or state explicitly
-   what may be published. **Blocks publishing any L4 note.**
-5. **Backup & durability.** The gold manual VTTs and all media live only in
-   self-evicting iCloud; the generated corpus DB is gitignored and exists in one
-   copy. No offsite or encrypted backup policy exists. Cheap to fix, expensive
-   to have skipped.
-6. **Faithfulness evaluation for L3/L4.** STT has rigorous WER; the semantic
-   layer has no gold set, no precision/recall, and no hallucination guard. The
-   500-passage pilot is a labelling run, not a measured eval. Define the gold
-   set and the acceptance bar before the full tagging pass.
-7. **Definition of done, and maintenance cadence.** No success metric for the
-   concept map, and no re-ingest/re-tag cadence — the 2026-06-12 channel scan
-   already added 46 items absent from every PDF, and that will happen again.
-8. **Diarization is unmeasured before the Scribe spend.** The WER eval was 5/6
+2. **Faithfulness bar for a machine tagging pass.** STT has rigorous WER; a
+   semantic pass has no gold set, no precision/recall, and no hallucination
+   guard, and the 500-passage pilot is a labelling run, not a measured eval.
+   Curation supplies the guard for phase 3 — a human reads every passage before
+   it is quoted — so this is only owed by phase 5.
+3. **Diarization is unmeasured before the Scribe spend.** The WER eval was 5/6
    clean Public Talks; the paid cohort is ~54% multi-speaker discussion. Run
    3–5 representative items (DSG, DYP, a Bohm or Jayakar dialogue, DSS) and
    report WER **and** diarization accuracy separately before committing.
-9. **"K = dominant speaker" is wrong-by-design for the ~115 named-interlocutor
+4. **"K = dominant speaker" is wrong-by-design for the ~115 named-interlocutor
    dialogues.** Define the ambiguous → manual-review trigger (e.g. second-speaker
    share > 15%) and force registry mapping for those items before ingesting any
    Scribe output.
-10. **Keyterm-leakage evidence is thin.** Leave-one-out was controlled for only
-    1 of 6 eval items, so the flat "+4–8%" is weaker than it reads. Production
-    leakage is zero, so this affects the claim, not the plan. Re-score with
-    per-item leave-one-out if the number ever needs to be defended.
-11. **Tier C confirmation.** Films and documentaries stay FTS-excluded pending
-    provenance review; the ~30 short interviews sit in B by default. Resolve
-    with the corpus stats (%-K-speech per event type) plus a call. Low urgency.
-12. **`EBM` excerpt provenance.** No mapping exists from each of the 12 compiled
-    excerpts to the source talk it was cut from. Build it only if passage-level
-    dedup is ever needed; their 12 curated themes are retained as a KFT-authored
-    thematic scaffold.
+5. **Does phase 3 need the Scribe cohort at all?** `fear` reached 25 citations
+   across 1961–1985 from manual transcripts alone, and did not exhaust them.
+   The honest trigger for the ~$130–185 is a root that retrieval cannot serve
+   from the ~1,000 gold items — so run several more roots first and see whether
+   one appears. Supersedes "transcribe everything, then tag" as the reason to
+   spend.
+6. **Definition of done for a concept note, and re-ingest cadence.** `fear` set
+   a first shape — 25 passages, eight themes, argument order — but not a bar.
+   Also unset: how often to re-scan for new items (the 2026-06-12 channel scan
+   added 46 absent from every PDF, and that will recur) and, after each
+   re-ingest, when `build_citations.py --verify` runs.
+
+**Parked** — real, but nothing waits on them.
+
+7. **Keyterm-leakage evidence is thin.** Leave-one-out was controlled for only
+   1 of 6 eval items, so the flat "+4–8%" is weaker than it reads. Production
+   leakage is zero, so this affects the claim, not the plan. Re-score with
+   per-item leave-one-out if the number ever needs to be defended.
+8. **Tier C confirmation.** Films and documentaries stay FTS-excluded pending
+   provenance review; the ~30 short interviews sit in B by default. Resolve
+   with the corpus stats (%-K-speech per event type) plus a call.
+9. **`EBM` excerpt provenance.** No mapping exists from each of the 12 compiled
+   excerpts to the source talk it was cut from. Build it only if passage-level
+   dedup is ever needed; their 12 curated themes are retained as a KFT-authored
+   thematic scaffold.
+10. **The I Ching navigation layer.** Archived undecided, not rejected — see
+    `archive/iching/README.md`. Revisit once enough roots carry citations to
+    know whether the notes need another way in.
 
 ## Decision log
 
@@ -355,3 +402,54 @@ Append-only, oldest first. Entries are never rewritten.
   `concepts.jsonl` (`scripts/import_concepts.py`): it had drifted to 37 rows
   against the JSONL's 39. Now 36 active + 3 deprecated. The importer is the only
   supported path from registry to DB — never hand-edit the table.
+- **2026-07-25** — **rights & distribution: the repo is private** (old open
+  question 4). `github.com/d333mianh/jiddukrishnamurti` was made private rather
+  than the alternative of drawing a publishable/unpublishable line through the
+  material. That unblocks L4: verbatim KFT-copyright quotation may be committed
+  and rendered into the vault, because the vault is not published. It does not
+  license publishing — anything leaving this repo is a separate decision, and
+  the citation format (`youtu.be/<id>?t=<s>`, quote plus link to KFT's own
+  upload) was chosen to keep that door open.
+- **2026-07-25** — **backup implemented** (old open question 5).
+  `scripts/backup_corpus.py` writes one checksummed `.tar.zst` holding the
+  corpus DB (via the sqlite3 backup API, so the snapshot is consistent), every
+  manual `.en.vtt`, the catalog DB, and `concepts.jsonl`; iCloud-evicted members
+  are materialized first and a member that never appears fails the run while
+  still writing the archive. First run: 80 MB to `~/Backups/jiddu-krishnamurti/`.
+  This closes the single-copy risk but **not** the offsite one — the default
+  destination is off iCloud, not off the machine; copying an archive to external
+  or remote storage is still manual. Urgency was not theoretical: 111 manual
+  VTTs recorded as `downloaded` are gone from disk, and all 111 were ingested,
+  so for those items the corpus DB is the only surviving copy of the gold text.
+- **2026-07-25** — **82 transcripts were carrying another recording's words and
+  have been purged.** `parse_vtt.py` had resolved a subtitle path by series
+  rather than by item, so one part's VTT was ingested for every part of its
+  series: the text was real KFT text, the timestamps were real, and the item
+  code was wrong — the failure mode that produces a citation pointing at a
+  minute where those words are never spoken. The resolver now requires the
+  item's own file, accepting a sibling only when duration corroborates it, and
+  records which happened in `transcripts.resolved_via` (`direct` 877 /
+  `sibling-vtt` 29). The corpus count fell 988 → 906 and passages 153,360 →
+  136,657. That is the number getting more honest, not smaller. The 82 items are
+  re-ingestable once their own VTTs are on disk; they are not lost.
+- **2026-07-25** — **citations are tracked data, not prose.**
+  `concepts/citations.jsonl` holds one line per quotation, keyed on
+  `(item_code, t_start)` and resolved by `scripts/build_citations.py`;
+  `build_concept_vault.py` renders it into the note. Two forcing constraints:
+  `obsidian/roots/**` is generated and must never be hand-edited, so a curated
+  quote cannot live in the note; and `corpus/krishnamurti-corpus.db` is
+  gitignored, so each line stores its own resolved text and link and a fresh
+  clone rebuilds the vault without it. Keying on `passages.id` was rejected —
+  ids are reassigned on every re-ingest, so an id-keyed citation drifts silently
+  onto different words, while an item code plus an offset is exactly what the
+  published link already claims. `--verify` is the gate that catches a re-ingest
+  moving the ground under a published quote; run it after every ingest.
+- **2026-07-25** — **`fear` shipped, and it restructured the plan.** 25 curated
+  passages spanning 1961–1985 in eight themes, each linking to the second it is
+  spoken, drawn from BM25 retrieval over the root's own name and aliases plus a
+  human reading the candidates. It cost no model spend and needed neither the
+  tagging pass nor the Scribe cohort. So the phases were reordered: cited notes
+  are now phase 3 and the critical path, exhaustive tagging and the STT backfill
+  drop behind them as optional enrichment. The old plan gated note #1 on
+  judgment #2,900,000; retrieval-first gates it on an afternoon of reading, and
+  each root ships independently. 1 root of 36 cited.
