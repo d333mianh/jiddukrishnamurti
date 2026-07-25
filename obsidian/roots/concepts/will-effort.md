@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: will-effort
 facet: "I. Structures of Consciousness"
 status: active
-iching_gates: [xun, li]
 aliases: ["Will, Effort & Escape", "will", "effort", "exertion", "resistance", "discipline", "suppression", "escape", "distraction", "entertainment", "amusement"]
 ---
 # Will, Effort & Escape
 
 **Facet:** I. Structures of Consciousness · **Root 3 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☴☲ ䷱ 50 / ䷤ 37 *(navigation only)*
-> Thought's persistent pressure clinging to an image of what should be — will as hardened desire.
-> 
-> Gates: [[xun|☴ Penetrating]] · [[li|☲ Clinging]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti treats will as desire hardened into resolve — the self asserting itself as 'I will' or 'I will not' — and effort as the friction of that assertion against what is. Discipline, resistance, suppression, and the practice of a method are all its forms, and each strengthens the very self it is meant to overcome. Its mirror image is escape: the movement away from what is into entertainment, distraction, amusement, drink, ritual, or belief. Both are avoidance of the fact, and both cease not by a further act of will but in seeing the fact without the wish to change it.

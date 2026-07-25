@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: division
 facet: "I. Structures of Consciousness"
 status: active
-iching_gates: [kan, li]
 aliases: ["Division / Fragmentation", "fragmentation", "wholeness"]
 ---
 # Division / Fragmentation
 
 **Facet:** I. Structures of Consciousness · **Root 6 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☵☲ ䷿ 64 / ䷾ 63 *(navigation only)*
-> Depth and image: thought's fragmenting action, me and not-me.
-> 
-> Gates: [[kan|☵ Abysmal]] · [[li|☲ Clinging]] · [[I Ching Navigator]]
 
 ## Definition
 Division is thought's fragmenting action: inner and outer, observer and observed, me and not-me, nationality and belief. Krishnamurti argues that psychological division breeds conflict and violence, and that wholeness is not the assembling of fragments but perception unbroken by the divider.

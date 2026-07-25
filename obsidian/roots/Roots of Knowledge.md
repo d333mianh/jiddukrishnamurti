@@ -19,8 +19,6 @@ to, so any concept can be read back in K's own words with timestamped links.
 
 - [[Map of the 36 Roots]] — the whole canon, grouped into four facets, with a
   one-line hook on each root.
-- [[I Ching Navigator]] — the same 36 roots reached the other way, through 36
-  pairs of trigram gates. A navigator for what to inquire into, never an oracle.
 - [[Strategy]] — the roadmap, the settled registry state, and **what still
   needs your call**: the pilot re-score, the model choice, and the spend gates.
 

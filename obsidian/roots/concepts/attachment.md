@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: attachment
 facet: "II. Human Experience & Relationship"
 status: active
-iching_gates: [xun, kan]
 aliases: ["Security & Attachment", "dependence", "security", "detachment", "jealousy"]
 ---
 # Security & Attachment
 
 **Facet:** II. Human Experience & Relationship · **Root 16 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☴☵ ䷯ 48 / ䷺ 59 *(navigation only)*
-> Subtle influence meeting insecurity: the craving for psychological security.
-> 
-> Gates: [[xun|☴ Penetrating]] · [[kan|☵ Abysmal]] · [[I Ching Navigator]]
 
 ## Definition
 The craving for psychological security drives attachment — to people, beliefs, possessions, and self-images — and Krishnamurti shows that attachment breeds fear, dependence, jealousy, and sorrow. Detachment is only its opposite and equally bound; freedom lies in understanding the demand for security itself.

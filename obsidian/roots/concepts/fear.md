@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: fear
 facet: "II. Human Experience & Relationship"
 status: active
-iching_gates: [kan, kan]
 aliases: ["Fear", "anxiety", "fright"]
 ---
 # Fear
 
 **Facet:** II. Human Experience & Relationship · **Root 9 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☵☵ ䷜ 29 *(navigation only)*
-> The abysmal doubled: thought projecting remembered pain into the future.
-> 
-> Gates: [[kan|☵ Abysmal]] · [[I Ching Navigator]]
 
 ## Definition
 Fear is the psychological response produced when thought projects remembered pain or imagined danger into the future. In Krishnamurti's usage, it persists through time, avoidance, and the division between an observer and the feeling observed; the thought-and-time account is his principal analysis, and direct attention without that division is central to understanding it.

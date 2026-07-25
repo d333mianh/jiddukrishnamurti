@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: observer-observed
 facet: "III. Observation, Inquiry & Action"
 status: active
-iching_gates: [li, gen]
 aliases: ["The Observer Is the Observed", "the thinker is the thought", "the experiencer and the experienced", "the analyser is the analysed", "the observer"]
 ---
 # The Observer Is the Observed
 
 **Facet:** III. Observation, Inquiry & Action · **Root 19 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☲☶ ䷕ 22 / ䷷ 56 *(navigation only)*
-> The image met as ground: the thinker is the thought, the observer the observed.
-> 
-> Gates: [[li|☲ Clinging]] · [[gen|☶ Stillness]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti's central perceptual discovery: the thinker is the thought, the experiencer the experience, the observer the observed. The division between the one who watches and the thing watched is created by thought; when it is seen that they are one movement, conflict and the effort to control dissolve.

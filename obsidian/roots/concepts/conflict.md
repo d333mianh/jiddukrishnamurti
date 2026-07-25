@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: conflict
 facet: "II. Human Experience & Relationship"
 status: active
-iching_gates: [zhen, kan]
 aliases: ["Conflict", "struggle", "contradiction"]
 ---
 # Conflict
 
 **Facet:** II. Human Experience & Relationship · **Root 13 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☳☵ ䷂ 3 / ䷧ 40 *(navigation only)*
-> Disturbance meeting insecurity: the friction of what is against what should be.
-> 
-> Gates: [[zhen|☳ Arousing]] · [[kan|☵ Abysmal]] · [[I Ching Navigator]]
 
 ## Definition
 Conflict is the friction of duality — between what is and what should be, desire and desire, the observer and the observed. Krishnamurti sees psychological conflict as unnecessary and rooted in division and comparison, and asks whether the mind can live wholly without inner struggle.

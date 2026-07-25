@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: suffering
 facet: "II. Human Experience & Relationship"
 status: active
-iching_gates: [kun, kan]
 aliases: ["Suffering (Sorrow)", "sorrow", "grief", "pain"]
 ---
 # Suffering (Sorrow)
 
 **Facet:** II. Human Experience & Relationship · **Root 11 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☷☵ ䷇ 8 / ䷆ 7 *(navigation only)*
-> Receptive attention held to human depth: sorrow neither escaped nor explained away.
-> 
-> Gates: [[kun|☷ Receptive]] · [[kan|☵ Abysmal]] · [[I Ching Navigator]]
 
 ## Definition
 Sorrow, for Krishnamurti, is not only personal grief but the sorrow of humankind, arising from self-concern, attachment, and thought's resistance to loss. He holds that remaining wholly with sorrow, without escape, ends it — and that the ending of sorrow is the beginning of compassion and wisdom.

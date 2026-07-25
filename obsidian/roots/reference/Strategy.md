@@ -48,9 +48,9 @@ ElevenLabs Scribe v2 pass over the 540 is planned, not yet bought.
 
 ## Another way in
 
-[[I Ching Navigator]] maps the same 36 roots onto the 36 pairs of trigram gates
-— a navigator for choosing what to inquire into, never an oracle. Navigation
-only: it is no part of any root's definition.
+An I Ching navigation layer — the same 36 roots reached through 36 pairs of
+trigram gates — is **archived, undecided**, in `archive/iching/`. Nothing in the
+registry depends on it.
 
 ## Open questions
 

@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: comparison
 facet: "II. Human Experience & Relationship"
 status: active
-iching_gates: [xun, dui]
 aliases: ["Comparison & Measurement", "measurement", "comparing", "envy", "competition"]
 ---
 # Comparison & Measurement
 
 **Facet:** II. Human Experience & Relationship · **Root 15 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☴☱ ䷛ 28 / ䷼ 61 *(navigation only)*
-> Conditioning entering relationship as measurement — 'all comparison is violence'.
-> 
-> Gates: [[xun|☴ Penetrating]] · [[dui|☱ Joyous]] · [[I Ching Navigator]]
 
 ## Definition
 Psychological comparison — measuring oneself against another, against an ideal, against yesterday — is for Krishnamurti a root of becoming, envy, competition, conformity, and the sense of insufficiency; 'all comparison is violence.' Measurement is the mind's instrument, and the immeasurable is precisely what lies beyond it.

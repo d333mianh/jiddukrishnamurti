@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: responsibility
 facet: "III. Observation, Inquiry & Action"
 status: active
-iching_gates: [qian, kun]
 aliases: ["Responsibility", "you are the world", "total responsibility", "you are society"]
 ---
 # Responsibility
 
 **Facet:** III. Observation, Inquiry & Action · **Root 27 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☰☷ ䷊ 11 / ䷋ 12 *(navigation only)*
-> Heaven and earth together: the whole. Responsibility is total because 'you are the world'.
-> 
-> Gates: [[qian|☰ Creative]] · [[kun|☷ Receptive]] · [[I Ching Navigator]]
 
 ## Definition
 For Krishnamurti responsibility is total, not partial: because your consciousness is the consciousness of mankind — 'you are the world' — you are responsible for the whole of it: for the wars, for society, for the education of children, for the earth. It is not duty, guilt, or obligation but the ability to respond wholly to what is, out of relationship rather than out of ideals.

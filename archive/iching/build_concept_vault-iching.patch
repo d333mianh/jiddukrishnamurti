@@ -1,0 +1,375 @@
+diff --git a/scripts/build_concept_vault.py b/scripts/build_concept_vault.py
+index 1e78fe9..a4f9543 100644
+--- a/scripts/build_concept_vault.py
++++ b/scripts/build_concept_vault.py
+@@ -11,15 +11,13 @@ registry — current state"): every root is ``active``, and none carries
+ provisional or probation status. The notes are *generated*, never hand-edited —
+ edit ``concepts/concepts.jsonl`` and re-run.
+ 
+-It also renders the optional **I Ching navigation layer** from
+-``concepts/iching_navigation.json`` (see ``scripts/iching_data.py``): a
+-navigator note, one note per trigram gate, and a bridge line on every concept
+-note. That mapping is navigation only — it is not part of any root's definition,
+-and ``concepts.jsonl`` stays canonical.
+-
+-Ownership: this script owns only ``obsidian/roots/Map of the 36 Roots.md``,
+-``obsidian/roots/I Ching Navigator.md``, and everything under
+-``obsidian/roots/concepts/`` and ``obsidian/roots/gates/``. The curated hub and
++An I Ching navigation layer once rendered a navigator note, one note per
++trigram gate, and a bridge line on every concept note. It was archived on
++2026-07-25 (undecided, not rejected) — see ``archive/iching/README.md`` for the
++data, the removed rendering code, and how to bring it back.
++
++Ownership: this script owns only ``obsidian/roots/Map of the 36 Roots.md`` and
++everything under ``obsidian/roots/concepts/``. The curated hub and
+ ``reference/`` notes are authored by hand and left untouched (so a regen never
+ clobbers them). ``build_catalog.py`` preserves the whole ``obsidian/roots/``
+ subtree across catalog rebuilds.
+@@ -38,32 +36,12 @@ import re
+ import sys
+ from pathlib import Path
+ 
+-sys.path.insert(0, str(Path(__file__).resolve().parent))
+-import iching_data as ich  # noqa: E402
+-
+ ROOT = Path(__file__).resolve().parents[1]
+ CONCEPTS_JSONL = ROOT / "concepts" / "concepts.jsonl"
+ OBSIDIAN = ROOT / "obsidian"
+ VAULT = OBSIDIAN / "roots"
+ CONCEPTS_DIR = VAULT / "concepts"
+-GATES_DIR = VAULT / "gates"
+ MAP_NOTE = VAULT / "Map of the 36 Roots.md"
+-NAVIGATOR_NOTE = VAULT / "I Ching Navigator.md"
+-
+-# Where the I Ching arises in the archive itself — Allan W. Anderson raises it
+-# in the 1972/1974 San Diego conversations. These are the only three passages in
+-# the corpus that mention it, and they are why this layer exists at all.
+-ARCHIVE_GROUNDING: list[tuple[str, str, str, int, str]] = [
+-    ("SD72CA1", "Vgu8-31SJiw", "Listening is a great miracle", 188,
+-     "Anderson reads K's readiness for the unexpected against the hexagram "
+-     "called Innocence / The Unexpected."),
+-    ("SD74CA4", "bUuvpNuX4rM", "What is a responsible human being?", 488,
+-     "\"The superior man does not let his thoughts go beyond his situation\" — "
+-     "offered as a reflection of what K had just said about responsibility."),
+-    ("SD74CA5", "z46n67DiiLg", "Order comes from the understanding of our disorder", 3303,
+-     "The hexagram called *conduct*, also translated *treading*, raised while "
+-     "K is examining order."),
+-]
+ 
+ # The four non-sequential facets (STRATEGY.md, 2026-07-07). Facets are
+ # entry-points, not stages: freedom is at the beginning of inquiry, not a reward,
+@@ -127,40 +105,10 @@ def first_sentence(text: str) -> str:
+     return text.strip()
+ 
+ 
+-def short_name(name: str) -> str:
+-    """Compact label for the bridge matrix, where full names are unreadable."""
+-    for sep in (" & ", " / ", " ("):
+-        if sep in name:
+-            name = name.split(sep)[0]
+-    return name.strip()
+-
+-
+-def gate_label(key: str) -> str:
+-    g = ich.GATE_BY_KEY[key]
+-    return f"{g['symbol']} {g['name'].split(' / ')[0]}"
+-
+-
+-def bridge_figures(pair: tuple[str, str]) -> str:
+-    """Both hexagram figures for a gate pair (one for a self-pair).
+-
+-    A cast produces an *ordered* pair — lower gate then upper — so an unordered
+-    bridge such as ☰☷ is reached by two different figures (䷊ 11 and ䷋ 12).
+-    Showing both is the honest rendering; picking one would invent a canonical
+-    hexagram the mapping does not have.
+-    """
+-    a, b = pair
+-    if a == b:
+-        n = ich.hexagram_number(a, b)
+-        return f"{ich.glyph(n)} {n}"
+-    n1, n2 = ich.hexagram_number(a, b), ich.hexagram_number(b, a)
+-    return f"{ich.glyph(n1)} {n1} / {ich.glyph(n2)} {n2}"
+-
+-
+ def render_concept(concept: dict, names: dict[str, str], index: int,
+-                   facet: str, pair: tuple[str, str], note: str) -> str:
++                   facet: str) -> str:
+     slug = concept["slug"]
+     name = concept["name"]
+-    symbols = "".join(ich.GATE_BY_KEY[k]["symbol"] for k in pair)
+ 
+     alias_forms = [a["alias"] for a in concept.get("aliases", [])]
+     fm_aliases = ", ".join(json.dumps(a) for a in [name, *alias_forms])
+@@ -171,7 +119,6 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
+         f"slug: {slug}",
+         f'facet: "{facet}"',
+         f"status: {concept['status']}",
+-        f"iching_gates: [{pair[0]}, {pair[1]}]",
+         f"aliases: [{fm_aliases}]",
+         "---",
+         f"# {name}",
+@@ -179,14 +126,6 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
+         f"**Facet:** {facet} · **Root {index} of 36** · "
+         f"[[Map of the 36 Roots|↩ Map]] · [[Strategy]]",
+         "",
+-        f"> [!abstract]- I Ching bridge — {symbols} {bridge_figures(pair)} "
+-        f"*(navigation only)*\n"
+-        f"> {note}\n"
+-        f"> \n"
+-        f"> Gates: [[{pair[0]}|{gate_label(pair[0])}]]"
+-        + (f" · [[{pair[1]}|{gate_label(pair[1])}]]" if pair[0] != pair[1] else "")
+-        + " · [[I Ching Navigator]]",
+-        "",
+         "## Definition",
+         concept["definition"],
+         "",
+@@ -225,7 +164,7 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
+     return "\n".join(lines) + "\n"
+ 
+ 
+-def render_map(concepts: dict[str, dict], by_root: dict[str, tuple[str, str]]) -> str:
++def render_map(concepts: dict[str, dict]) -> str:
+     lines = [
+         "---",
+         "tags: [krishnamurti, root, index]",
+@@ -241,11 +180,6 @@ def render_map(concepts: dict[str, dict], by_root: dict[str, tuple[str, str]]) -
+         "The registry closed on 2026-07-25; see [[Strategy]] for the decision "
+         "log. Canonical source: `concepts/concepts.jsonl`.",
+         "",
+-        "> [!tip] Another way in",
+-        "> The 36 roots also sit on the 36 unordered pairs of I Ching trigrams "
+-        "— see [[I Ching Navigator]]. That layer selects *what to inquire into*; "
+-        "it never answers, predicts, or advises.",
+-        "",
+         "See [[Roots of Knowledge]] for the hub.",
+         "",
+     ]
+@@ -255,9 +189,8 @@ def render_map(concepts: dict[str, dict], by_root: dict[str, tuple[str, str]]) -
+         for slug in slugs:
+             c = concepts[slug]
+             n += 1
+-            symbols = "".join(ich.GATE_BY_KEY[k]["symbol"] for k in by_root[slug])
+             hook = first_sentence(c["definition"])
+-            lines.append(f"{n}. [[{slug}|{c['name']}]] · {symbols}  ")
++            lines.append(f"{n}. [[{slug}|{c['name']}]]  ")
+             # Continuation aligns to the marker width ("10. " = 4 cols) so it
+             # stays inside the list item. Use native italic, not raw <small>:
+             # inline HTML that wraps inside a list item makes Obsidian break the
+@@ -272,207 +205,21 @@ def render_map(concepts: dict[str, dict], by_root: dict[str, tuple[str, str]]) -
+     return "\n".join(lines) + "\n"
+ 
+ 
+-def render_gate(gate: dict, by_pair: dict[tuple[str, str], str],
+-                names: dict[str, str], notes: dict[tuple[str, str], str]) -> str:
+-    key = gate["key"]
+-    lines = [
+-        "---",
+-        "tags: [krishnamurti, iching, gate]",
+-        f"gate: {key}",
+-        f'symbol: "{gate["symbol"]}"',
+-        f'lines: "{gate["lines"]}"',
+-        f'aliases: ["{gate["name"]}", "{gate["symbol"]}"]',
+-        "---",
+-        f"# {gate['symbol']} {gate['name']}",
+-        "",
+-        f"**Gate {ich.GATE_ORDER.index(key) + 1} of 8** · lines "
+-        f"`{gate['lines']}` (bottom to top) · [[I Ching Navigator|↩ Navigator]]",
+-        "",
+-        f"Reading this gate: **{gate['inquiry_phrase']}**.",
+-        "",
+-        "A gate is not a concept. It is one half of a cast — the eight gates "
+-        "pair up into the 36 bridges, and each bridge opens onto exactly one "
+-        "root.",
+-        "",
+-        "## The eight bridges from this gate",
+-        "",
+-        "| With | Figures | Root | Why |",
+-        "|---|---|---|---|",
+-    ]
+-    for other in ich.GATE_ORDER:
+-        pair = ich.bridge_key(key, other)
+-        slug = by_pair[pair]
+-        og = ich.GATE_BY_KEY[other]
+-        with_label = (f"{og['symbol']} *(doubled)*" if other == key
+-                      else f"{og['symbol']} {og['name'].split(' / ')[0]}")
+-        lines.append(
+-            f"| {with_label} | {bridge_figures(pair)} | "
+-            f"[[{slug}\\|{names[slug]}]] | {notes[pair]} |")
+-    lines += [
+-        "",
+-        "---",
+-        "*Generated by `scripts/build_concept_vault.py` from "
+-        "`concepts/iching_navigation.json`.*",
+-    ]
+-    return "\n".join(lines) + "\n"
+-
+-
+-def render_navigator(nav: dict, by_pair: dict[tuple[str, str], str],
+-                     names: dict[str, str]) -> str:
+-    lines = [
+-        "---",
+-        "tags: [krishnamurti, iching, index]",
+-        "aliases: [\"I Ching Navigator\", \"36 Bridges\"]",
+-        "---",
+-        "# I Ching Navigator",
+-        "",
+-        "> [!warning] Navigator, not oracle",
+-        "> A cast selects **what to inquire into**. It does not answer, "
+-        "predict, advise, or judge. There are no line texts and no judgements "
+-        "here — restoring that authority would restore exactly what "
+-        "Krishnamurti spent his life dismantling. The figure is a door handle, "
+-        "nothing more; what is behind the door is K's own words.",
+-        "",
+-        "> [!note] Status: provisional",
+-        "> This layer is navigation metadata. It is not part of any root's "
+-        "definition, it does not enter the L3 concept schema, and "
+-        "`concepts/concepts.jsonl` remains canonical. Assignments may be "
+-        "revised; the roots will not move because of them.",
+-        "",
+-        "## Why exactly 36",
+-        "",
+-        "The number is *derived*, not chosen to fit:",
+-        "",
+-        "```",
+-        "8 gates doubled with themselves       =  8",
+-        "8 gates paired with the other seven   = 28",
+-        "                                        --",
+-        "                                        36 bridges",
+-        "```",
+-        "",
+-        "Eight trigrams combine into 36 unordered pairs, and the L3 registry "
+-        "closed independently at 36 roots. Each root therefore sits on exactly "
+-        "one bridge, and every bridge is occupied. Nothing is left over in "
+-        "either direction — which is the only reason this mapping is worth "
+-        "having.",
+-        "",
+-        "## How to cast",
+-        "",
+-        "1. Sit with the question you actually have. Not a question about the "
+-        "future — a question about what is going on in you now.",
+-        "2. Generate six lines bottom to top by any method you like (three "
+-        "coins, yarrow, dice). Odd is solid, even is broken.",
+-        "3. Lines 1–3 are the **lower gate**, lines 4–6 the **upper gate**.",
+-        "4. Look the pair up in the matrix below. Read the root — the "
+-        "definition, then the passages. That is the whole procedure.",
+-        "",
+-        "Because a bridge is *unordered*, ☰ over ☷ and ☷ over ☰ arrive at the "
+-        "same root by two different figures (䷊ 11 and ䷋ 12). Both are shown "
+-        "throughout; neither is treated as the canonical one.",
+-        "",
+-        "## The eight gates",
+-        "",
+-        "| Gate | Lines | Reading |",
+-        "|---|---|---|",
+-    ]
+-    for g in nav["gates"]:
+-        lines.append(f"| [[{g['key']}\\|{g['symbol']} {g['name']}]] | "
+-                     f"`{g['lines']}` | {g['inquiry_phrase']} |")
+-
+-    lines += [
+-        "",
+-        "## The 36 bridges",
+-        "",
+-        "Rows are the **lower** gate (lines 1–3), columns the **upper** gate "
+-        "(lines 4–6). The table is symmetric — the figure differs across the "
+-        "diagonal, the root does not.",
+-        "",
+-        "| ↓lower \\ upper→ | " + " | ".join(
+-            ich.GATE_BY_KEY[k]["symbol"] for k in ich.GATE_ORDER) + " |",
+-        "|---" * 9 + "|",
+-    ]
+-    for lower in ich.GATE_ORDER:
+-        cells = []
+-        for upper in ich.GATE_ORDER:
+-            slug = by_pair[ich.bridge_key(lower, upper)]
+-            n = ich.hexagram_number(lower, upper)
+-            cells.append(f"{ich.glyph(n)} {n}<br>[[{slug}\\|"
+-                         f"{short_name(names[slug])}]]")
+-        lines.append(f"| **{ich.GATE_BY_KEY[lower]['symbol']}** | "
+-                     + " | ".join(cells) + " |")
+-
+-    lines += [
+-        "",
+-        "## Where this comes from",
+-        "",
+-        "The I Ching is not imported from outside the archive. It surfaces "
+-        "inside it: Allan W. Anderson raises it three times across the San "
+-        "Diego conversations, each time to test a translation of what K has "
+-        "just said — and each time K neither adopts nor dismisses it, but "
+-        "turns back to the fact under discussion. That is the posture this "
+-        "layer copies.",
+-        "",
+-    ]
+-    for code, video, title, seconds, gloss in ARCHIVE_GROUNDING:
+-        stamp = f"{seconds // 60}:{seconds % 60:02d}"
+-        lines.append(
+-            f"- **{code}** — [{title}](https://youtu.be/{video}?t={seconds}) "
+-            f"@ {stamp} — {gloss}")
+-    lines += [
+-        "",
+-        "Two of those three conversations are titled *\"Listening is a great "
+-        "miracle\"* and *\"What is a responsible human being?\"*, and the third "
+-        "turns on order — [[listening|listening]], "
+-        "[[responsibility|responsibility]], and [[order|order]] are all roots "
+-        "in the registry. The convergence is a coincidence worth noticing, not "
+-        "evidence of anything.",
+-        "",
+-        "## What is deliberately absent",
+-        "",
+-        "- **Judgements, images, and line texts.** Copyrighted in every modern "
+-        "translation, and worse, they would make this an oracle.",
+-        "- **Changing lines and derived hexagrams.** A cast points at one root; "
+-        "sequences of roots would be a narrative about the future.",
+-        "- **Any claim of equivalence.** A root does not mean what its King Wen "
+-        "hexagram means. The King Wen numbering is used for one purpose only: "
+-        "the Unicode block `U+4DC0–U+4DFF` is laid out in that order, so a "
+-        "number is what produces a glyph.",
+-        "",
+-        "---",
+-        "*Generated by `scripts/build_concept_vault.py` from "
+-        "`concepts/iching_navigation.json` and `scripts/iching_data.py`. "
+-        "See [[Map of the 36 Roots]] and [[Strategy]].*",
+-    ]
+-    return "\n".join(lines) + "\n"
+-
+-
+ def build() -> list[tuple[Path, str]]:
+     concepts = load_concepts()
+     by_slug = {c["slug"]: c for c in concepts}
+     names = {c["slug"]: c["name"] for c in concepts}
+     facet_of = {s: facet for facet, _, slugs in FACETS for s in slugs}
+ 
+-    nav = ich.load_navigation()
+-    ich.validate_navigation(nav, known_roots=set(by_slug))
+-    by_root = ich.bridges_by_root(nav)
+-    by_pair = ich.bridges_by_pair(nav)
+-    notes = {ich.bridge_key(*b["gates"]): b.get("note", "") for b in nav["bridges"]}
+-
+     written: list[tuple[Path, str]] = []
+     n = 0
+     for facet, _, slugs in FACETS:
+         for slug in slugs:
+             n += 1
+-            pair = by_root[slug]
+             written.append((
+                 CONCEPTS_DIR / f"{slug}.md",
+-                render_concept(by_slug[slug], names, n, facet_of[slug],
+-                               pair, notes[pair])))
+-    written.append((MAP_NOTE, render_map(by_slug, by_root)))
+-    written.append((NAVIGATOR_NOTE, render_navigator(nav, by_pair, names)))
+-    for gate in nav["gates"]:
+-        written.append((GATES_DIR / f"{gate['key']}.md",
+-                        render_gate(gate, by_pair, names, notes)))
++                render_concept(by_slug[slug], names, n, facet_of[slug])))
++    written.append((MAP_NOTE, render_map(by_slug)))
+     return written
+ 
+ 
+@@ -530,7 +277,6 @@ def main(argv: list[str] | None = None) -> int:
+         return 0
+ 
+     CONCEPTS_DIR.mkdir(parents=True, exist_ok=True)
+-    GATES_DIR.mkdir(parents=True, exist_ok=True)
+     for path, content in outputs:
+         path.write_text(content, encoding="utf-8")
+     print(f"Wrote {len(outputs)} concept-vault notes to "

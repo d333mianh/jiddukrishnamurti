@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 import unittest
 from pathlib import Path
@@ -12,7 +11,6 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 import build_concept_vault as bcv  # noqa: E402
-import iching_data as ich  # noqa: E402
 
 
 class TestVaultBuild(unittest.TestCase):
@@ -22,13 +20,12 @@ class TestVaultBuild(unittest.TestCase):
         cls.by_path = dict(cls.outputs)
         cls.concepts = {c["slug"]: c for c in bcv.load_concepts()}
 
-    def test_writes_36_concepts_plus_map_navigator_and_8_gates(self):
-        self.assertEqual(len(self.outputs), 36 + 1 + 1 + 8)
+    def test_writes_36_concepts_plus_map(self):
+        self.assertEqual(len(self.outputs), 36 + 1)
         self.assertEqual(len(self.concepts), 36)
         self.assertIn(bcv.MAP_NOTE, self.by_path)
-        self.assertIn(bcv.NAVIGATOR_NOTE, self.by_path)
-        for key in ich.GATE_ORDER:
-            self.assertIn(bcv.GATES_DIR / f"{key}.md", self.by_path)
+        for slug in self.concepts:
+            self.assertIn(bcv.CONCEPTS_DIR / f"{slug}.md", self.by_path)
 
     def test_registry_is_closed_so_no_status_badges_remain(self):
         self.assertTrue(all(c["status"] == "active" for c in self.concepts.values()))
@@ -44,40 +41,10 @@ class TestVaultBuild(unittest.TestCase):
         self.assertEqual(set(placed), set(self.concepts))
         self.assertEqual(len(bcv.FACETS), 4)
 
-    def test_concept_notes_carry_their_gate_pair(self):
-        by_root = ich.bridges_by_root(ich.load_navigation())
-        for slug, pair in by_root.items():
-            text = self.by_path[bcv.CONCEPTS_DIR / f"{slug}.md"]
-            self.assertIn(f"iching_gates: [{pair[0]}, {pair[1]}]", text)
-            symbols = "".join(ich.GATE_BY_KEY[k]["symbol"] for k in pair)
-            self.assertIn(f"I Ching bridge — {symbols}", text)
-            self.assertIn("*(navigation only)*", text)
-
-    def test_two_gate_bridges_show_both_figures_self_pairs_one(self):
-        self.assertEqual(bcv.bridge_figures(("kan", "kan")), "䷜ 29")
-        self.assertEqual(bcv.bridge_figures(("qian", "kun")), "䷊ 11 / ䷋ 12")
-
-    def test_short_name_trims_compound_titles(self):
-        self.assertEqual(bcv.short_name("Thought & Knowledge"), "Thought")
-        self.assertEqual(bcv.short_name("Division / Fragmentation"), "Division")
-        self.assertEqual(bcv.short_name("Suffering (Sorrow)"), "Suffering")
-        self.assertEqual(bcv.short_name("Action"), "Action")
-
-    def test_navigator_is_framed_as_navigation_not_prophecy(self):
-        text = self.by_path[bcv.NAVIGATOR_NOTE]
-        self.assertIn("Navigator, not oracle", text)
-        self.assertIn("provisional", text)
-        # The matrix is the actual lookup table: 8 data rows, 64 cells.
-        rows = [ln for ln in text.splitlines() if ln.startswith("| **")]
-        self.assertEqual(len(rows), 8)
-        for row in rows:
-            # Wikilink aliases escape their pipe, so only unescaped pipes are
-            # cell separators.
-            cells = re.split(r"(?<!\\)\|", row)
-            self.assertEqual(len(cells) - 2, 9, row)  # row label + 8 cells
-        for code, video, _title, seconds, _gloss in bcv.ARCHIVE_GROUNDING:
-            self.assertIn(f"https://youtu.be/{video}?t={seconds}", text)
-            self.assertIn(code, text)
+    def test_iching_layer_stays_archived(self):
+        for path, text in self.outputs:
+            self.assertNotIn("I Ching", text, path.name)
+            self.assertNotIn("iching_gates", text, path.name)
 
     def test_generated_notes_declare_they_are_generated(self):
         for path, text in self.outputs:

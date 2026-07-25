@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: meditation
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
-iching_gates: [gen, gen]
 aliases: ["Meditation & Silence", "silence", "stillness", "the quiet mind"]
 ---
 # Meditation & Silence
 
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 31 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☶☶ ䷳ 52 *(navigation only)*
-> Stillness doubled: not a method or a practice, but the emptying of the known.
-> 
-> Gates: [[gen|☶ Stillness]] · [[I Ching Navigator]]
 
 ## Definition
 For Krishnamurti meditation is not a method, practice, mantra, or system — all of which condition the mind — but the emptying of consciousness of the known, out of which comes a silence not induced by thought. It cannot be pursued or achieved; it is the whole movement of a mind free of the self.

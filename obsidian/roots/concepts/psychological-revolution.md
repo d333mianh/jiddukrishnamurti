@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: psychological-revolution
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
-iching_gates: [qian, zhen]
 aliases: ["Transformation & Mutation", "transformation", "mutation", "psychological revolution", "the only revolution", "regeneration"]
 ---
 # Transformation & Mutation
 
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 35 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☰☳ ䷡ 34 / ䷘ 25 *(navigation only)*
-> Creative force meeting movement and change — mutation, not gradual reform.
-> 
-> Gates: [[qian|☰ Creative]] · [[zhen|☳ Arousing]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti calls for a radical transformation — total and immediate, not the gradual reform of becoming — that alone can end humanity's inherited disorder. In his earlier decades he framed this as the 'only revolution', which is inward; in the later dialogues he spoke of a mutation of the mind and even of the brain cells (his own formulation, not a neurological claim).

@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: conditioning
 facet: "I. Structures of Consciousness"
 status: active
-iching_gates: [xun, xun]
 aliases: ["Conditioning", "the conditioned mind", "tradition", "culture", "programming"]
 ---
 # Conditioning
 
 **Facet:** I. Structures of Consciousness · **Root 2 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☴☴ ䷸ 57 *(navigation only)*
-> Conditioning doubled — the shaping so pervasive it is mistaken for oneself.
-> 
-> Gates: [[xun|☴ Penetrating]] · [[I Ching Navigator]]
 
 ## Definition
 Conditioning is the shaping of the mind by culture, tradition, religion, nationality, education, and accumulated experience, so that response arises from the past rather than from direct perception. Krishnamurti asks whether the conditioned mind can become aware of its own conditioning and be free of it, not gradually but through immediate seeing.

@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: self-knowledge
 facet: "III. Observation, Inquiry & Action"
 status: active
-iching_gates: [kun, xun]
 aliases: ["Self-knowledge & The Self", "knowing oneself", "the book of oneself", "self-observation", "the me", "the ego", "self-centred activity", "self-deception"]
 ---
 # Self-knowledge & The Self
 
 **Facet:** III. Observation, Inquiry & Action · **Root 28 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☷☴ ䷓ 20 / ䷭ 46 *(navigation only)*
-> Attention turned on the conditioning that shapes it — the mirror of relationship.
-> 
-> Gates: [[kun|☷ Receptive]] · [[xun|☴ Penetrating]] · [[I Ching Navigator]]
 
 ## Definition
 Self-knowledge is for Krishnamurti the foundation of all understanding: the ceaseless observation of oneself in the mirror of relationship, moment to moment, without accumulating a conclusion about oneself. What is known in it — the self, the 'me', the ego — is a bundle of memories, images, and wants built by thought, not a permanent entity; it divides itself from others and from experience and is the root of psychological conflict. Knowing and the thing known are one movement here: the ending of the self is not achieved by another effort of the self, but comes with seeing it whole.

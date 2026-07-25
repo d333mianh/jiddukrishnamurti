@@ -50,7 +50,7 @@ workflow for `parse_vtt.py` / `build_catalog.py` changes.
 - **`corpus/`** — generated, gitignored L1/L2 DB (`krishnamurti-corpus.db`);
   tracked README only.
 - **`concepts/`** — tracked L3 registry: `concepts.jsonl` (36 roots + 3
-  deprecated tombstones) and `iching_navigation.json`.
+  deprecated tombstones).
 - **`library/`** — gitignored media tree:
   `{section-slug}/{pdf_order:04d}-{series_code}/{CODE} - Title.{m4a|mp4|en.vtt|whisper.*}`.
   Paths stored in `items.future_path`.
@@ -58,6 +58,10 @@ workflow for `parse_vtt.py` / `build_catalog.py` changes.
   see "Obsidian vault" below. Never hand-edit generated notes.
 - **`compare/`** — gitignored STT evaluation sandbox; not part of the production
   pipeline.
+- **`archive/`** — parked work, deliberately outside the live pipeline. Nothing
+  here is imported or run; each subdirectory has a `README.md` saying what it
+  was and how to restore it. Currently: `archive/iching/` (the I Ching
+  navigation layer, parked 2026-07-25 pending a decision).
 
 ## Commands
 
@@ -250,13 +254,10 @@ The concept layer is **tracked, hand-curated data**, not generated output:
   change.
 - **Facet membership lives in code**, in `FACETS` inside
   `scripts/build_concept_vault.py` (4 facets of 8/9/11/8), not in the JSONL.
-- **`concepts/iching_navigation.json`** + **`scripts/iching_data.py`** — the
-  navigation-only I Ching layer: 8 trigram "gates" whose 36 unordered pairs
-  (8 self-pairs + 28 distinct) map one-to-one onto the 36 roots. `iching_data.py`
-  owns the King Wen table, Unicode glyphs (`U+4DC0–U+4DFF`, `glyph(n) =
-  chr(0x4DBF + n)`), cast decoding (`lines_to_gates`), and `validate_navigation`.
-  It is **navigation only**: never part of a root's definition, and
-  `concepts.jsonl` stays canonical.
+- The **I Ching navigation layer** is **archived** in `archive/iching/` (parked
+  2026-07-25, undecided). Don't reintroduce it into `scripts/`, `concepts/`, or
+  the generated vault without reading `archive/iching/README.md` first — a test
+  (`test_iching_layer_stays_archived`) fails if it leaks back into the notes.
 - **`scripts/import_concepts.py`** is the only supported path from the JSONL into
   the corpus DB's `concepts`/alias/relation tables. Never hand-edit those tables;
   re-run the importer after touching the JSONL.
@@ -266,18 +267,17 @@ The concept layer is **tracked, hand-curated data**, not generated output:
 | Path | Owner |
 |---|---|
 | `obsidian/*.md` (index + mega-group notes) | `build_catalog.py` |
-| `obsidian/roots/**` (46 notes: 36 concepts + Map + Navigator + 8 gates) | `build_concept_vault.py` |
+| `obsidian/roots/**` (37 notes: 36 concepts + Map) | `build_concept_vault.py` |
 
 `build_catalog.py` clears the vault on every rebuild but **reserves `roots/`**
 (`reserved = {"roots"}` in `build_obsidian_series`). `obsidian/roots/reference/`
 holds the few hand-authored notes; everything else under `roots/` is generated.
 
 ```bash
-python3 scripts/build_concept_vault.py           # regenerate the 46 root notes
+python3 scripts/build_concept_vault.py           # regenerate the 37 root notes
 python3 scripts/build_concept_vault.py --check    # CI-style gate: fails on stale
                                                   # notes AND on dead wikilinks
 python3 scripts/import_concepts.py                # JSONL → corpus DB
-python3 scripts/iching_data.py                    # smoke-test the gate/hexagram data
 ```
 
 `--check` resolves every `[[wikilink]]` in the whole `obsidian/` tree by
@@ -322,8 +322,7 @@ basename (the vault root is `obsidian/`, not `obsidian/roots/`), tolerating the
   download scripts delegate to it.
 - `scripts/*_schema.py` — the only place table DDL may change.
 - `scripts/transcribe_whisper.py` — interim STT; settings are pilot-frozen.
-- `scripts/build_concept_vault.py` / `scripts/iching_data.py` — L3/L4 vault and
-  I Ching navigation data.
+- `scripts/build_concept_vault.py` — L3/L4 concept vault generator.
 - `CLAUDE.md` (operational contract) and `STRATEGY.md` (roadmap, state, open
   questions, decision log) — the only two docs. Don't add a third.
 

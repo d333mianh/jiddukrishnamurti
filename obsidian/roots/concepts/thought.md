@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: thought
 facet: "I. Structures of Consciousness"
 status: active
-iching_gates: [qian, xun]
 aliases: ["Thought & Knowledge", "thinking", "the thinker", "knowledge", "the known", "experience", "the word is not the thing", "naming", "the symbol", "description"]
 ---
 # Thought & Knowledge
 
 **Facet:** I. Structures of Consciousness · **Root 1 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☰☴ ䷈ 9 / ䷫ 44 *(navigation only)*
-> Unbounded possibility working through the subtle, persistent instrument of thought.
-> 
-> Gates: [[qian|☰ Creative]] · [[xun|☴ Penetrating]] · [[I Ching Navigator]]
 
 ## Definition
 Thought is the material response of memory, knowledge, and experience operating through the brain. Krishnamurti treats it as necessary in practical and technical matters but inherently limited in the psychological field, where it constructs the thinker as though separate from thinking, accumulates as the known, and perpetuates conflict through that division. Naming is one of its operations: 'the word is not the thing', and the description, the symbol, and the verbal association are mistaken for the actual — naming a state such as fear or anger can sustain the very reaction being named.

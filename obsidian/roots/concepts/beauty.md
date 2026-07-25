@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: beauty
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
-iching_gates: [kun, dui]
 aliases: ["Beauty", "sensitivity", "the beautiful"]
 ---
 # Beauty
 
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 32 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☷☱ ䷬ 45 / ䷒ 19 *(navigation only)*
-> Attention and communion — beauty where the 'me' is momentarily absent.
-> 
-> Gates: [[kun|☷ Receptive]] · [[dui|☱ Joyous]] · [[I Ching Navigator]]
 
 ## Definition
 Beauty, for Krishnamurti, is not merely in the object, the picture, or the poem but in a state of mind free of the self — where, in the presence of a mountain or great beauty, the 'me' is momentarily absent. It is inseparable from sensitivity, love, and austerity, and cannot be cultivated.

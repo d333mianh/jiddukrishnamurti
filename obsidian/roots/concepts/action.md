@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: action
 facet: "III. Observation, Inquiry & Action"
 status: active
-iching_gates: [zhen, zhen]
 aliases: ["Action", "action and idea", "right action", "right livelihood"]
 ---
 # Action
 
 **Facet:** III. Observation, Inquiry & Action · **Root 26 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☳☳ ䷲ 51 *(navigation only)*
-> Movement doubled: action that is the immediate expression of perception.
-> 
-> Gates: [[zhen|☳ Arousing]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti examines action that springs from an idea, ideal, or conclusion — always incomplete and productive of conflict — versus action that is the immediate expression of perception, where the seeing and the doing are one. Complete action leaves no residue of regret or division.

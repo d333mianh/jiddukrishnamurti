@@ -39,9 +39,9 @@ the repo root (reviewed by two advisors, 2026-07-06). This note is a map.
    registry) — substantive vs mention-only, and definition-like. Run by
    `scripts/run_concept_pilot.py`. See [[Strategy]] for the model choice.
 
-The I Ching layer (`concepts/iching_navigation.json`) sits *beside* this schema,
-not inside it: it is navigation metadata over the same 36 slugs and is never
-consulted when tagging a passage. See [[I Ching Navigator]].
+The I Ching layer sat *beside* this schema, never inside it — navigation
+metadata over the same 36 slugs, never consulted when tagging a passage. It is
+archived in `archive/iching/`.
 
 ---
 *Hand-authored summary. Read `L3-SCHEMA.md` for the authoritative DDL.*

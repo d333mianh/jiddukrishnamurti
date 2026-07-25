@@ -3,17 +3,11 @@ tags: [krishnamurti, root, concept, status/active]
 slug: death
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
-iching_gates: [qian, gen]
 aliases: ["Death & Ending", "dying", "ending", "living and dying", "immortality"]
 ---
 # Death & Ending
 
 **Facet:** IV. Ending, Transformation & the Sacred · **Root 30 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Strategy]]
-
-> [!abstract]- I Ching bridge — ☰☶ ䷙ 26 / ䷠ 33 *(navigation only)*
-> The creative met through ending and stillness — dying each day to the known.
-> 
-> Gates: [[qian|☰ Creative]] · [[gen|☶ Stillness]] · [[I Ching Navigator]]
 
 ## Definition
 Krishnamurti treats death not as a distant event to fear but as ending — the dying each day to memory, attachment, and the known. To live and die from moment to moment, with nothing carried over, is to meet life afresh; living and dying are then one indivisible movement.
