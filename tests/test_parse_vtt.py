@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -10,7 +11,9 @@ SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-from parse_vtt import build_registry, ingest, parse_cues, read_vtt  # noqa: E402
+from parse_vtt import (  # noqa: E402
+    build_registry, ingest, parse_cues, read_vtt, resolve_vtt,
+)
 from segment_schema import ensure_corpus_schema  # noqa: E402
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -175,6 +178,37 @@ class ParseVttTests(unittest.TestCase):
         result = self.ingest_fixture("single_speaker_qa.vtt", "TESTQ4", "Q")
         self.assertEqual("pass", result["qa"]["status"])
         self.assertIn("single_speaker_source", result["qa"]["signals"])
+
+    def test_sibling_vtt_is_refused_when_its_length_contradicts_the_recording(self) -> None:
+        """A bare BASE.en.vtt is one part's transcript, not the whole series.
+
+        Handing it to every part is what put part 1's words — and part 1's
+        timestamps — under parts 2..N, which makes every citation drawn from
+        them point at the wrong recording at the wrong offset."""
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        library = Path(tmp.name) / "library" / "sec" / "series"
+        library.mkdir(parents=True)
+        (library / "BASE1.en.vtt").write_text(
+            "WEBVTT\n\n00:00:00.000 --> 01:00:00.000\nK: Fear is time.\n",
+            encoding="utf-8",
+        )
+        media_root = Path(tmp.name)
+        future = "library/sec/series/BASE1.2 - part two.en.vtt"
+
+        # part 2 runs 90 minutes; the 60-minute file cannot be its transcript
+        path, via = resolve_vtt("BASE1.2", future, media_root, duration_minutes=90)
+        self.assertIsNone(path)
+        self.assertEqual("missing", via)
+
+        # a 62-minute recording is within tolerance, so the same file resolves
+        path, via = resolve_vtt("BASE1.2", future, media_root, duration_minutes=62)
+        self.assertEqual("BASE1.en.vtt", path.name if path else None)
+        self.assertEqual("sibling-vtt", via)
+
+        # no catalog runtime at all is not evidence of a match
+        self.assertEqual(
+            (None, "missing"), resolve_vtt("BASE1.2", future, media_root, None))
 
     def _row_counts(self) -> tuple[int, ...]:
         tables = (

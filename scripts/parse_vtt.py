@@ -475,14 +475,7 @@ def ingest(
         (item_code, kind, language),
     ).fetchone()
     if prev:
-        tid0 = prev[0]
-        conn.execute(
-            "DELETE FROM passages_fts WHERE rowid IN (SELECT id FROM passages WHERE transcript_id=?)",
-            (tid0,),
-        )
-        for t in ("transcript_qa", "passages", "segments", "speaker_labels"):
-            conn.execute(f"DELETE FROM {t} WHERE transcript_id=?", (tid0,))
-        conn.execute("DELETE FROM transcripts WHERE id=?", (tid0,))
+        delete_transcript(conn, prev[0])
 
     now = datetime.now(timezone.utc).isoformat()
     duration = cues[-1].t_end if cues else 0.0
@@ -566,6 +559,21 @@ def ingest(
             "qa": qa}
 
 
+def delete_transcript(conn: sqlite3.Connection, tid: int) -> None:
+    """Remove a transcript and everything derived from it.
+
+    passages_fts is a content-owned FTS5 table, so its rows must be deleted
+    explicitly by rowid before the passages go — the ON DELETE CASCADE on
+    passages does not reach into the index."""
+    conn.execute(
+        "DELETE FROM passages_fts WHERE rowid IN (SELECT id FROM passages WHERE transcript_id=?)",
+        (tid,),
+    )
+    for t in ("transcript_qa", "passages", "segments", "speaker_labels"):
+        conn.execute(f"DELETE FROM {t} WHERE transcript_id=?", (tid,))
+    conn.execute("DELETE FROM transcripts WHERE id=?", (tid,))
+
+
 # ── on-disk resolution (batch mode) ───────────────────────────────────────────
 def materialize(path: Path) -> bool:
     """Ensure an iCloud file is present locally; return True if real bytes are now
@@ -586,21 +594,132 @@ def materialize(path: Path) -> bool:
     return False
 
 
-def resolve_vtt(code: str, future_path: str, root: Path) -> tuple[Path | None, str]:
+def vtt_duration_secs(path: Path) -> float | None:
+    """End time of the last cue, from the timestamp lines alone.
+
+    Cheap enough to run as a guard on every fallback candidate — it scans for
+    `-->` lines and never builds cues."""
+    try:
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+    except OSError:
+        return None
+    last = None
+    for last in TS_RE.finditer(text):  # noqa: B007 — we want the final match
+        pass
+    if last is None:
+        return None
+    h, m, s, ms = (int(g) for g in last.group(5, 6, 7, 8))
+    return h * 3600 + m * 60 + s + ms / 1000
+
+
+def duration_corroborates(path: Path, duration_minutes: float | None) -> bool:
+    """Is this VTT even the right length to be this recording's transcript?
+
+    The mis-attributions this guards against are gross — a 63-minute transcript
+    pinned to an 85-minute talk — so the tolerance can be generous (3 minutes or
+    8%, whichever is larger) and still catch every one. With no catalog runtime
+    to compare against there is no evidence either way, and guessing is exactly
+    what produced the bad rows, so absence of a duration is a rejection."""
+    if not duration_minutes:
+        return False
+    vtt = vtt_duration_secs(path)
+    if vtt is None:
+        return False
+    expected = duration_minutes * 60
+    return abs(vtt - expected) <= max(180.0, 0.08 * expected)
+
+
+def resolve_vtt(code: str, future_path: str, root: Path,
+                duration_minutes: float | None = None) -> tuple[Path | None, str]:
     rel = future_path[len("library/"):] if future_path.startswith("library/") else future_path
     direct = root / "library" / rel
     if materialize(direct):
         return direct, "direct"
-    # multi-part drift: DB has "BASE.N - title.en.vtt"; disk has combined "BASE.en.vtt"
+    # Multi-part drift: the DB expects "BASE.N - title.en.vtt" but disk holds a
+    # bare "BASE.en.vtt". That file is *one part's* transcript, not a combined
+    # one covering the series — handing it to every part attributes real KFT
+    # text, with real timestamps, to recordings it does not belong to, which is
+    # worse than having no transcript at all. Accept a sibling file only when
+    # its length corroborates this item's runtime.
     base = code.split(".")[0]
     d = direct.parent
-    for cand in (d / f"{base}.en.vtt", d / f"{base}.en-GB.vtt"):
-        if materialize(cand):
-            return cand, "combined-multipart"
-    hits = sorted(d.glob(f"{base}*.en*.vtt")) if d.exists() else []
-    if hits:
-        return hits[0], "combined-multipart"
+    candidates = [d / f"{base}.en.vtt", d / f"{base}.en-GB.vtt"]
+    candidates += sorted(d.glob(f"{base}*.en*.vtt")) if d.exists() else []
+    seen: set[Path] = set()
+    for cand in candidates:
+        if cand in seen:
+            continue
+        seen.add(cand)
+        if materialize(cand) and duration_corroborates(cand, duration_minutes):
+            return cand, "sibling-vtt"
     return None, "missing"
+
+
+def purge_misattributed(conn: sqlite3.Connection, dry_run: bool = False) -> int:
+    """Drop transcripts that were resolved to another recording's VTT.
+
+    The old resolver handed a bare `BASE.en.vtt` to every part of a multi-part
+    series, so parts 2..N carried part 1's words and part 1's timestamps. Those
+    passages are in `passages_fts`, which makes every citation drawn from them
+    false: right text, wrong recording, wrong offset.
+
+    A transcript is suspect only when it shares its source file with another
+    transcript — a unique source is trusted even if the catalog runtime is
+    approximate. Within such a group at most one row can be right, so exactly
+    one survives: the closest runtime match, and only if it corroborates at all.
+    If nothing in the group corroborates, the whole group goes — there is no
+    evidence any of it belongs where it was filed."""
+    rows = conn.execute(
+        """SELECT t.id, t.item_code, t.source_path, t.duration_secs, i.duration_minutes
+           FROM transcripts t
+           JOIN catalog.items i ON i.code = t.item_code
+           WHERE t.source_path IN (
+                 SELECT source_path FROM transcripts GROUP BY source_path HAVING COUNT(*) > 1)
+           ORDER BY t.source_path, t.item_code"""
+    ).fetchall()
+
+    groups: dict[str, list[tuple]] = {}
+    for tid, code, src, secs, minutes in rows:
+        expected = (minutes or 0) * 60
+        drift = abs((secs or 0) - expected) if expected else float("inf")
+        ok = bool(expected) and drift <= max(180.0, 0.08 * expected)
+        groups.setdefault(src, []).append((drift if ok else None, tid, code, secs or 0.0, minutes))
+
+    doomed: list[tuple[int, str, float, float | None]] = []
+    ambiguous: list[str] = []
+    for members in groups.values():
+        viable = sorted((m for m in members if m[0] is not None), key=lambda m: m[0])
+        winner = viable[0][1] if viable else None
+        if len(viable) > 1:
+            # Sibling parts of near-identical runtime: duration cannot really say
+            # which one the file belongs to, and the closest match may be winning
+            # by seconds. A re-ingest decides it properly (first claim by pdf
+            # order wins); until then, say which calls were close rather than
+            # present a coin flip as a finding.
+            ambiguous.append(f"{viable[0][2]} (over {', '.join(m[2] for m in viable[1:])})")
+        for _drift, tid, code, secs, minutes in members:
+            if tid != winner:
+                doomed.append((tid, code, secs, minutes))
+
+    if not doomed:
+        print("no misattributed transcripts found")
+        return 0
+
+    kept = len(rows) - len(doomed)
+    print(f"{len(rows)} transcripts across {len(groups)} shared source VTT(s); "
+          f"keeping {kept} best runtime match(es), dropping {len(doomed)}")
+    for _tid, code, secs, minutes in doomed:
+        print(f"  {'would drop' if dry_run else 'dropping'} {code}: "
+              f"transcript {secs / 60:.0f} min vs recording {minutes or '?'} min")
+    if ambiguous:
+        print(f"AMBIGUOUS — runtimes too close to decide; kept the closest, "
+              f"re-run a batch ingest to settle these: {'; '.join(ambiguous)}")
+    if dry_run:
+        return len(doomed)
+    for tid, *_ in doomed:
+        delete_transcript(conn, tid)
+    print(f"deleted {len(doomed)} misattributed transcript(s)")
+    return len(doomed)
 
 
 def read_vtt(path: Path) -> str:
@@ -630,6 +749,12 @@ def main() -> None:
     ap.add_argument("--event-type", help="batch: only this event_type (e.g. T)")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--media-root", type=Path, default=MEDIA_ROOT)
+    ap.add_argument("--purge-misattributed", action="store_true",
+                    help="delete transcripts that share one source VTT with another "
+                         "item and whose length does not match their own recording "
+                         "(cleans up rows written before the resolver was fixed)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="with --purge-misattributed: report, delete nothing")
     args = ap.parse_args()
 
     args.db.parent.mkdir(parents=True, exist_ok=True)
@@ -638,6 +763,12 @@ def main() -> None:
     ensure_corpus_schema(conn, args.catalog_db)
     conn.commit()  # persist schema/provenance even when a filtered batch has no rows
     attach_catalog_readonly(conn, args.catalog_db)
+
+    if args.purge_misattributed:
+        purge_misattributed(conn, dry_run=args.dry_run)
+        conn.commit()
+        conn.close()
+        return
 
     if args.vtt:
         if not args.item:
@@ -665,7 +796,8 @@ def main() -> None:
         return
 
     # batch mode
-    q = """SELECT i.code,i.event_type,i.corpus_tier,s.future_path,s.language,s.kind
+    q = """SELECT i.code,i.event_type,i.corpus_tier,s.future_path,s.language,s.kind,
+                  i.duration_minutes
            FROM catalog.items i
            JOIN catalog.item_subtitles s ON s.item_id=i.id
              AND s.kind='manual' AND s.status='downloaded' AND s.language IN ('en','en-GB')
@@ -679,12 +811,22 @@ def main() -> None:
         q += f" LIMIT {int(args.limit)}"
     rows = conn.execute(q, params).fetchall()
     done = skipped = empty = collapsed = 0
-    for code, event_type, corpus_tier, future_path, language, kind in rows:
-        path, via = resolve_vtt(code, future_path, args.media_root)
+    # One VTT is one recording's transcript. Claiming it for a second item is how
+    # parts 2..N of a series ended up holding part 1's words, so the first claim
+    # wins and later ones are skipped rather than silently mis-filed.
+    claimed: dict[str, str] = {}
+    for code, event_type, corpus_tier, future_path, language, kind, duration_minutes in rows:
+        path, via = resolve_vtt(code, future_path, args.media_root, duration_minutes)
         if path is None:
             print(f"  SKIP {code}: VTT not found ({future_path})")
             skipped += 1
             continue
+        owner = claimed.get(str(path))
+        if owner:
+            print(f"  SKIP {code}: {path.name} already ingested as {owner}")
+            skipped += 1
+            continue
+        claimed[str(path)] = code
         cues = parse_cues(read_vtt(path))
         if not cues:
             # 0 cues from a resolved file = iCloud-evict race or a non-VTT file.
