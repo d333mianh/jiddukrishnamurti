@@ -3,7 +3,7 @@ tags: [krishnamurti, root, concept, status/active]
 slug: relationship
 facet: "I. Structures of Consciousness"
 status: active
-aliases: ["Relationship & Image-making", "the mirror of relationship", "images in relationship", "hurt"]
+aliases: ["Relationship & Image-making", "the mirror of relationship", "images in relationship", "hurt", "the nature of hurt"]
 ---
 # Relationship & Image-making
 
@@ -24,6 +24,7 @@ Exclude incidental narrative mentions of people relating that do not examine rel
 - the mirror of relationship
 - images in relationship
 - hurt
+- the nature of hurt
 
 ## Related roots
 - [[self-knowledge|Self-knowledge]] · *related* — Relationship is the field in which the self is seen.

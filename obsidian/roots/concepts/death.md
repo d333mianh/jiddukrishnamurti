@@ -9,7 +9,7 @@ aliases: ["Death & Ending", "dying", "ending", "living and dying", "immortality"
 
 > [!note] Active
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 29 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 30 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
 Krishnamurti treats death not as a distant event to fear but as ending — the dying each day to memory, attachment, and the known. To live and die from moment to moment, with nothing carried over, is to meet life afresh; living and dying are then one indivisible movement.

@@ -3,7 +3,7 @@ tags: [krishnamurti, root, concept, status/active]
 slug: consciousness
 facet: "I. Structures of Consciousness"
 status: active
-aliases: ["Consciousness & Its Content", "you are the world", "the individual and society", "the brain", "the unconscious"]
+aliases: ["Consciousness & Its Content", "the individual and society", "the brain", "the unconscious"]
 ---
 # Consciousness & Its Content
 
@@ -21,7 +21,6 @@ Include passages examining the nature and content of consciousness, the consciou
 Exclude casual uses of 'conscious of' or 'in mind' that do not examine consciousness, brain, or mind as such.
 
 ## Also called
-- you are the world
 - the individual and society _(1950s phrasing)_
 - the brain _(brain/mind distinction sharpened in 1970s-80s and the Bohm dialogues)_
 - the unconscious
@@ -29,6 +28,7 @@ Exclude casual uses of 'conscious of' or 'in mind' that do not examine conscious
 ## Related roots
 - [[thought|Thought & Knowledge]] · *related* — The content of consciousness is thought and its residue.
 - [[psychological-revolution|Transformation & Mutation]] · *related* — Mutation in the brain cells is K's later image of transformation.
+- [[responsibility|Responsibility]] · *related* — Because consciousness is shared — you are the world — responsibility is total.
 
 ---
 *Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

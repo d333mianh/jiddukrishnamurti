@@ -9,7 +9,7 @@ aliases: ["Transformation & Mutation", "transformation", "mutation", "psychologi
 
 > [!note] Active
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 34 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 35 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
 Krishnamurti calls for a radical transformation — total and immediate, not the gradual reform of becoming — that alone can end humanity's inherited disorder. In his earlier decades he framed this as the 'only revolution', which is inward; in the later dialogues he spoke of a mutation of the mind and even of the brain cells (his own formulation, not a neurological claim).

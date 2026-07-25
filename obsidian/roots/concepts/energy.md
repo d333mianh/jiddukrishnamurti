@@ -9,7 +9,7 @@ aliases: ["Energy & Passion", "passion", "vitality"]
 
 > [!note] Active
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 33 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 34 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
 Krishnamurti speaks of the energy dissipated in conflict, fear, and the self, and of the undivided energy released when those wastages end — an energy needed for transformation and for meditation. Passion, distinct from lust or enthusiasm for a cause, is the intensity that comes with the ending of sorrow and total attention.

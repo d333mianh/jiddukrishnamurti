@@ -3,31 +3,39 @@ tags: [krishnamurti, root, concept, status/active]
 slug: religious-mind
 facet: "IV. Ending, Transformation & the Sacred"
 status: active
-aliases: ["The Religious Mind", "the religious spirit", "true religion"]
+aliases: ["The Religious Mind & the Sacred", "the religious spirit", "true religion", "the sacred", "the immeasurable", "the nameless", "benediction", "the otherness", "the timeless", "bliss", "ecstasy"]
 ---
-# The Religious Mind
+# The Religious Mind & the Sacred
 
-> [!question] Probation Pair
-> Merge-probation with [[sacred|The Sacred]]: kept separate; merge only if the pilot shows unreliable per-passage separation.
+> [!info] Merged Root
+> Absorbed The Sacred / The Immeasurable (2026-07-16) — the closest pair in the set; the freed slot became [[responsibility|Responsibility]].
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 35 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 36 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
-The religious mind, for Krishnamurti, has nothing to do with organized religion, belief, ritual, or authority. It is a mind that is free, without fear, in a state of inquiry and negation, that has understood itself and is therefore capable of discovering what is true and sacred.
+The religious mind, for Krishnamurti, has nothing to do with organized religion, belief, ritual, or authority. It is a mind that is free, without fear, in a state of inquiry and negation, that has understood itself — and only such a mind may come upon what he points to, always by negation, as the sacred: something nameless and immeasurable that may be when the mind is empty of the self and of thought — 'that benediction', 'the otherness', the timeless. It cannot be sought, named, or held, and is not the God of belief.
 
 ## What counts as this root
-Include passages examining the religious mind or spirit, true versus organized religion, the quality of a mind in religious inquiry, or negation as the approach to the religious.
+Include passages examining the religious mind or spirit, true versus organized religion, the quality of a mind in religious inquiry, negation as the approach to the religious, or passages pointing to the sacred, the immeasurable, the nameless, the timeless, benediction, bliss/ecstasy as the uninvited, or 'the otherness'.
 
 ## What does not
-Exclude descriptive references to churches, rituals, or religious institutions that do not inquire into the religious mind.
+Exclude descriptive references to churches, rituals, or religious institutions that do not inquire into the religious mind, and uses of 'sacred' or 'holy' tied to religious tradition or belief that the passage does not transcend.
 
 ## Also called
 - the religious spirit
 - true religion
+- the sacred
+- the immeasurable
+- the nameless
+- benediction
+- the otherness _(Notebook-era phrasing)_
+- the timeless
+- bliss
+- ecstasy
 
 ## Related roots
 - [[belief|Belief & Ideals]] · *contrasts_with* — The religious mind is free of belief and organized religion.
-- [[sacred|The Sacred / The Immeasurable]] · *related* — The religious mind is what can come upon the sacred (pilot-probation merge pair).
+- [[meditation|Meditation & Silence]] · *related* — In the silence of meditation the sacred may be.
 
 ---
 *Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

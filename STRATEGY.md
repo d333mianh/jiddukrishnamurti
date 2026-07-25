@@ -206,3 +206,19 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   specifically measures confusion among boundary pairs
   (self/self-knowledge/consciousness, awareness/observer-observed,
   truth/what-is, conflict/violence, desire/pleasure, religious-mind/sacred).
+- 2026-07-16 — book-TOC gap check resolved: "listening" / "the art of
+  listening" → aliases on **awareness**; "the nature of hurt" → alias on
+  **relationship** (which already carried "hurt"). **responsibility** was first
+  left untagged, then (same day, below) promoted to a full root.
+- 2026-07-16 — **religious-mind + sacred merged; responsibility promoted to
+  root #36** (set stays 36). Rationale: the pair was the closest in the whole
+  registry — the religious mind is *defined* as the mind that may come upon the
+  sacred — so the probation merge (2026-07-07 boundary pair) was decided ahead
+  of the pilot. `religious-mind` renamed "The Religious Mind & the Sacred" and
+  absorbed all of sacred's aliases; `sacred` kept as a deprecated tombstone row
+  (predictions keyed to its id stay resolvable; excluded from vault and pilot
+  prompts via `status`). The freed slot became **responsibility** — total
+  responsibility grounded in "you are the world" (alias moved over from
+  consciousness), related to consciousness/relationship/action/violence/learning.
+  The pilot's religious-mind↔sacred confusion measurement is moot; the re-score
+  now also validates the new responsibility root instead.

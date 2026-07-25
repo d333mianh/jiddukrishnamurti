@@ -9,7 +9,7 @@ aliases: ["Beauty", "sensitivity", "the beautiful"]
 
 > [!note] Active
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 31 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 32 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
 Beauty, for Krishnamurti, is not merely in the object, the picture, or the poem but in a state of mind free of the self — where, in the presence of a mountain or great beauty, the 'me' is momentarily absent. It is inseparable from sensitivity, love, and austerity, and cannot be cultivated.

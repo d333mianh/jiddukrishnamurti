@@ -3,7 +3,7 @@ tags: [krishnamurti, root, concept, status/active]
 slug: awareness
 facet: "III. Observation, Inquiry & Action"
 status: active
-aliases: ["Awareness & Attention", "choiceless awareness", "attention", "observation"]
+aliases: ["Awareness & Attention", "choiceless awareness", "attention", "observation", "listening", "the art of listening"]
 ---
 # Awareness & Attention
 
@@ -24,6 +24,8 @@ Exclude casual uses of 'aware' or 'pay attention'; route inquiry into 'what is' 
 - choiceless awareness
 - attention
 - observation
+- listening
+- the art of listening
 
 ## Related roots
 - [[observer-observed|The Observer Is the Observed]] · *related* — In full attention the observer is the observed.

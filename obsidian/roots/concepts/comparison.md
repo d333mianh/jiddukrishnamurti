@@ -29,7 +29,7 @@ Exclude practical, scientific, or technical measurement unless explicitly contra
 ## Related roots
 - [[psychological-time|Psychological Time & Becoming]] · *related* — Comparison is the measuring that drives becoming.
 - [[violence|Violence]] · *related* — K holds that all comparison is violence.
-- [[sacred|The Sacred / The Immeasurable]] · *contrasts_with* — The measure versus the immeasurable.
+- [[religious-mind|The Religious Mind & the Sacred]] · *contrasts_with* — The measure versus the immeasurable.
 
 ---
 *Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

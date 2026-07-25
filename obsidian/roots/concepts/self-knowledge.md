@@ -10,7 +10,7 @@ aliases: ["Self-knowledge", "knowing oneself", "the book of oneself", "self-obse
 > [!question] Probation Pair
 > Merge-probation with [[self|The Self]]: kept separate; merge only if the pilot shows unreliable per-passage separation.
 
-**Facet:** III. Observation, Inquiry & Action · **Root 27 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** III. Observation, Inquiry & Action · **Root 28 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
 Self-knowledge is for Krishnamurti the foundation of all understanding: the ceaseless observation of oneself in the mirror of relationship, moment to moment, without accumulating a conclusion about oneself. It is not knowledge stored about the self but the living awareness of the self in action, and the beginning of wisdom.

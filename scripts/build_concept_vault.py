@@ -52,13 +52,13 @@ FACETS: list[tuple[str, str, list[str]]] = [
         "III. Observation, Inquiry & Action",
         "The turning — seeing without the observer, and acting from that seeing.",
         ["freedom", "observer-observed", "awareness", "insight", "learning",
-         "truth", "order", "action", "self-knowledge"],
+         "truth", "order", "action", "responsibility", "self-knowledge"],
     ),
     (
         "IV. Ending, Transformation & the Sacred",
         "What is not put together by thought — the immeasurable, not a destination.",
         ["love", "death", "meditation", "beauty", "nature", "energy",
-         "psychological-revolution", "religious-mind", "sacred"],
+         "psychological-revolution", "religious-mind"],
     ),
 ]
 
@@ -85,24 +85,29 @@ STATUS_NOTES: dict[str, tuple[str, str]] = {
         "pilot shows unreliable per-passage separation.",
     ),
     "religious-mind": (
-        "probation pair",
-        "Merge-probation with [[sacred|The Sacred]]: kept separate; merge only if "
-        "the pilot shows unreliable per-passage separation.",
+        "merged root",
+        "Absorbed The Sacred / The Immeasurable (2026-07-16) — the closest pair "
+        "in the set; the freed slot became [[responsibility|Responsibility]].",
     ),
-    "sacred": (
-        "probation pair",
-        "Merge-probation with [[religious-mind|The Religious Mind]]: kept "
-        "separate; merge only if the pilot shows unreliable per-passage separation.",
+    "responsibility": (
+        "new root",
+        "Added 2026-07-16 in the slot freed by the religious-mind/sacred merge. "
+        "Total responsibility — 'you are the world' — spanning consciousness, "
+        "relationship, and action.",
     ),
 }
 
 CALLOUT = {"pilot": "warning", "provisional root": "warning",
-           "probation pair": "question", "active": "note"}
+           "probation pair": "question", "active": "note",
+           "merged root": "info", "new root": "info"}
 
 
 def load_concepts() -> list[dict]:
     concepts = [json.loads(line) for line in
                 CONCEPTS_JSONL.read_text(encoding="utf-8").splitlines() if line.strip()]
+    # Deprecated concepts stay in the JSONL as tombstones (the importer keeps
+    # their DB rows resolvable) but are not rendered into the vault.
+    concepts = [c for c in concepts if c["status"] != "deprecated"]
     by_slug = {c["slug"] for c in concepts}
     mapped = {s for _, _, slugs in FACETS for s in slugs}
     missing = by_slug - mapped

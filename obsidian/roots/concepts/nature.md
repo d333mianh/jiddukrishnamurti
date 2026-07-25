@@ -9,7 +9,7 @@ aliases: ["Nature & the Earth", "the earth", "the mountains", "the environment"]
 
 > [!note] Active
 
-**Facet:** IV. Ending, Transformation & the Sacred · **Root 32 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
+**Facet:** IV. Ending, Transformation & the Sacred · **Root 33 of 36** · [[Map of the 36 Roots|↩ Map]] · [[Open Decisions]]
 
 ## Definition
 Krishnamurti's relationship with nature — the mountains, trees, rivers, light, and living things — pervades his talks and writings as a doorway to sensitivity and the absence of the self. He held that losing touch with nature is losing touch with oneself and with humanity, and that care for the earth is inseparable from the teaching.
