@@ -19,8 +19,8 @@ to, so any concept can be read back in K's own words with timestamped links.
 
 - [[Map of the 36 Roots]] — the whole canon, grouped into four facets, with a
   one-line hook and status on each root.
-- [[Open Decisions]] — **what still needs your call.** The pilot re-score, the
-  model choice, two merge pairs, one provisional root, and the spend/API gates.
+- [[Strategy]] — the roadmap, the settled registry state, and **what still
+  needs your call**: the pilot re-score, the model choice, and the spend gates.
 
 ## The four facets
 
@@ -49,9 +49,9 @@ the rest.
 The set was triangulated from four independent sources — K's core vocabulary,
 corpus full-text-search frequencies over 80,030 K passages, the published
 book/chapter canon, and an 18-book content-group map — then reviewed by two
-advisor models. It is **provisional by design**: the tagging pilot will confirm
-whether the provisional root and the two probation pairs survive as independent
-roots. See [[Open Decisions]].
+advisor models. The registry **closed at a final 36 roots on 2026-07-25**: the
+last probation pairs were merged and the provisional root folded, so no root
+now waits on the pilot to justify its existence. See [[Strategy]].
 
 ---
 *Hand-authored hub. Not overwritten by the generator.*

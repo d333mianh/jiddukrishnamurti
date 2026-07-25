@@ -36,10 +36,16 @@ recording with a timestamp.
 ## Phases
 
 1. **Segments** — schema + parser + FTS. *Done.*
-2. **Concepts** — registry seed + tagging pilot. *In progress — see [[Open Decisions]].*
+2. **Concepts** — registry seed + tagging pilot. *In progress — registry final at 36 roots; the pilot re-score is the open gate.*
 3. **Synthesis prototype** — 2–3 concept notes end-to-end with timestamped links.
 4. **STT backfill** — ElevenLabs Scribe v2 + keyterms on the no-subs items
    (~$130, budget-gated), then the full L3 tagging pass.
+
+## Open questions
+
+Stated once, in `STRATEGY.md` → **"Open questions"** (settled state lives one
+section above it, history in the log below it). Not repeated here — a second copy
+is how the two files drifted apart in the first place.
 
 ---
 *Hand-authored summary. Read `STRATEGY.md` for the authoritative, dated log.*

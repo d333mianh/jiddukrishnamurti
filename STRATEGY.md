@@ -123,6 +123,53 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
 4. **STT backfill** — Scribe v2 + keyterms on the 519 items, feeding the proven
    pipeline; corpus coverage 65% → 100%. Then the full L3 tagging pass.
 
+## Concept registry — current state
+
+The live picture, as of 2026-07-25. The decision log below is **history**, read
+newest-first: older entries state what was believed at the time and are never
+rewritten, so when the two disagree, this section wins. Update it in the same
+commit that adds a log entry changing any of these facts.
+
+- **36 roots** in `concepts/concepts.jsonl` — 33 `active` + 3 `pilot`
+  (`fear`, `freedom`, `thought`), across 4 facets of 8 / 9 / 11 / 8. The facet
+  sizes are deliberately uneven: facets are entry-points, not a taxonomy with a
+  quota, so no root is placed to even out a count.
+- **The registry is final.** No root carries provisional or probation status;
+  every open merge question has been decided.
+- **Three `deprecated` tombstone rows** — `sacred` (into `religious-mind`),
+  `self` (into `self-knowledge`), `word-naming` (into `thought`). They stay in
+  the JSONL so predictions keyed to their concept ids remain resolvable, and are
+  excluded from the vault and from pilot prompts by `status`.
+- **Pilot runs to date:** `pilot-2026-07-r1` only — 500/500 succeeded on
+  Sonnet 5, 2026-07-07, binary labels. It predates every registry change above,
+  so its results do not map onto the current 36.
+
+Settled facts only; open questions are the next section, and appear there and
+nowhere else.
+
+## Open questions
+
+Undecided calls on the concept layer, most actionable first. Questions only —
+the reasoning behind a decision belongs in the log below once it is made, and
+registry state belongs in the section above. When a question is answered, log
+it and delete it here.
+
+1. **Pilot re-score — model arm(s) and spend.** Re-score the 500-passage eval
+   set against the final 36 roots with the full
+   substantive / mention_only / definition_like labels. Needs a human call on
+   which arms to run and approval of the spend; everything below waits on it.
+2. **Model for the full ~75k-passage tagging pass.** Resolved by the re-score
+   on a quality-per-dollar basis — the reason for running more than one arm.
+3. **New-root validation.** The re-score is the first evidence on `listening`,
+   `will-effort`, and `responsibility`, none of which existed at r1. It also
+   measures confusion among self-knowledge/consciousness,
+   awareness/observer-observed/listening, truth/what-is, conflict/violence/
+   will-effort, and desire/pleasure.
+4. **Relevance tiers.** Confirm tier C (young-people discussions ~147 h; films
+   and documentaries) and decide whether the ~30 short interviews sit in B or
+   C. Resolved by the Phase-1 stats report's %-K-speech per event type, plus a
+   call. Independent of the concept layer — low urgency.
+
 ## Decision log
 
 - 2026-06-11 — transcribe everything; relevance as tags/views; Q&A filtered at
@@ -222,3 +269,28 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   consciousness), related to consciousness/relationship/action/violence/learning.
   The pilot's religious-mind↔sacred confusion measurement is moot; the re-score
   now also validates the new responsibility root instead.
+- 2026-07-25 — **registry closed at a final 36; no root is provisional or on
+  probation any more.** Three changes, all decided ahead of the pilot on the
+  religious-mind/sacred precedent — the pilot validates the result rather than
+  choosing it. (a) `self` folded into **`self-knowledge`** ("Self-knowledge &
+  The Self"): the knowing and the thing known are one movement, so a per-passage
+  split was never going to be reliable; `self-knowledge` survives as the richer
+  entry and absorbed the me / the ego / self-centred activity / self-deception.
+  (b) `word-naming` folded into **`thought`** — naming is an operation of
+  thought, not a field beside it; its aliases and criteria moved over.
+  (c) Two roots added to the freed slots: **`listening`**, promoted out of
+  `awareness`'s aliases (K gives the art of listening sustained independent
+  treatment, and a book chapter), and **`will-effort`** ("Will, Effort &
+  Escape"), which claims `effort` from `conflict` and `discipline` from `order`
+  — both previously owned it only as an alias, leaving will, resistance,
+  suppression, and escape/distraction/entertainment with no owner. Both
+  tombstones follow the `sacred` pattern. Facets are now 8/9/11/8; the old 4×9
+  symmetry was tidy but never load-bearing, and was not preserved by moving
+  roots into facets they don't belong in.
+- 2026-07-25 — `obsidian/roots/Open Decisions.md` **folded into this file** as
+  the "Open questions" section above, and deleted from the vault. Two
+  hand-maintained lists had already drifted apart once (the 07-07 entry kept
+  describing religious-mind/sacred as open after the 07-16 merge). The rule now:
+  settled state in "Concept registry — current state", open questions in "Open
+  questions", history in this log, each fact in exactly one of them. Vault notes
+  link to `reference/Strategy.md`, which points here.

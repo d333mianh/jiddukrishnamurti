@@ -34,7 +34,7 @@ the repo root (reviewed by two advisors, 2026-07-06). This note is a map.
    candidate passages per concept.
 2. **LLM judgment** via the **Claude Batches API** (50% discount, prompt-cached
    registry) — substantive vs mention-only, and definition-like. Run by
-   `scripts/run_concept_pilot.py`. See [[Open Decisions]] for the model choice.
+   `scripts/run_concept_pilot.py`. See [[Strategy]] for the model choice.
 
 ---
 *Hand-authored summary. Read `L3-SCHEMA.md` for the authoritative DDL.*
