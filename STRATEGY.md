@@ -195,7 +195,9 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   confirms whether it tags as an independent field or folds into Thought.
   **Pilot-probation merge pairs:** `self`↔`self-knowledge` and
   `religious-mind`↔`sacred` — kept separate; merge only if the pilot shows
-  unreliable per-passage separation.
+  unreliable per-passage separation. *(Superseded 2026-07-16 for
+  `religious-mind`↔`sacred`: merged ahead of the pilot — see that entry.
+  `self`↔`self-knowledge` remains on probation.)*
 - 2026-07-07 — L3 tagging pilot (run `pilot-2026-07-r1`) drifted from the plan
   above in two ways, now recorded: (a) it ran **Claude Sonnet 5 single-arm**,
   not the written "Opus 4.8 vs Sonnet 4.6" comparison — model choice for the
@@ -206,6 +208,9 @@ are good enough to start L2/L3 on; Scribe supersedes them later by kind.
   specifically measures confusion among boundary pairs
   (self/self-knowledge/consciousness, awareness/observer-observed,
   truth/what-is, conflict/violence, desire/pleasure, religious-mind/sacred).
+  *(Superseded 2026-07-16: `religious-mind`/`sacred` are one root, so that pair
+  drops off the measurement list; the re-score validates the new
+  `responsibility` root in its place.)*
 - 2026-07-16 — book-TOC gap check resolved: "listening" / "the art of
   listening" → aliases on **awareness**; "the nature of hurt" → alias on
   **relationship** (which already carried "hurt"). **responsibility** was first
