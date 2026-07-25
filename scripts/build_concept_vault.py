@@ -36,6 +36,12 @@ import re
 import sys
 from pathlib import Path
 
+SCRIPTS = Path(__file__).resolve().parent
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+
+import build_citations  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 CONCEPTS_JSONL = ROOT / "concepts" / "concepts.jsonl"
 OBSIDIAN = ROOT / "obsidian"
@@ -105,8 +111,48 @@ def first_sentence(text: str) -> str:
     return text.strip()
 
 
+def render_citations(cites: list[dict]) -> list[str]:
+    """The curated passages for one root, grouped under their theme headings.
+
+    Themes are the curator's reading of how the root's argument is built, and
+    they appear in the order the citations were filed — the sequence *is* the
+    argument, so it is not re-sorted by year or by talk.
+
+    Everything rendered here comes from `concepts/citations.jsonl`, never from
+    the corpus DB: the corpus is gitignored and generated, so a note that read
+    from it directly could not be rebuilt from a fresh clone."""
+    # A line added by hand carries only the key fields until `build_citations.py
+    # --sync` fills in the quote. Render what is resolved rather than failing;
+    # `--sync`/`--verify` is where an unresolved citation gets reported.
+    cites = [c for c in cites if c.get("url") and c.get("text")]
+    if not cites:
+        return []
+    lines = ["## In K's words", ""]
+    years = [c["year"] for c in cites if c.get("year")]
+    span = f"{min(years)}–{max(years)}" if years else "—"
+    lines += [
+        f"_{len(cites)} passages, {span}. Each links to the moment it is "
+        f"spoken. Curated in `concepts/citations.jsonl`; quoted from the "
+        f"KFT-edited transcripts._",
+        "",
+    ]
+    theme = None
+    for cite in cites:
+        if cite["theme"] != theme:
+            theme = cite["theme"]
+            lines += [f"### {theme}", ""]
+        lines += [
+            "> " + cite["text"].replace("\n", " "),
+            "",
+            f"— **[{cite['item_code']}]({cite['url']})** · {cite['title']} "
+            f"({cite['year']}) · `{cite['timecode']}`",
+            "",
+        ]
+    return lines
+
+
 def render_concept(concept: dict, names: dict[str, str], index: int,
-                   facet: str) -> str:
+                   facet: str, cites: list[dict] | None = None) -> str:
     slug = concept["slug"]
     name = concept["name"]
 
@@ -155,11 +201,13 @@ def render_concept(concept: dict, names: dict[str, str], index: int,
             lines.append(f"- [[{target}|{label}]] · *{r['relation']}*{rel_note}")
         lines.append("")
 
+    lines += render_citations(cites or [])
+
     lines += [
         "---",
-        "*Generated from `concepts/concepts.jsonl` by "
-        "`scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — "
-        "do not hand-edit this note.*",
+        "*Generated from `concepts/concepts.jsonl` and "
+        "`concepts/citations.jsonl` by `scripts/build_concept_vault.py`. "
+        "Edit the JSONL, then regenerate — do not hand-edit this note.*",
     ]
     return "\n".join(lines) + "\n"
 
@@ -210,6 +258,7 @@ def build() -> list[tuple[Path, str]]:
     by_slug = {c["slug"]: c for c in concepts}
     names = {c["slug"]: c["name"] for c in concepts}
     facet_of = {s: facet for facet, _, slugs in FACETS for s in slugs}
+    cites = build_citations.by_concept(build_citations.load())
 
     written: list[tuple[Path, str]] = []
     n = 0
@@ -218,7 +267,8 @@ def build() -> list[tuple[Path, str]]:
             n += 1
             written.append((
                 CONCEPTS_DIR / f"{slug}.md",
-                render_concept(by_slug[slug], names, n, facet_of[slug])))
+                render_concept(by_slug[slug], names, n, facet_of[slug],
+                               cites.get(slug))))
     written.append((MAP_NOTE, render_map(by_slug)))
     return written
 

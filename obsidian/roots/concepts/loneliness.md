@@ -29,4 +29,4 @@ Exclude simple mentions of being physically alone with no psychological inquiry.
 - [[attachment|Security & Attachment]] · *related* — Escape from loneliness produces dependence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

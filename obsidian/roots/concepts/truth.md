@@ -28,4 +28,4 @@ Exclude casual uses of 'true' or 'in fact', and do not treat 'reality' as a syno
 - [[authority|Authority & Following]] · *contrasts_with* — Truth cannot be reached through another's authority.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

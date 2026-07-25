@@ -29,4 +29,4 @@ Exclude physical training or skill acquisition unless linked to psychological co
 - [[freedom|Freedom]] · *contrasts_with* — Freedom is freedom from conditioning.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

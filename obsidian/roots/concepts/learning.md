@@ -28,4 +28,4 @@ Exclude incidental references to schools or facts learned that do not inquire in
 - [[insight|Insight & Intelligence]] · *related* — True learning awakens intelligence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

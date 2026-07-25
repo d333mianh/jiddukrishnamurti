@@ -29,4 +29,4 @@ Exclude casual uses of 'conscious of' or 'in mind' that do not examine conscious
 - [[responsibility|Responsibility]] · *related* — Because consciousness is shared — you are the world — responsibility is total.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

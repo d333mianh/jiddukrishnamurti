@@ -29,4 +29,4 @@ Exclude incidental mentions of someone dying, and do not tag every psychological
 - [[freedom|Freedom]] · *related* — Dying to the known is a form of freedom.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

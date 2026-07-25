@@ -33,4 +33,4 @@ Exclude introspection aimed at self-improvement, references to personality trait
 - [[consciousness|Consciousness & Its Content]] · *related* — The self is the content of consciousness.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

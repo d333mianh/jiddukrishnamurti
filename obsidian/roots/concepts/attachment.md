@@ -29,4 +29,4 @@ Exclude references to physical or financial security that do not touch psycholog
 - [[relationship|Relationship & Image-making]] · *related* — Attachment corrupts relationship into dependence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

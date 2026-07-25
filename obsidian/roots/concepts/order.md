@@ -27,4 +27,4 @@ Exclude neutral references to tidiness, sequence, or rules that do not inquire i
 - [[freedom|Freedom]] · *related* — True discipline is inseparable from freedom, not opposed to it.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

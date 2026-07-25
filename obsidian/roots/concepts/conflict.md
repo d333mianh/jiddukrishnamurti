@@ -27,4 +27,4 @@ Exclude neutral descriptions of disputes or wars that do not inquire into the na
 - [[violence|Violence]] · *related* — Unresolved conflict expresses itself as violence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

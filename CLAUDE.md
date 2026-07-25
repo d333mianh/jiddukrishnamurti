@@ -254,6 +254,15 @@ The concept layer is **tracked, hand-curated data**, not generated output:
   change.
 - **Facet membership lives in code**, in `FACETS` inside
   `scripts/build_concept_vault.py` (4 facets of 8/9/11/8), not in the JSONL.
+- **`concepts/citations.jsonl`** — the L4 counterpart: the curated passages that
+  make a concept note say something, one line per citation, grouped into
+  `theme`s that are rendered in file order (the sequence *is* the argument).
+  Citations are keyed on **`(item_code, t_start)`**, never on `passages.id` —
+  passage ids are reassigned on every re-ingest, so an id-keyed citation would
+  drift silently onto different words. Each line also stores the resolved quote
+  and `youtu.be` link, so the vault rebuilds from a fresh clone without the
+  gitignored corpus DB. Pick candidates with `retrieve_concept.py`, then run
+  `build_citations.py --sync` (see below).
 - The **I Ching navigation layer** is **archived** in `archive/iching/` (parked
   2026-07-25, undecided). Don't reintroduce it into `scripts/`, `concepts/`, or
   the generated vault without reading `archive/iching/README.md` first — a test
@@ -278,11 +287,21 @@ python3 scripts/build_concept_vault.py           # regenerate the 37 root notes
 python3 scripts/build_concept_vault.py --check    # CI-style gate: fails on stale
                                                   # notes AND on dead wikilinks
 python3 scripts/import_concepts.py                # JSONL → corpus DB
+python3 scripts/retrieve_concept.py fear --format md   # BM25 candidates to judge
+python3 scripts/build_citations.py --sync         # resolve curated citations
+python3 scripts/build_citations.py --verify       # gate: citations still resolve
 ```
 
 `--check` resolves every `[[wikilink]]` in the whole `obsidian/` tree by
 basename (the vault root is `obsidian/`, not `obsidian/roots/`), tolerating the
 `[[Note.md]]` form. Run it after editing any vault note or the registry.
+
+**Adding a citation** is one hand-written line (`slug`, `theme`, `seq`,
+`item_code`, `t_start`) plus `build_citations.py --sync`, then regenerate the
+vault. `--sync` refuses a passage that isn't K's, has no video link, or carries
+synthetic (word-interpolated) timestamps — a citation asserts the offset is a
+real cue boundary in the published recording. Run `--verify` after any
+re-ingest: it fails if a cited passage moved or its quoted text changed.
 
 ## Code conventions
 
@@ -323,6 +342,10 @@ basename (the vault root is `obsidian/`, not `obsidian/roots/`), tolerating the
 - `scripts/*_schema.py` — the only place table DDL may change.
 - `scripts/transcribe_whisper.py` — interim STT; settings are pilot-frozen.
 - `scripts/build_concept_vault.py` — L3/L4 concept vault generator.
+- `scripts/retrieve_concept.py` — BM25 candidate retrieval for one root; the
+  retrieval-first alternative to exhaustive passage classification.
+- `scripts/build_citations.py` — resolves `concepts/citations.jsonl` against the
+  corpus; `--verify` is the gate that a published quote still says what it said.
 - `CLAUDE.md` (operational contract) and `STRATEGY.md` (roadmap, state, open
   questions, decision log) — the only two docs. Don't add a third.
 
@@ -331,6 +354,7 @@ basename (the vault root is `obsidian/`, not `obsidian/roots/`), tolerating the
 ```bash
 .venv/bin/python -m unittest discover tests      # stdlib unittest; no linter, no CI
 python3 scripts/build_concept_vault.py --check   # vault staleness + dead links
+python3 scripts/build_citations.py --verify      # cited passages still resolve
 python3 scripts/segment_schema.py corpus/krishnamurti-corpus.db catalog/krishnamurti.db
 python3 scripts/corpus_stats.py [--csv catalog/exports/corpus-stats.csv]
 ```

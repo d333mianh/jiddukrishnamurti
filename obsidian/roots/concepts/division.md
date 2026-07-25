@@ -27,4 +27,4 @@ Exclude neutral uses of 'division' (mathematical, organizational) with no psycho
 - [[consciousness|Consciousness & Its Content]] · *related* — 'You are the world' — the individual/society division is illusory.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

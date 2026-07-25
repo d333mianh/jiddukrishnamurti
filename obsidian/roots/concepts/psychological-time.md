@@ -29,4 +29,4 @@ Exclude ordinary references to clock time, scheduling, or history unless used to
 - [[comparison|Comparison & Measurement]] · *related* — Measurement against an ideal is the movement of becoming.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

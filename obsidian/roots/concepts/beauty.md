@@ -27,4 +27,4 @@ Exclude incidental descriptions of beautiful things that do not inquire into bea
 - [[self-knowledge|Self-knowledge & The Self]] · *contrasts_with* — In the perception of beauty the self is absent.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

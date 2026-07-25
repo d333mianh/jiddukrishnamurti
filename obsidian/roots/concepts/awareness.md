@@ -29,4 +29,4 @@ Exclude casual uses of 'aware' or 'pay attention'; route inquiry into 'what is' 
 - [[listening|Listening]] · *related* — Listening is choiceless awareness in the field of hearing.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

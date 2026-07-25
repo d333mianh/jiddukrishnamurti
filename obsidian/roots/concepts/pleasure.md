@@ -29,4 +29,4 @@ Exclude incidental mentions of enjoying something with no examination of desire 
 - [[attachment|Security & Attachment]] · *related* — Desire hardens into attachment and dependence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

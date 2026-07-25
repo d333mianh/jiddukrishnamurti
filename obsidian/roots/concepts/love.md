@@ -29,4 +29,4 @@ Exclude casual uses of 'love' (liking, preference) that do not inquire into its 
 - [[attachment|Security & Attachment]] · *contrasts_with* — Love is not attachment or dependence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

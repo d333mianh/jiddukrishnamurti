@@ -28,4 +28,4 @@ Exclude passing scene-setting mentions of weather or landscape that carry no inq
 - [[self-knowledge|Self-knowledge & The Self]] · *contrasts_with* — In deep attention to nature the self recedes.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

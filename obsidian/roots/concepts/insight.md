@@ -28,4 +28,4 @@ Exclude ordinary uses of 'intelligent' or 'insightful' that do not inquire into 
 - [[thought|Thought & Knowledge]] · *contrasts_with* — Insight is not the movement of thought.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

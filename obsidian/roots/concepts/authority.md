@@ -29,4 +29,4 @@ Exclude references to practical or legal authority (expertise, law) that do not 
 - [[self-knowledge|Self-knowledge & The Self]] · *related* — Only self-knowledge, not authority, uncovers truth.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

@@ -35,4 +35,4 @@ Exclude descriptive references to churches, rituals, or religious institutions t
 - [[meditation|Meditation & Silence]] · *related* — In the silence of meditation the sacred may be.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

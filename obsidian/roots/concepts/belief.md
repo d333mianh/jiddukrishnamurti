@@ -28,4 +28,4 @@ Exclude casual uses of 'I believe' meaning 'I think' that do not treat belief as
 - [[religious-mind|The Religious Mind & the Sacred]] · *contrasts_with* — Belief in God differs from the discovery of the sacred.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

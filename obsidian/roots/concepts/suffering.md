@@ -28,4 +28,4 @@ Exclude incidental references to pain or misfortune that do not inquire into sor
 - [[loneliness|Loneliness & Aloneness]] · *related* — Loneliness is a central form of sorrow.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

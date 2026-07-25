@@ -34,4 +34,4 @@ Exclude incidental references to having a thought or knowing a fact unless the p
 - [[observer-observed|The Observer Is the Observed]] · *related* — Thought creates the thinker as separate from thinking.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

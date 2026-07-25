@@ -29,4 +29,4 @@ Exclude mere reportage of violent events with no inquiry into violence itself; d
 - [[comparison|Comparison & Measurement]] · *related* — K holds that all comparison is a form of violence.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

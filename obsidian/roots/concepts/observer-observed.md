@@ -29,4 +29,4 @@ Exclude ordinary uses of 'observe' or 'notice', and general talk of awareness, t
 - [[awareness|Awareness & Attention]] · *related* — Choiceless awareness is observation without the observer.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

@@ -27,4 +27,4 @@ Exclude references to physical or physiological energy that carry no psychologic
 - [[psychological-revolution|Transformation & Mutation]] · *related* — Undivided energy is needed for mutation.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

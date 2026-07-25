@@ -30,4 +30,4 @@ Exclude practical, scientific, or technical measurement unless explicitly contra
 - [[religious-mind|The Religious Mind & the Sacred]] · *contrasts_with* — The measure versus the immeasurable.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

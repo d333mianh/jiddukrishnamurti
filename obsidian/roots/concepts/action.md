@@ -28,4 +28,4 @@ Exclude ordinary narrative uses of 'action' or 'do' that do not inquire into the
 - [[psychological-time|Psychological Time & Becoming]] · *contrasts_with* — Action from an ideal defers into time.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

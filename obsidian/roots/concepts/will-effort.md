@@ -38,4 +38,4 @@ Exclude ordinary physical effort or exertion, and casual uses of 'will' as a fut
 - [[psychological-time|Psychological Time & Becoming]] · *related* — Will operates in becoming — the gradual reaching of an ideal.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*

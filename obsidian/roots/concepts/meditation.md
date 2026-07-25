@@ -28,4 +28,4 @@ Exclude references to concentration techniques or relaxation that the passage do
 - [[religious-mind|The Religious Mind & the Sacred]] · *related* — In the silence of meditation the sacred may be.
 
 ---
-*Generated from `concepts/concepts.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
+*Generated from `concepts/concepts.jsonl` and `concepts/citations.jsonl` by `scripts/build_concept_vault.py`. Edit the JSONL, then regenerate — do not hand-edit this note.*
