@@ -298,8 +298,10 @@ The concept layer is **tracked, hand-curated data**, not generated output:
 | `obsidian/roots/**` (37 notes: 36 concepts + Map) | `build_concept_vault.py` |
 
 `build_catalog.py` clears the vault on every rebuild but **reserves `roots/`**
-(`reserved = {"roots"}` in `build_obsidian_series`). `obsidian/roots/reference/`
-holds the few hand-authored notes; everything else under `roots/` is generated.
+(`reserved = {"roots"}` in `build_obsidian_series`). The generated set is exactly
+the 36 concept notes plus `Map of the 36 Roots.md`; `obsidian/roots/reference/`
+**and `Roots of Knowledge.md`** (the hub) are hand-authored, and everything else
+under `roots/` is generated.
 
 ```bash
 python3 scripts/build_concept_vault.py           # regenerate the 37 root notes
@@ -309,6 +311,7 @@ python3 scripts/import_concepts.py                # JSONL → corpus DB
 python3 scripts/retrieve_concept.py fear --format md   # BM25 candidates to judge
 python3 scripts/build_citations.py --sync         # resolve curated citations
 python3 scripts/build_citations.py --verify       # gate: citations still resolve
+python3 scripts/strategy_stats.py                 # refresh STRATEGY.md live numbers
 ```
 
 `--check` resolves every `[[wikilink]]` in the whole `obsidian/` tree by
@@ -365,8 +368,12 @@ re-ingest: it fails if a cited passage moved or its quoted text changed.
   retrieval-first alternative to exhaustive passage classification.
 - `scripts/build_citations.py` — resolves `concepts/citations.jsonl` against the
   corpus; `--verify` is the gate that a published quote still says what it said.
-- `CLAUDE.md` (operational contract) and `STRATEGY.md` (roadmap, state, open
-  questions, decision log) — the only two docs. Don't add a third.
+- `scripts/strategy_stats.py` — regenerates STRATEGY.md's "Where things stand"
+  block from the DBs; `--check` is the gate that its numbers are not stale.
+- `CLAUDE.md` (operational contract) and `STRATEGY.md` (plan, state, open
+  questions, decision log) — the only two docs. Don't add a third. In STRATEGY.md
+  everything is referenced by slug (`Q-scribe-needed`, `P-notes`), never by
+  position, and `tests/test_strategy_doc.py` fails on a dangling one.
 
 ## Testing & QA
 
@@ -374,6 +381,7 @@ re-ingest: it fails if a cited passage moved or its quoted text changed.
 .venv/bin/python -m unittest discover tests      # stdlib unittest; no linter, no CI
 python3 scripts/build_concept_vault.py --check   # vault staleness + dead links
 python3 scripts/build_citations.py --verify      # cited passages still resolve
+python3 scripts/strategy_stats.py --check        # STRATEGY.md numbers vs the DBs
 python3 scripts/segment_schema.py corpus/krishnamurti-corpus.db catalog/krishnamurti.db
 python3 scripts/corpus_stats.py [--csv catalog/exports/corpus-stats.csv]
 ```
