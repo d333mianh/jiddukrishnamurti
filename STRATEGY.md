@@ -40,8 +40,9 @@ stats. `P-concepts` — registry seeded and closed at 36 roots.
 **`P-notes` — cited notes. The critical path, and the only phase that produces
 the thing this project is for.** Per root: `retrieve_concept.py` → read the
 candidates → file the keepers in `concepts/citations.jsonl` → `--sync` →
-regenerate the note. `fear` ✅ and `attachment` ✅; **34 roots to go**. Each is a
-bounded session of reading, needs no model spend, and ships independently.
+regenerate the note. `fear` ✅, `attachment` ✅ and `observer-observed` ✅;
+**33 roots to go**. Each is a bounded session of reading, needs no model spend,
+and ships independently.
 
 Optional, and deliberately behind `P-notes` — neither of these blocks a note.
 
@@ -109,9 +110,10 @@ none is starved. So the order is about learning the process, not about supply:
 1. ~~`attachment` — nearest neighbour to `fear`; the retrieval sets overlap, so
    it tests whether curation stays distinct when the material does not.~~
    ✅ 2026-07-26, and it does: see the log.
-2. **`observer-observed`** (1,083 candidates) — the least literal vocabulary of
-   the 36. If BM25 over name + aliases fails anywhere, it fails here, and that is
-   worth knowing early, while it is cheap to fix.
+2. ~~`observer-observed` — the least literal vocabulary of the 36. If BM25 over
+   name + aliases fails anywhere, it fails here, and that is worth knowing early,
+   while it is cheap to fix.~~ ✅ 2026-07-26; it half-failed, and the fix was two
+   aliases: see the log.
 3. **`thought`** (6,400) — the largest set that is genuinely one root. Tests
    whether reading candidates scales, or whether ranking needs work first.
 
@@ -251,7 +253,7 @@ Live numbers, generated from the databases on **2026-07-26** by `scripts/strateg
 
 **Concepts (L3)** — 36 active roots + 3 deprecated tombstones (`sacred`, `self`, `word-naming`). Tombstones stay so predictions keyed to their ids remain resolvable; consumers filter by `status`.
 
-**Vault (L4)** — 37 generated notes (36 concepts + Map). **2 roots of 36 cited**, 53 curated passages in all, each linking to the second it is spoken: `fear` (25 passages, 1961–1985, 8 themes) · `attachment` (28 passages, 1949–1985, 7 themes).
+**Vault (L4)** — 37 generated notes (36 concepts + Map). **3 roots of 36 cited**, 83 curated passages in all, each linking to the second it is spoken: `fear` (25 passages, 1961–1985, 8 themes) · `attachment` (28 passages, 1949–1985, 7 themes) · `observer-observed` (30 passages, 1949–1985, 8 themes).
 
 <!-- END GENERATED: where-things-stand -->
 
@@ -541,3 +543,22 @@ month.
   "Where things stand" was stamped one date while carrying the next day's facts.
   `scripts/strategy_stats.py --check` is now the gate on the numbers, and
   `tests/test_strategy_doc.py` the gate on the slugs.
+- **2026-07-26** — **`observer-observed` shipped, and retrieval half-failed as
+  predicted.** 30 passages, 1949–1985, eight themes: the division we are educated
+  into → the observer is the past → division is conflict → the thinker is the
+  thought → at the moment of experiencing there is no experiencer → analysis
+  cannot reach it → the controller is the controlled → what ends, and what
+  remains. BM25 over name + aliases served the thinker/experiencer/analyser
+  strands abundantly, but K's control vocabulary — *the controller is the
+  controlled*, *the seer is the seen* — is the same identity claim in different
+  words, and the registry did not own it: only one such passage reached the top
+  120, and the theme had to be found with hand-picked `--terms`.
+- **2026-07-26** — **two aliases added to `observer-observed`; the registry is
+  closed at 36 roots, not frozen in vocabulary.** `the controller is the
+  controlled` and `the seer is the seen` now sit beside the three existing
+  identity forms, so eight controller/seer passages rank in the top 60 where one
+  ranked 51st before. This is the failure the root was scheduled second to
+  expose, and the fix was two lines of JSONL plus `import_concepts.py`. The
+  lesson generalizes: a root whose aliases are all one grammatical form will
+  under-retrieve K's other formulations of it, and that is invisible until a
+  human reads the candidates.
