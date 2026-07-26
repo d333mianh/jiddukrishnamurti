@@ -227,6 +227,56 @@ Optional, and deliberately after phase 3 — none of it blocks a note:
    Buys cross-root queries, per-root coverage numbers, and "what did K say about
    X in 1972" — none of which phase 3 needs. Open questions 1–2 gate it.
 
+### Next steps — the phase 3 loop
+
+One root per session. Nothing below needs a model, a spend approval, or an
+answered open question; it needs reading time.
+
+```bash
+.venv/bin/python scripts/retrieve_concept.py <slug> --format md   # ranked candidates
+#   read them; keep the passages that carry the argument, not the ones that
+#   merely use the word. Note (item_code, int(t_start)) for each keeper.
+#   → append one line per keeper to concepts/citations.jsonl:
+#     {"slug":…,"theme":…,"seq":…,"item_code":…,"t_start":…}
+.venv/bin/python scripts/build_citations.py --sync --slug <slug>  # resolve quotes + links
+.venv/bin/python scripts/build_concept_vault.py                   # regenerate the note
+.venv/bin/python scripts/build_concept_vault.py --check           # staleness + dead links
+.venv/bin/python -m unittest discover tests                       # citation invariants
+git commit                                                         # one root, one commit
+```
+
+**Shape of a finished note**, taking `fear` as the reference rather than a rule:
+20–30 passages, five to eight themes, a span wide enough to show the teaching is
+not of one period (`fear` runs 1961–1985), and themes ordered so the sequence
+*is* the argument — what it is, how it works, what it does, and what ends it.
+Prefer the passage where K develops the point over the one that states it.
+
+**Order.** Retrieval serves every root from the manual transcripts alone —
+candidate counts run from 10,588 (`truth`) down to 228 (`religious-mind`), and
+none is starved. So the order is about learning the process, not about supply:
+
+1. **`attachment`** (2,230) — nearest neighbour to `fear`; the retrieval set
+   overlaps, so it tests whether curation stays distinct when the material does
+   not.
+2. **`observer-observed`** (1,083) — the least literal vocabulary of the 36.
+   If BM25 over name + aliases fails anywhere, it fails here, and that is worth
+   knowing early, while it is cheap to fix.
+3. **`thought`** (6,400) — the largest set that is genuinely one root. Tests
+   whether reading candidates scales, or whether ranking needs work first.
+
+Then by facet, so the vault becomes coherent in blocks rather than scattered.
+Facet II is already anchored by `fear`; finish it, then III, I, IV.
+
+**Re-check after any ingest.** `build_citations.py --verify` is the gate that a
+published quote still says what it said; `--check` is the gate that the vault
+matches the data. Both are cheap; run them before committing anything else.
+
+**Stop conditions worth honouring.** If three consecutive roots come out thin
+(under ~15 passages worth keeping), that is the evidence open question 5 asks
+for, and the Scribe spend becomes the next move rather than a deferred one. If
+curation starts feeling like it needs cross-root comparison to decide what
+belongs where, that is phase 5 asking to be scheduled.
+
 ## Open questions
 
 Undecided calls, most actionable first. Questions only — reasoning belongs in
@@ -259,9 +309,11 @@ it here.
    Scribe output.
 5. **Does phase 3 need the Scribe cohort at all?** `fear` reached 25 citations
    across 1961–1985 from manual transcripts alone, and did not exhaust them.
-   The honest trigger for the ~$130–185 is a root that retrieval cannot serve
-   from the ~1,000 gold items — so run several more roots first and see whether
-   one appears. Supersedes "transcribe everything, then tag" as the reason to
+   Every one of the 36 roots has FTS candidates in the gold corpus — 10,588
+   (`truth`) down to 228 (`religious-mind`) — so none is starved on paper. The
+   honest trigger for the ~$130–185 is a root whose *candidates don't hold up on
+   reading*, which only curation can reveal; the stop condition is in the phase 3
+   loop above. Supersedes "transcribe everything, then tag" as the reason to
    spend.
 6. **Definition of done for a concept note, and re-ingest cadence.** `fear` set
    a first shape — 25 passages, eight themes, argument order — but not a bar.
