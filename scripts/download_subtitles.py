@@ -19,6 +19,7 @@ from download_series import (  # noqa: E402
     CACHED_BROWSER_COOKIES,
     media_root,
     output_path,
+    resolve_media_path,
     resolve_yt_auth,
     yt_auth_args,
 )
@@ -42,13 +43,28 @@ def pick_manual_english(subtitles: dict | None) -> str | None:
     return None
 
 
+MEDIA_SUFFIXES = (".m4a", ".mp4", ".mp3", ".webm", ".mkv")
+
+
+def subtitle_name(media_name: str, lang: str) -> str:
+    """`<stem>.<lang>.vtt` for a media filename, stripping the media extension.
+
+    Never use `Path.with_suffix` here. Item codes contain dots (`BR72DSS1.02`),
+    so pathlib reads `.02 - Are you revolutionary` as the suffix; replacing it
+    collapses every part of a series onto one filename. That is not
+    hypothetical — it silently overwrote 111 manual VTTs with a sibling's, and
+    the 82 that were never ingested had to be re-downloaded. Strip by string.
+    """
+    for ext in MEDIA_SUFFIXES:
+        if media_name.lower().endswith(ext):
+            media_name = media_name[: -len(ext)]
+            break
+    return f"{media_name}.{lang}.vtt"
+
+
 def subtitle_future_path(audio_future_path: str, lang: str) -> str:
     p = Path(audio_future_path)
-    for ext in (".m4a", ".mp4", ".mp3", ".webm", ".mkv"):
-        if p.suffix.lower() == ext:
-            p = p.with_suffix("")
-            break
-    return str(p.parent / f"{p.name}.{lang}.vtt")
+    return str(p.parent / subtitle_name(p.name, lang))
 
 
 def subtitle_output_path(
@@ -61,7 +77,7 @@ def subtitle_output_path(
     audio_dest = output_path(
         audio_future_path, "best", root=root, series_code=series_code or ""
     )
-    return audio_dest.with_suffix("").with_suffix(f".{lang}.vtt")
+    return audio_dest.parent / subtitle_name(audio_dest.name, lang)
 
 
 def probe_manual_language(
@@ -292,6 +308,9 @@ def fetch_items(
     *,
     section: str | None,
     from_code: str | None,
+    codes: set[str] | None = None,
+    missing_files: bool = False,
+    root: Path | None = None,
 ) -> list[tuple[int, str, str, str | None, str, str]]:
     sql = """
         SELECT i.id, i.code, i.title, i.series_code, i.future_path, l.url
@@ -310,6 +329,30 @@ def fetch_items(
         sql += " WHERE 1=1 "
     sql += " ORDER BY i.pdf_order"
     rows = conn.execute(sql, params).fetchall()
+    if codes:
+        rows = [r for r in rows if r[1] in codes]
+        found = {r[1] for r in rows}
+        if unknown := codes - found:
+            raise SystemExit(f"Unknown or unlinked codes: {sorted(unknown)}")
+    if missing_files:
+        # Rows asserting `downloaded` for a file that is not on disk. This is the
+        # recovery set for the `with_suffix` collapse that overwrote 111 manual
+        # VTTs with a sibling's — see tests/test_subtitle_paths.py.
+        if root is None:
+            raise SystemExit("--missing-files needs a media root")
+        claimed = {
+            code: fp
+            for code, fp in conn.execute(
+                "SELECT i.code, s.future_path FROM item_subtitles s "
+                "JOIN items i ON i.id = s.item_id "
+                "WHERE s.kind = 'manual' AND s.status = 'downloaded'"
+            )
+        }
+        gone = {
+            c for c, fp in claimed.items()
+            if not resolve_media_path(fp, root=root).exists()
+        }
+        rows = [r for r in rows if r[1] in gone]
     if from_code:
         codes = [r[1] for r in rows]
         try:
@@ -330,6 +373,17 @@ def main() -> None:
         help="Limit to section code (e.g. 1A). Default: all linked items.",
     )
     parser.add_argument("--from-code", default=None, help="Resume at this item code")
+    parser.add_argument(
+        "--codes",
+        default=None,
+        help="Comma-separated item codes to process (e.g. BR72DSS1.02,BR72DSS1.03)",
+    )
+    parser.add_argument(
+        "--missing-files",
+        action="store_true",
+        help="Only items whose manual subtitle row says 'downloaded' but whose "
+             "file is absent from disk (the re-download recovery set)",
+    )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
         "--library-root",
@@ -371,7 +425,14 @@ def main() -> None:
     conn = sqlite3.connect(DB_PATH)
     ensure_subtitle_schema(conn)
 
-    rows = fetch_items(conn, section=args.section, from_code=args.from_code)
+    rows = fetch_items(
+        conn,
+        section=args.section,
+        from_code=args.from_code,
+        codes={c.strip() for c in args.codes.split(",") if c.strip()} if args.codes else None,
+        missing_files=args.missing_files,
+        root=root,
+    )
     if not rows:
         raise SystemExit("No linked items matched.")
 
