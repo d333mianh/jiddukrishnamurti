@@ -45,7 +45,7 @@ log entries record what was believed on their date.
 | L1 Transcripts | one row per ingested transcript file + provenance | `corpus/krishnamurti-corpus.db` (gitignored) | done |
 | L2 Segments | speaker-attributed turns → passages, FTS5 over K-only text | same corpus DB | done for manual sources |
 | L3 Concepts | 36 roots + aliases/relations + passage tagging | `concepts/concepts.jsonl` (tracked) → corpus DB | registry closed; retrieval works, exhaustive tagging optional |
-| L4 Synthesis | Obsidian notes, timestamped `youtu.be/ID?t=SECONDS` citations | `obsidian/` + `concepts/citations.jsonl` (tracked) | 1 root of 36 cited |
+| L4 Synthesis | Obsidian notes, timestamped `youtu.be/ID?t=SECONDS` citations | `obsidian/` + `concepts/citations.jsonl` (tracked) | 2 roots of 36 cited |
 
 The **two-database split** is deliberate: the catalog is small, tracked, and is
 canonical pipeline state; the corpus is large, generated, and gitignored. A
@@ -147,8 +147,9 @@ onto the current 36**.
 
 **Vault (L4)** — 37 generated notes (36 concepts + Map).
 `scripts/build_concept_vault.py --check` gates staleness *and* dead wikilinks.
-`fear` is the first note carrying citations: 25 curated passages, 1961–1985, in
-eight themes, each linking to the second it is spoken. 1 root of 36 cited.
+Two notes now carry citations, 53 curated passages in all, each linking to the
+second it is spoken: `fear` (25 passages, 1961–1985, eight themes) and
+`attachment` (28 passages, 1949–1985, seven themes). 2 roots of 36 cited.
 
 **Backup** — one checksummed 80 MB `.tar.zst` in `~/Backups/jiddu-krishnamurti/`
 (`scripts/backup_corpus.py`): corpus DB, every manual VTT, catalog DB, registry.
@@ -214,7 +215,8 @@ on phase 4, and neither waits on the STT spend.
 3. **Cited notes** — the critical path, and the only phase that produces the
    thing this project is for. Per root: `retrieve_concept.py` → read the
    candidates → file the keepers in `concepts/citations.jsonl` → `--sync` →
-   regenerate. `fear` ✅ (25 passages); **35 roots to go**. Each is a bounded
+   regenerate. `fear` ✅ (25 passages), `attachment` ✅ (28); **34 roots to go**.
+   Each is a bounded
    session of reading, needs no model spend, and ships independently.
 
 Optional, and deliberately after phase 3 — none of it blocks a note:
@@ -255,9 +257,9 @@ Prefer the passage where K develops the point over the one that states it.
 candidate counts run from 10,588 (`truth`) down to 228 (`religious-mind`), and
 none is starved. So the order is about learning the process, not about supply:
 
-1. **`attachment`** (2,230) — nearest neighbour to `fear`; the retrieval set
+1. ~~**`attachment`** (2,230) — nearest neighbour to `fear`; the retrieval set
    overlaps, so it tests whether curation stays distinct when the material does
-   not.
+   not.~~ ✅ 2026-07-26, and it does: see the log.
 2. **`observer-observed`** (1,083) — the least literal vocabulary of the 36.
    If BM25 over name + aliases fails anywhere, it fails here, and that is worth
    knowing early, while it is cheap to fix.
@@ -265,7 +267,8 @@ none is starved. So the order is about learning the process, not about supply:
    whether reading candidates scales, or whether ranking needs work first.
 
 Then by facet, so the vault becomes coherent in blocks rather than scattered.
-Facet II is already anchored by `fear`; finish it, then III, I, IV.
+Facet II is already anchored by `fear` and `attachment`; finish it, then III,
+I, IV.
 
 **Re-check after any ingest.** `build_citations.py --verify` is the gate that a
 published quote still says what it said; `--check` is the gate that the vault
@@ -522,3 +525,19 @@ Append-only, oldest first. Entries are never rewritten.
   month. Still not in the repo and not fixable: `library/` and the cookie files,
   so downloading, transcribing, and re-ingesting remain machine-bound. Curation
   does not need them.
+- **2026-07-26** — **`attachment` shipped; the overlap worry was unfounded.** 28
+  passages, 1949–1985 (the widest span of any note so far, and the first to
+  reach back to 1949), in seven themes: why we are attached → what we are
+  attached to → what attachment breeds → detachment is attachment → attachment
+  is not love → there is no security in it → the ending. This root was picked
+  first precisely because its retrieval set overlaps `fear`'s, to test whether
+  two adjacent notes would converge on the same passages. They did not: of 53
+  citations across both roots, exactly one passage came up in both drafts
+  (BR80Q2 @2596, "fear begins with attachment"), and it was swapped out for
+  BR78T1 @3469, which makes the same link in attachment's own vocabulary. The
+  notes now share zero passages and 28 distinct recordings. The reason is that
+  the roots argue different things from adjacent material — `fear` asks what
+  ends fear, `attachment` asks why security is sought at all — so theme
+  structure, not vocabulary, keeps curation distinct. Second data point for open
+  question 5: no sign of thin supply, and no Scribe cohort needed. 2 roots of
+  36 cited.
