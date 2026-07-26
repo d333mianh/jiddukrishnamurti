@@ -44,6 +44,18 @@ regenerate the note. `fear` ✅, `attachment` ✅ and `observer-observed` ✅;
 **33 roots to go**. Each is a bounded session of reading, needs no model spend,
 and ships independently.
 
+**`P-retrieval` — fix what feeds every note.** Ahead of the remaining roots,
+because it makes each of them cheaper and none of it needs a model. Two known
+defects, both found while curating: BM25 query terms are built by splitting
+multi-word aliases into words *including stopwords*, so `truth` searches on
+`what` and `the` and `observer-observed` on `the` and `and` — every root whose
+aliases are phrases has diluted ranking, and `fear` only looked healthy because
+its aliases are single words. And a root can own K's idea under one grammatical
+form while missing another, which is how `observer-observed` nearly lost the
+whole controller/controlled theme. Deliverable: stopword-stripped queries, a
+per-root report of candidate supply and alias coverage, and an ordered queue for
+the 33.
+
 Optional, and deliberately behind `P-notes` — neither of these blocks a note.
 
 **`P-stt` — the Scribe backfill.** ElevenLabs Scribe v2 + keyterm prompting over
@@ -103,9 +115,12 @@ not of one period, and themes ordered so the sequence *is* the argument — what
 it is, how it works, what it does, and what ends it. Prefer the passage where K
 develops the point over the one that states it.
 
-**Order.** Retrieval serves every root from the manual transcripts alone —
-candidate counts run from 10,588 (`truth`) down to 228 (`religious-mind`), and
-none is starved. So the order is about learning the process, not about supply:
+**Order.** Retrieval serves every root from the manual transcripts alone, and
+the three roots shipped so far were nowhere near exhausting their material. So
+the order is about learning the process, not about supply. (The old
+"10,588 (`truth`) down to 228 (`religious-mind`)" spread is **not reproducible**
+with the current code and has been removed rather than restated — see the
+2026-07-26 log entry on stopword dilution, and `P-retrieval` below.)
 
 1. ~~`attachment` — nearest neighbour to `fear`; the retrieval sets overlap, so
    it tests whether curation stays distinct when the material does not.~~
@@ -114,8 +129,8 @@ none is starved. So the order is about learning the process, not about supply:
    name + aliases fails anywhere, it fails here, and that is worth knowing early,
    while it is cheap to fix.~~ ✅ 2026-07-26; it half-failed, and the fix was two
    aliases: see the log.
-3. **`thought`** (6,400) — the largest set that is genuinely one root. Tests
-   whether reading candidates scales, or whether ranking needs work first.
+3. **`thought`** — the largest set that is genuinely one root. Tests whether
+   reading candidates scales, or whether ranking needs work first.
 
 Then by facet, so the vault becomes coherent in blocks rather than scattered.
 Facet II is already anchored by `fear` and `attachment`; finish it, then III, I,
@@ -245,7 +260,7 @@ Live numbers, generated from the databases on **2026-07-26** by `scripts/strateg
 | `kft-web-transcript` | downloaded | 1 |
 | `elevenlabs-scribe-v2` | planned | 540 |
 
-**Corpus (L1/L2)** — 906 transcripts ingested (tier A 734 / B 157 / C 15), 123,874 segments, 136,657 passages, of which 71,824 are K-passages and 71,530 are in `passages_fts` (tiers A/B only). Subtitle resolution: 877 `direct`, 29 `sibling-vtt`.
+**Corpus (L1/L2)** — 988 transcripts ingested (tier A 809 / B 164 / C 15), 141,350 segments, 154,916 passages, of which 81,103 are K-passages and 80,809 are in `passages_fts` (tiers A/B only). Subtitle resolution: 988 `direct`.
 
 **Tiers** — A 1,197 · B 311 · C 21 · X 12.
 
@@ -553,6 +568,54 @@ month.
   controlled*, *the seer is the seen* — is the same identity claim in different
   words, and the registry did not own it: only one such passage reached the top
   120, and the theme had to be found with hand-picked `--terms`.
+- **2026-07-26** — **the 2026-07-25 backup entry's "all 111 were ingested" is
+  wrong; only 29 were.** The other 82 never reached the corpus, so for those the
+  corpus DB was never a second copy of anything — the gold text existed nowhere.
+  The 29 are exactly the `sibling-vtt` rows, ingested from a *neighbour's* file
+  that was still on disk, so the single-copy risk that entry described was
+  narrower than stated. Entries are never rewritten; this corrects it.
+- **2026-07-26** — **`Path.with_suffix` silently collapsed 111 manual VTTs onto
+  one filename per series, and nothing was checking.** Item codes carry a part
+  number after a dot, so pathlib read `.02 - You can live without an image` as
+  the suffix and `subtitle_output_path` wrote every part of `BR72DSS1` to
+  `BR72DSS1.en.vtt`. Part 1 landed; parts 2–10 hit the `dest.is_file()` early
+  return and recorded `downloaded` with part 1's `file_size` against their own
+  empty path. The defect was two implementations of "swap the extension" —
+  `subtitle_future_path` did it by string and was right, so the catalog recorded
+  a path the downloader never wrote to. They now share `subtitle_name`; the
+  hypothesis predicts the data exactly (all 111 missing files have dotted stems,
+  none otherwise). All 111 re-downloaded, 0 failed. Commit `e80c68f`.
+- **2026-07-26** — **the 82 are recovered; the corpus grew 13%.** All 111 VTTs
+  re-downloaded (0 failed) and the whole corpus re-ingested: 906 → **988
+  transcripts**, K-passages 71,824 → **81,103**, FTS 71,530 → **80,809**.
+  `sibling-vtt` is now **0** — every transcript resolves `direct` from the item's
+  own file, so the corroborate-by-duration fallback is no longer load-bearing.
+  All 83 citations still verify. Only one cited item was ever `sibling-vtt`
+  (`BR80DSG2.0`), a single-item series whose file was merely misnamed and is
+  byte-identical to its replacement.
+- **2026-07-26** — **three "manual" transcripts are actually auto-captions.**
+  `RO73DSG2` (tier B), `US84FCC` and `BR95FOF` (tier C) parse to 0 K-passages
+  because they have no punctuation, capitalisation, or speaker labels — ASR text
+  that YouTube served on the *manual* track, so `download_subtitles.py`'s
+  manual-only filter admitted it. Pre-existing, not caused by the recovery, and
+  caught only because the collapse guard flags 0-K items. Principle 4 calls
+  manual subs the gold standard; for at least these three it is not true. How
+  many more sit undetected because they *do* carry labels is unknown.
+- **2026-07-26** — **BM25 queries include stopwords, and the documented candidate
+  spread is not reproducible.** Query terms come from splitting `name` + aliases
+  into words, keeping `the`, `and`, `what`, so `truth` searches on `what`/`the`
+  and `observer-observed` on `the`/`and`. Under the current code every root
+  returns ~26k candidates rather than the logged 10,588–228 spread, so "none is
+  starved" rests on numbers nobody can now reproduce; the Plan's copy of them was
+  removed rather than restated. `fear` was unaffected only because its aliases
+  are single words. Now `P-retrieval`.
+- **2026-07-26** — **`status='downloaded'` is now gated against the filesystem.**
+  `tests/test_subtitle_paths.py` fails if any manual subtitle marked downloaded
+  is absent from disk, and asserts that dotted codes yield distinct filenames and
+  that the download destination equals the catalog path. The false rows sat for
+  seven weeks because principle 6 had no gate here. `download_subtitles.py`
+  gained `--missing-files` and `--codes`, since `--section`/`--from-code` gave no
+  way to re-run just the broken rows.
 - **2026-07-26** — **two aliases added to `observer-observed`; the registry is
   closed at 36 roots, not frozen in vocabulary.** `the controller is the
   controlled` and `the seer is the seen` now sit beside the three existing
