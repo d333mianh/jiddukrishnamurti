@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import re
 import sys
 import unittest
@@ -107,6 +108,45 @@ class CitationVaultTests(unittest.TestCase):
                 self.assertIn("concepts/citations.jsonl", text)
                 for cite in cites:
                     self.assertIn(cite["url"], text)
+
+
+class CorpusSnapshotTests(unittest.TestCase):
+    """The tracked snapshot is what makes a clone able to run phase 3.
+
+    It is the one generated artifact deliberately kept in git, held there by a
+    `!` negation in `.gitignore` — a rule that is easy to undo by accident while
+    tidying ignore patterns. These checks are cheap (a header read, not a
+    decompression) and fail loudly if the snapshot stops shipping."""
+
+    SNAPSHOT = ROOT / "corpus" / "krishnamurti-corpus.db.zst"
+    ZSTD_MAGIC = b"\x28\xb5\x2f\xfd"
+
+    def test_snapshot_ships_and_is_a_zstd_stream(self) -> None:
+        self.assertTrue(self.SNAPSHOT.exists(),
+                        f"{self.SNAPSHOT} is missing — see corpus/README.md")
+        with self.SNAPSHOT.open("rb") as fh:
+            self.assertEqual(self.ZSTD_MAGIC, fh.read(4))
+
+    def test_snapshot_stays_under_the_github_file_limit(self) -> None:
+        """GitHub hard-rejects a push containing a file over 100 MB."""
+        self.assertLess(self.SNAPSHOT.stat().st_size, 100 * 1024 * 1024)
+
+    def test_snapshot_checksum_is_recorded_and_matches(self) -> None:
+        sums = self.SNAPSHOT.with_suffix(".zst.sha256")
+        self.assertTrue(sums.exists(), f"{sums} is missing")
+        recorded = sums.read_text(encoding="utf-8").split()[0]
+        digest = hashlib.sha256()
+        with self.SNAPSHOT.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                digest.update(chunk)
+        self.assertEqual(recorded, digest.hexdigest(),
+                         "snapshot and checksum disagree — refresh both together")
+
+    def test_restore_path_is_documented(self) -> None:
+        for doc in (ROOT / "CLAUDE.md", ROOT / "corpus" / "README.md"):
+            with self.subTest(doc=doc.name):
+                self.assertIn("krishnamurti-corpus.db.zst",
+                              doc.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

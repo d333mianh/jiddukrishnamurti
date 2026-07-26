@@ -47,10 +47,11 @@ workflow for `parse_vtt.py` / `build_catalog.py` changes.
   counts lag the live DB — trust SQLite), supplement JSONs
   (`education_directory_2026.json`, `channel_recordings_2026.json`),
   `link_cache.json`, `exports/` (CSV/XLSX), `logs/` (gitignored).
-- **`corpus/`** — generated, gitignored L1/L2 DB (`krishnamurti-corpus.db`);
-  tracked README only.
-- **`concepts/`** — tracked L3 registry: `concepts.jsonl` (36 roots + 3
-  deprecated tombstones).
+- **`corpus/`** — the L1/L2 DB. The live `krishnamurti-corpus.db` is gitignored;
+  a compressed snapshot (`krishnamurti-corpus.db.zst`, 67 MB) **is** tracked —
+  see "Restoring the corpus from a fresh clone" below.
+- **`concepts/`** — tracked L3 data: `concepts.jsonl` (36 roots + 3 deprecated
+  tombstones) and `citations.jsonl` (the curated L4 quotations).
 - **`library/`** — gitignored media tree:
   `{section-slug}/{pdf_order:04d}-{series_code}/{CODE} - Title.{m4a|mp4|en.vtt|whisper.*}`.
   Paths stored in `items.future_path`.
@@ -85,6 +86,24 @@ Pipeline scripts are standalone argparse CLIs with `--help`; most take `--dry-ru
 and `--limit N`. Run any directly, e.g. `python3 scripts/download_series.py LO61T1`.
 The `*_schema.py` modules are primarily importable helpers (some take simple
 positional smoke-test args instead of argparse).
+
+### Restoring the corpus from a fresh clone
+
+A clone is ~31 MB and self-sufficient for the vault: the tests pass and
+`build_concept_vault.py --check` regenerates all 37 notes, because
+`concepts/citations.jsonl` carries each quote and link. It is **not** sufficient
+for phase 3 — `retrieve_concept.py` and `build_citations.py` need the corpus DB,
+which is gitignored. Restore it first:
+
+```bash
+zstd -d corpus/krishnamurti-corpus.db.zst -o corpus/krishnamurti-corpus.db
+.venv/bin/python scripts/build_citations.py --verify   # 25/25 = corpus is good
+```
+
+`library/` (media + manual VTTs) and the YouTube cookie files are not in the
+repo and cannot be — so downloading, transcribing, and re-ingesting only work on
+a machine that has the iCloud tree. Curation does not need them. Refresh the
+snapshot deliberately, on milestones; see `corpus/README.md` for how and why.
 
 ## The SQLite catalog is canonical pipeline state
 

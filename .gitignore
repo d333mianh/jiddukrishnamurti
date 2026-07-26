@@ -12,5 +12,12 @@ compare/
 www.youtube.com_cookies.txt
 catalog/.yt-browser-cookies.txt
 corpus/*.db*
+# …except the tracked snapshot: the live DB is gitignored (generated, 195 MB,
+# self-evicting iCloud), but for the 111 items whose manual VTTs are gone from
+# disk it is the only surviving copy of the gold text. The compressed snapshot
+# is what makes a fresh clone able to run phase 3. Refresh it deliberately —
+# see "Restoring the corpus from a fresh clone" in CLAUDE.md.
+!corpus/krishnamurti-corpus.db.zst
+!corpus/krishnamurti-corpus.db.zst.sha256
 concepts/pilot-runs/
 obsidian/.obsidian/

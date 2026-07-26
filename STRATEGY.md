@@ -505,3 +505,20 @@ Append-only, oldest first. Entries are never rewritten.
   drop behind them as optional enrichment. The old plan gated note #1 on
   judgment #2,900,000; retrieval-first gates it on an afternoon of reading, and
   each root ships independently. 1 root of 36 cited.
+- **2026-07-26** — **the corpus DB now ships in git, compressed.** A fresh clone
+  was tested: 31 MB, 69/69 tests pass, all 37 notes regenerate with no dead
+  links — but `retrieve_concept.py` and `build_citations.py` both die on a
+  missing corpus, so the phase 3 loop was dead on any machine holding only the
+  repo. `corpus/krishnamurti-corpus.db.zst` (195 MB → 67 MB, taken through the
+  sqlite3 backup API so the snapshot is consistent) is tracked by a `!` negation
+  in `.gitignore`, with its checksum beside it and four cheap tests holding it
+  in place. This breaks the rule that generated artifacts stay out of git, on
+  two grounds: the DB is the only surviving copy of the gold text for the 111
+  items whose VTTs are gone, and the private remote is what makes shipping
+  verbatim transcript text acceptable at all. Cost accepted: each refreshed
+  snapshot adds ~67 MB to history permanently, so it is refreshed on milestones,
+  not per ingest. Git LFS was the alternative — leaner history, but it adds a
+  tool dependency at every clone and the free tier throttles at ~15 pulls a
+  month. Still not in the repo and not fixable: `library/` and the cookie files,
+  so downloading, transcribing, and re-ingesting remain machine-bound. Curation
+  does not need them.

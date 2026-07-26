@@ -2,6 +2,52 @@
 
 `krishnamurti-corpus.db` is the generated L1/L2 teachings corpus: transcript
 provenance, speaker segments, citable passages, parser QA, and K-only FTS data.
-The database and its SQLite sidecar files are gitignored because they contain
-regenerable full transcript text. Recreate or update it with
+The live database and its SQLite sidecar files are gitignored — 195 MB of
+generated data that changes on every ingest. Recreate or update it with
 `scripts/parse_vtt.py`; the tracked catalog remains in `catalog/krishnamurti.db`.
+
+## The tracked snapshot
+
+`krishnamurti-corpus.db.zst` **is** tracked (67 MB), against the usual rule that
+generated artifacts stay out of git. Two reasons:
+
+1. It is not fully regenerable. 111 items whose manual VTTs are recorded as
+   `downloaded` are absent from disk, and all 111 were ingested — for those, the
+   corpus DB is the only surviving copy of the KFT-edited text.
+2. Without it a fresh clone cannot run phase 3 at all: `retrieve_concept.py` and
+   `build_citations.py` both need the corpus, so the loop that produces concept
+   notes is dead on a machine that has only the repo.
+
+The repo is private, which is what makes shipping verbatim transcript text here
+acceptable — see the STRATEGY.md decision log.
+
+### Restore, on a fresh clone
+
+```bash
+zstd -d corpus/krishnamurti-corpus.db.zst -o corpus/krishnamurti-corpus.db
+shasum -a 256 -c corpus/krishnamurti-corpus.db.zst.sha256   # optional, from repo root
+python3 scripts/build_citations.py --verify                  # 25/25 = you are up
+```
+
+### Refresh, after ingesting
+
+Deliberately, on milestones — **not** after every run. Each refresh adds ~67 MB
+to git history permanently.
+
+```bash
+python3 - <<'PY'
+import sqlite3, pathlib, tempfile
+src = pathlib.Path("corpus/krishnamurti-corpus.db")
+tmp = pathlib.Path(tempfile.mkdtemp()) / "snap.db"
+s = sqlite3.connect(f"file:{src}?mode=ro", uri=True); d = sqlite3.connect(tmp)
+s.backup(d); d.close(); s.close(); print(tmp)
+PY
+# then, with the path it printed:
+zstd -19 -T0 -f -o corpus/krishnamurti-corpus.db.zst <that path>
+shasum -a 256 corpus/krishnamurti-corpus.db.zst > corpus/krishnamurti-corpus.db.zst.sha256
+```
+
+The sqlite3 backup API is used rather than `cp` so the snapshot is consistent
+even if something is mid-write. `scripts/backup_corpus.py` remains the fuller
+local backup — it also bundles the manual VTTs, which are *not* in this
+snapshot.
