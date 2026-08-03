@@ -11,12 +11,18 @@ generated data that changes on every ingest. Recreate or update it with
 `krishnamurti-corpus.db.zst` **is** tracked (67 MB), against the usual rule that
 generated artifacts stay out of git. Two reasons:
 
-1. It is not fully regenerable. 111 items whose manual VTTs are recorded as
-   `downloaded` are absent from disk, and all 111 were ingested — for those, the
-   corpus DB is the only surviving copy of the KFT-edited text.
-2. Without it a fresh clone cannot run phase 3 at all: `retrieve_concept.py` and
-   `build_citations.py` both need the corpus, so the loop that produces concept
-   notes is dead on a machine that has only the repo.
+1. Without it a fresh clone cannot run the citation loop at all:
+   `retrieve_concept.py` and `build_citations.py` both need the corpus, so the
+   loop that produces concept notes is dead on a machine that has only the repo.
+2. It is expensive to rebuild — re-ingesting every manual VTT is a long run, and
+   it needs the gitignored `library/` tree, which a clone does not have.
+
+It is no longer *irreplaceable*, which it was until 2026-07-26. This file used to
+say that 111 manual VTTs were absent from disk and all 111 had been ingested, so
+the corpus DB was the only surviving copy of their text. That was wrong twice
+over: only 29 of the 111 had ever been ingested (the rest had no copy anywhere),
+and all 111 have since been re-downloaded and re-ingested. `backup_corpus.py`
+now reports `corpus-only items: 0`. See the 2026-07-26 entries in STRATEGY.md.
 
 The repo is private, which is what makes shipping verbatim transcript text here
 acceptable — see the STRATEGY.md decision log.
@@ -26,7 +32,7 @@ acceptable — see the STRATEGY.md decision log.
 ```bash
 zstd -d corpus/krishnamurti-corpus.db.zst -o corpus/krishnamurti-corpus.db
 shasum -a 256 -c corpus/krishnamurti-corpus.db.zst.sha256   # optional, from repo root
-python3 scripts/build_citations.py --verify                  # 25/25 = you are up
+python3 scripts/build_citations.py --verify                  # 83/83 = you are up
 ```
 
 ### Refresh, after ingesting

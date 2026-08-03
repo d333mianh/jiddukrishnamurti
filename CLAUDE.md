@@ -97,7 +97,7 @@ which is gitignored. Restore it first:
 
 ```bash
 zstd -d corpus/krishnamurti-corpus.db.zst -o corpus/krishnamurti-corpus.db
-.venv/bin/python scripts/build_citations.py --verify   # 25/25 = corpus is good
+.venv/bin/python scripts/build_citations.py --verify   # 83/83 = corpus is good
 ```
 
 `library/` (media + manual VTTs) and the YouTube cookie files are not in the

@@ -37,17 +37,20 @@ Phases carry slugs for the same reason questions do.
 **Done.** `P-segments` — schema, VTT parser, L2 for every manual item, FTS5,
 stats. `P-concepts` — registry seeded and closed at 36 roots.
 
-**`P-durability` — get the recovery off this machine. Do this first; it is
-minutes of work.** The 82 transcripts recovered on 2026-07-26 exist in exactly
-one place: this machine's iCloud tree. The backup archive is dated 2026-07-25 and
-predates them, the tracked `corpus/krishnamurti-corpus.db.zst` decompresses to
-the pre-recovery 906 transcripts against 988 live, `library/` is gitignored, and
-the recovery commits are unpushed — so no copy exists in git, in the archive, or
-off this machine. Deliverable: `backup_corpus.py`, a refreshed snapshot (this is
-the kind of milestone `corpus/README.md` reserves them for), and the branch
-pushed. Two retracted claims go with it: `corpus/README.md` still says "all 111
-were ingested", which the 2026-07-26 log entry corrected, and the `--verify`
-count reads 25/25 there and in `CLAUDE.md` against 83 citations.
+**`P-durability` — get the recovery off this machine.** The 82 transcripts
+recovered on 2026-07-26 existed in exactly one place: this machine's iCloud tree.
+Mostly closed on 2026-08-03 — the recovery commits are pushed, and a fresh
+archive (84.7 MB, 1,193 entries, `corpus-only items: 0`) holds the corpus DB and
+all 993 manual VTTs. The retracted "all 111 were ingested" claim is gone from
+`corpus/README.md` and `backup_corpus.py`, and the `--verify` count reads 83/83
+there and in `CLAUDE.md`.
+
+**What is left:** the tracked `corpus/krishnamurti-corpus.db.zst` still
+decompresses to the pre-recovery 906 transcripts against 988 live, so a fresh
+clone gets a corpus missing 13% of its K-passages. Refreshing it is the single
+irreversible step here — each refresh adds ~67 MB to git history permanently —
+and a 13% corpus growth is the kind of milestone `corpus/README.md` reserves
+them for. Also still true: the archive is off iCloud but not off the machine.
 
 **`P-notes` — cited notes. The critical path, and the only phase that produces
 the thing this project is for.** Per root: `retrieve_concept.py` → read the
@@ -219,10 +222,11 @@ belongs where, that is `P-tagging` asking to be scheduled.
 The **two-database split** is deliberate: the catalog is small and is canonical
 pipeline state; the corpus is large and generated. A catalog rebuild never
 touches corpus tables — corpus rows are keyed by stable item code, so they
-survive. The corpus DB ships as a compressed snapshot rather than live, for the
-two reasons logged when it was tracked: it is the only surviving copy of the
-gold text for 111 items, and a private remote is what makes shipping verbatim
-transcript text acceptable at all.
+survive. The corpus DB ships as a compressed snapshot rather than live because a
+clone cannot run the citation loop without it, and a private remote is what makes
+shipping verbatim transcript text acceptable at all. It was originally tracked on
+the stronger ground that it was the only surviving copy of the gold text for 111
+items; that held for 29 of them, and for none since the 2026-07-26 recovery.
 
 ### L2 — the citation unit
 
@@ -309,11 +313,11 @@ Live numbers, generated from the databases on **2026-07-26** by `scripts/strateg
 
 Two facts no query knows:
 
-**Backup** — one checksummed 80 MB `.tar.zst` in `~/Backups/jiddu-krishnamurti/`
-(`scripts/backup_corpus.py`): corpus DB, every manual VTT, catalog DB, registry.
-Off iCloud, not yet off the machine — and dated **2026-07-25**, so it predates
-the 82 recovered transcripts entirely. The tracked snapshot predates them too.
-`P-durability` closes both.
+**Backup** — checksummed `.tar.zst` archives in `~/Backups/jiddu-krishnamurti/`
+(`scripts/backup_corpus.py`); the current one is **84.7 MB, dated 2026-08-03**
+and covers the corpus DB, all 993 manual VTTs, the catalog DB and the registry,
+with `corpus-only items: 0`. Off iCloud, still not off the machine. The stale
+tracked snapshot is what `P-durability` has left.
 
 **Distribution** — the GitHub remote is **private**, which is what permits
 verbatim quotation in the tracked vault. Publishing anything is a separate call.
@@ -687,3 +691,9 @@ month.
   (dated the day before), or off this machine; the tracked snapshot is still the
   906-transcript one. The project has already lost 111 files for seven weeks to a
   gap nothing was checking, so this is not a hypothetical class of risk.
+- **2026-08-03** — **`P-durability` executed except the snapshot.** A fresh
+  archive covers the corpus and all 993 VTTs at `corpus-only items: 0`, and the
+  retracted "all 111 were ingested" claim is out of `corpus/README.md`,
+  `backup_corpus.py` and the architecture section — it was load-bearing in all
+  three, since it is the reason the snapshot is tracked at all. The snapshot
+  refresh is held back deliberately: it is the one step that cannot be undone.

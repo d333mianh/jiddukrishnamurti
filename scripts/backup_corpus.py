@@ -3,17 +3,19 @@
 
 Why this exists: the gold KFT transcripts and the generated corpus live only in
 self-evicting iCloud, and `corpus/krishnamurti-corpus.db` is gitignored and
-exists in exactly one copy. As of 2026-07-25 that is not a theoretical risk —
-111 manual VTTs recorded as `downloaded` are **absent from disk**, and all 111
-were ingested, so the corpus DB is the sole surviving copy of ~25k passages
-(~796k words) of KFT-edited text. Losing that file loses transcripts that no
-re-run can rebuild.
+exists in exactly one copy. That risk has already fired once — on 2026-07-25,
+111 manual VTTs recorded as `downloaded` were found **absent from disk**, and
+the 29 of them that had been ingested survived only inside the corpus DB. (The
+other 82 had no copy at all; this docstring used to say all 111 were ingested,
+which was wrong — see the 2026-07-26 entries in STRATEGY.md.) All 111 were
+re-downloaded on 2026-07-26, so a run today reports `corpus-only items: 0`. That
+line is the live measure of how much text this archive is the last copy of.
 
 What goes in, in priority order:
 
-1. `corpus/krishnamurti-corpus.db` — irreplaceable for the 111 orphaned items,
-   expensive to rebuild for the rest. Copied via the sqlite3 backup API, so the
-   snapshot is consistent even if something is mid-write.
+1. `corpus/krishnamurti-corpus.db` — expensive to rebuild, and the sole copy of
+   whatever the `corpus-only items` line counts. Copied via the sqlite3 backup
+   API, so the snapshot is consistent even if something is mid-write.
 2. Manual `.en.vtt` files — the gold standard; re-downloadable only while KFT
    keeps them public.
 3. `catalog/krishnamurti.db` + `concepts/concepts.jsonl` — small, tracked in
