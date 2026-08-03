@@ -697,3 +697,14 @@ month.
   `backup_corpus.py` and the architecture section — it was load-bearing in all
   three, since it is the reason the snapshot is tracked at all. The snapshot
   refresh is held back deliberately: it is the one step that cannot be undone.
+- **2026-08-03** — **the `with_suffix` bug was also in `backup_corpus.py`, and
+  running it is what exposed it.** The checksum went to
+  `…tar.tar.zst.sha256`, because `with_suffix` replaces only `.zst`; the pruning
+  path built the same wrong name, so deleting an old archive would have orphaned
+  its real sidecar. Same misuse as `e80c68f`, in the script whose whole job is
+  making the corpus recoverable, and again found by looking rather than by a
+  check. Fixed with a shared `sidecar()` helper and `tests/test_backup_paths.py`.
+  The remaining six call sites were then checked and all hold: they operate on
+  media filenames, and all 1,541 `future_path` values end in a real extension, so
+  the dotted code in 169 of them is never mistaken for one. What makes this class
+  recur is `with_suffix` on a *stem* or a compound extension, not on a filename.

@@ -108,6 +108,18 @@ def await_materialization(paths: list[Path], timeout_s: int) -> list[Path]:
     return pending
 
 
+def sidecar(archive: Path) -> Path:
+    """The checksum file that sits beside `archive`.
+
+    By string, never `with_suffix`: the archive name ends `.tar.zst`, and
+    `with_suffix` replaces only the last suffix, so asking it for
+    `.tar.zst.sha256` yields `…tar.tar.zst.sha256` — a name that no longer
+    matches the archive it certifies, and that the pruning path below then
+    fails to delete. This is the same misuse that collapsed 111 manual VTTs
+    onto one filename; see `tests/test_subtitle_paths.py`."""
+    return archive.parent / (archive.name + ".sha256")
+
+
 def sha256(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -279,8 +291,7 @@ def main() -> int:
     entries = len([ln for ln in verify.stdout.decode().splitlines() if ln.strip()])
 
     digest = sha256(archive)
-    (archive.with_suffix(".tar.zst.sha256")).write_text(
-        f"{digest}  {archive.name}\n", encoding="utf-8")
+    sidecar(archive).write_text(f"{digest}  {archive.name}\n", encoding="utf-8")
 
     log(f"wrote {archive} ({archive.stat().st_size / 1048576:.1f} MB, "
         f"{entries} entries)")
@@ -291,7 +302,7 @@ def main() -> int:
     for old in olds:
         log(f"pruning {old.name}")
         old.unlink()
-        old.with_suffix(".tar.zst.sha256").unlink(missing_ok=True)
+        sidecar(old).unlink(missing_ok=True)
 
     if unmaterialized:
         print(f"\n{len(unmaterialized)} file(s) could not be materialized from "
