@@ -37,6 +37,18 @@ Phases carry slugs for the same reason questions do.
 **Done.** `P-segments` — schema, VTT parser, L2 for every manual item, FTS5,
 stats. `P-concepts` — registry seeded and closed at 36 roots.
 
+**`P-durability` — get the recovery off this machine. Do this first; it is
+minutes of work.** The 82 transcripts recovered on 2026-07-26 exist in exactly
+one place: this machine's iCloud tree. The backup archive is dated 2026-07-25 and
+predates them, the tracked `corpus/krishnamurti-corpus.db.zst` decompresses to
+the pre-recovery 906 transcripts against 988 live, `library/` is gitignored, and
+the recovery commits are unpushed — so no copy exists in git, in the archive, or
+off this machine. Deliverable: `backup_corpus.py`, a refreshed snapshot (this is
+the kind of milestone `corpus/README.md` reserves them for), and the branch
+pushed. Two retracted claims go with it: `corpus/README.md` still says "all 111
+were ingested", which the 2026-07-26 log entry corrected, and the `--verify`
+count reads 25/25 there and in `CLAUDE.md` against 83 citations.
+
 **`P-notes` — cited notes. The critical path, and the only phase that produces
 the thing this project is for.** Per root: `retrieve_concept.py` → read the
 candidates → file the keepers in `concepts/citations.jsonl` → `--sync` →
@@ -45,16 +57,39 @@ regenerate the note. `fear` ✅, `attachment` ✅ and `observer-observed` ✅;
 and ships independently.
 
 **`P-retrieval` — fix what feeds every note.** Ahead of the remaining roots,
-because it makes each of them cheaper and none of it needs a model. Two known
-defects, both found while curating: BM25 query terms are built by splitting
-multi-word aliases into words *including stopwords*, so `truth` searches on
-`what` and `the` and `observer-observed` on `the` and `and` — every root whose
-aliases are phrases has diluted ranking, and `fear` only looked healthy because
-its aliases are single words. And a root can own K's idea under one grammatical
-form while missing another, which is how `observer-observed` nearly lost the
-whole controller/controlled theme. Deliverable: stopword-stripped queries, a
-per-root report of candidate supply and alias coverage, and an ordered queue for
-the 33.
+because it makes each of them cheaper and none of it needs a model. Measured
+across all 36 roots on 2026-08-03, and the measurement reordered the phase: the
+fix this entry used to specify turns out to be nearly a no-op, and the obvious
+next idea is a regression. The order below is the order the evidence supports.
+
+1. **A gold-set gate, first.** The 83 curated citations are the only ground
+   truth this project has about what retrieval *should* return, and nothing
+   measures against them. Recall@300 per cited root at the CLI's real defaults,
+   as a test: it is a few dozen lines, it strengthens with every root cited, and
+   without it no query change can be distinguished from a regression.
+2. **Then strip stopwords — for honest numbers, not better ranking.** 21 of the
+   36 roots carry stopword terms, and the pools they inflate are enormous
+   (`beauty` 30,774 candidates against 2,066 stripped; `authority` 30,776
+   against 4,207). But BM25's IDF was already discounting `the` to nearly
+   nothing: the top 60 moves by a mean of 4.5 passages, and all three cited
+   roots keep 100% recall. The defect corrupts the *reported supply*, not what a
+   curator reads — which matters because the supply report below is worthless
+   until it is fixed, and not at all because the reading changes. Not a blanket
+   list: `will` is `will-effort`'s own name colliding with the auxiliary verb.
+3. **Do not convert multi-word aliases into phrase queries.** Measured, and it
+   is a regression: phrase-only retrieval drops 15 of `observer-observed`'s 30
+   curated passages, and `"what is"` *raises* `truth`'s pool to 10,323 because
+   it is among the commonest two-word spans in English rather than only K's term
+   of art. If phrases go in at all, they go in beside the word terms or as an
+   explicit per-alias match mode in the registry — never as a transform inferred
+   from the prose.
+4. **Then the per-root report and an ordered queue for the 33** — candidate
+   supply and alias coverage, which is what this phase was originally for.
+
+The second defect is untouched by all of that: a root can own K's idea under one
+grammatical form while missing another, which is how `observer-observed` nearly
+lost the whole controller/controlled theme. Alias coverage is a reading problem,
+and the gold set is what makes progress on it measurable.
 
 Optional, and deliberately behind `P-notes` — neither of these blocks a note.
 
@@ -276,7 +311,9 @@ Two facts no query knows:
 
 **Backup** — one checksummed 80 MB `.tar.zst` in `~/Backups/jiddu-krishnamurti/`
 (`scripts/backup_corpus.py`): corpus DB, every manual VTT, catalog DB, registry.
-Off iCloud, not yet off the machine.
+Off iCloud, not yet off the machine — and dated **2026-07-25**, so it predates
+the 82 recovered transcripts entirely. The tracked snapshot predates them too.
+`P-durability` closes both.
 
 **Distribution** — the GitHub remote is **private**, which is what permits
 verbatim quotation in the tracked vault. Publishing anything is a separate call.
@@ -287,8 +324,17 @@ Undecided calls, most actionable first. Questions only — reasoning belongs in 
 log once a decision is made. When a question is answered, log it and delete it
 here; the slug is what other sections reference, so never reuse one.
 
-**Open** — these gate `P-stt` and `P-tagging`. Nothing here blocks `P-notes`.
+**Open** — most of these gate `P-stt` and `P-tagging`. Nothing here blocks
+`P-notes`.
 
+- **`Q-manual-trust` — how many "manual" transcripts are actually auto-captions?**
+  `RO73DSG2`, `US84FCC` and `BR95FOF` carry ASR text on YouTube's *manual* track,
+  and were caught only because they parse to 0 K-passages; one that happened to
+  carry speaker labels would pass silently and be quoted as gold. A punctuation-
+  and casing-density pass over all 988 transcripts answers the count in one run.
+  The undecided part is what to do with what it finds — demote the tier, drop
+  them from FTS, or queue them for the Scribe cohort — and whether principle 4's
+  "manual subs are the gold standard" needs qualifying in the principle itself.
 - **`Q-pilot-rescore` — tagging pilot re-score: arms, spend, and the new roots.**
   Re-score the 500-passage eval set against the final 36 roots with the full
   `substantive` / `mention_only` / `definition_like` labels. Needs a human call
@@ -311,12 +357,13 @@ here; the slug is what other sections reference, so never reuse one.
   named-interlocutor dialogues.** Define the ambiguous → manual-review trigger
   (e.g. second-speaker share > 15%) and force registry mapping for those items
   before ingesting any Scribe output.
-- **`Q-scribe-needed` — does `P-notes` need the Scribe cohort at all?** `fear`
-  and `attachment` both reached 25+ citations across wide spans from manual
-  transcripts alone, and exhausted neither. Every one of the 36 roots has FTS
-  candidates in the gold corpus — 10,588 (`truth`) down to 228
-  (`religious-mind`) — so none is starved on paper. The honest trigger for the
-  ~$130–185 is a root whose *candidates don't hold up on reading*, which only
+- **`Q-scribe-needed` — does `P-notes` need the Scribe cohort at all?** `fear`,
+  `attachment` and `observer-observed` each reached 25+ citations across wide
+  spans from manual transcripts alone, and exhausted none of them. Whether any
+  root is *starved* is currently unanswerable: the candidate counts this entry
+  used to rest on are not reproducible, and honest ones arrive with
+  `P-retrieval`'s supply report. The trigger for the ~$130–185 is in any case
+  not a count but a root whose *candidates don't hold up on reading*, which only
   curation can reveal; the stop condition is in the `P-notes` loop above.
   Supersedes "transcribe everything, then tag" as the reason to spend.
 - **`Q-note-done` — definition of done for a concept note.** `fear` set a first
@@ -625,3 +672,18 @@ month.
   lesson generalizes: a root whose aliases are all one grammatical form will
   under-retrieve K's other formulations of it, and that is invisible until a
   human reads the candidates.
+- **2026-08-03** — **`P-retrieval` reordered on measurement: the stopword fix is
+  nearly a no-op and phrase queries are a regression.** Stripping stopwords cuts
+  candidate pools by an order of magnitude on 21 of 36 roots but moves the top 60
+  by a mean of 4.5 passages, because BM25's IDF already discounted `the`; making
+  multi-word aliases into FTS5 phrases drops 15 of `observer-observed`'s 30
+  curated passages and inflates `truth`'s pool to 10,323 on `"what is"` alone. So
+  the phase now leads with a recall gate over the 83 curated citations — the only
+  ground truth about what retrieval should return, and until now unmeasured. The
+  measurement itself is not in the repo: until step 1 lands it, these figures
+  carry the same weakness as the ones they replace.
+- **2026-08-03** — **`P-durability` added ahead of everything.** The 82
+  transcripts recovered on 2026-07-26 have no copy in git, in the backup archive
+  (dated the day before), or off this machine; the tracked snapshot is still the
+  906-transcript one. The project has already lost 111 files for seven weeks to a
+  gap nothing was checking, so this is not a hypothetical class of risk.
