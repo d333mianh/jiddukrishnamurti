@@ -56,18 +56,45 @@ def load_concept(slug: str) -> dict:
     raise SystemExit(f"error: no concept with slug {slug!r} in {REGISTRY}")
 
 
+# Function words that reach the query only by being split out of a multi-word
+# name or alias. Measured against the corpus on 2026-08-03: `the` matches 60% of
+# all K-passages, `you` 55%, `and` 42%, `what` 37%, `not` 35%, `are` 33%. An OR
+# term matching a third of everything adds no ranking signal and inflates the
+# candidate pool by an order of magnitude — `beauty` returned 30,774 candidates
+# on the strength of `the` alone, against 2,066 for the words that mean beauty.
+#
+# Frequency is not the test, though, which is why this is a list and not a
+# threshold: `right` matches 21% of passages and `mind` 10%, and both
+# discriminate. These are closed-class function words, and that is what makes
+# dropping them safe.
+STOPWORDS = frozenset({
+    "and", "are", "from", "its", "not", "only", "the", "what", "will",
+    "without", "you",
+})
+
+
 def fts_terms(concept: dict, extra: list[str]) -> list[str]:
     """Registry name + aliases + any --terms, as FTS prefix matches.
 
     Multi-word names ("Observer & Observed") are split on non-word characters;
-    stopword-ish fragments shorter than 3 characters are dropped, since a bare
-    `is*` would match most of the corpus."""
+    fragments shorter than 3 characters are dropped, since a bare `is*` would
+    match most of the corpus, and so are the function words in STOPWORDS.
+
+    A form the registry states on its own is never dropped, whatever its
+    frequency. Writing `will` as an alias is a claim that the word carries the
+    concept — for `will-effort` it means volition, not the auxiliary verb that
+    makes it match 12% of the corpus. The same protection covers `--terms`: a
+    hand-picked term is a deliberate act and is taken at face value."""
     raw = [concept["name"]] + [a["alias"] for a in concept.get("aliases", [])] + extra
+    own = {form.strip().lower() for form in raw if form.strip().isalpha()}
     terms: list[str] = []
     for item in raw:
         for token in re.split(r"[^\w']+", item.lower()):
-            if len(token) >= 3 and token not in terms:
-                terms.append(token)
+            if len(token) < 3 or token in terms:
+                continue
+            if token in STOPWORDS and token not in own:
+                continue
+            terms.append(token)
     return terms
 
 

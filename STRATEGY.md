@@ -72,15 +72,15 @@ next idea is a regression. The order below is the order the evidence supports.
    gate was checked against the regression it exists to catch, not just observed
    to pass: under the phrase-query variant it fails with 15 losses on
    `observer-observed`, split 6 vocabulary / 7 rank / 2 per-item.
-2. **Then strip stopwords — for honest numbers, not better ranking.** 21 of the
-   36 roots carry stopword terms, and the pools they inflate are enormous
-   (`beauty` 30,774 candidates against 2,066 stripped; `authority` 30,776
-   against 4,207). But BM25's IDF was already discounting `the` to nearly
-   nothing: the top 60 moves by a mean of 4.5 passages, and all three cited
-   roots keep 100% recall. The defect corrupts the *reported supply*, not what a
-   curator reads — which matters because the supply report below is worthless
-   until it is fixed, and not at all because the reading changes. Not a blanket
-   list: `will` is `will-effort`'s own name colliding with the auxiliary verb.
+2. ~~**Then strip stopwords — for honest numbers, not better ranking.**~~
+   ✅ 2026-08-03. 20 of the 36 roots were returning **more than 25,000
+   candidates — essentially the whole corpus — and none now is**. The supply
+   spread is finally real: 1,092 (`loneliness`) to 17,697 (`thought`). Recall
+   held at 83/83, as predicted: BM25's IDF was already discounting `the`, so
+   this bought honest numbers rather than better reading. The rule is a
+   closed-class function-word list, not a frequency cut — `right` matches 21% of
+   passages and `mind` 10% and both discriminate — and any form the registry
+   states on its own is protected, so `will-effort` keeps `will`.
 3. **Do not convert multi-word aliases into phrase queries.** Measured, and it
    is a regression: phrase-only retrieval drops 15 of `observer-observed`'s 30
    curated passages, and `"what is"` *raises* `truth`'s pool to 10,323 because
@@ -365,13 +365,14 @@ here; the slug is what other sections reference, so never reuse one.
   before ingesting any Scribe output.
 - **`Q-scribe-needed` — does `P-notes` need the Scribe cohort at all?** `fear`,
   `attachment` and `observer-observed` each reached 25+ citations across wide
-  spans from manual transcripts alone, and exhausted none of them. Whether any
-  root is *starved* is currently unanswerable: the candidate counts this entry
-  used to rest on are not reproducible, and honest ones arrive with
-  `P-retrieval`'s supply report. The trigger for the ~$130–185 is in any case
-  not a count but a root whose *candidates don't hold up on reading*, which only
-  curation can reveal; the stop condition is in the `P-notes` loop above.
-  Supersedes "transcribe everything, then tag" as the reason to spend.
+  spans from manual transcripts alone, and exhausted none of them. On supply,
+  no root is starved on paper: candidates now run 1,092 (`loneliness`) to
+  17,697 (`thought`), measured 2026-08-03 and reproducible from the code, unlike
+  the retracted 10,588–228 spread this entry used to cite. The trigger for the
+  ~$130–185 is in any case not a count but a root whose *candidates don't hold
+  up on reading*, which only curation can reveal; the stop condition is in the
+  `P-notes` loop above. Supersedes "transcribe everything, then tag" as the
+  reason to spend.
 - **`Q-note-done` — definition of done for a concept note.** `fear` set a first
   shape — 25 passages, eight themes, argument order — and `attachment` a second,
   but neither set a bar. What makes a note finished rather than merely written?
@@ -726,3 +727,15 @@ month.
   is `fear`'s at rank 220 of 300, which is the real headroom number and is not
   large. Verified by regression, not by passing: under phrase queries the gate
   fails with 15 losses on `observer-observed`. First step of `P-retrieval`.
+- **2026-08-03** — **stopwords are out of the queries, and the supply spread is
+  reproducible again.** 20 of 36 roots were returning >25,000 candidates —
+  effectively the whole corpus — and none is now; the range is 1,092
+  (`loneliness`) to 17,697 (`thought`), which replaces the spread retracted
+  earlier today. Recall held at 83/83, so this bought honest numbers and not
+  better reading, exactly as the measurement predicted. The rule is a
+  closed-class function-word list rather than a frequency cut, because `right`
+  (21% of passages) and `mind` (10%) discriminate while `will` (12%) is
+  `will-effort`'s own name; a form the registry states on its own is never
+  dropped. `truth` is the root to watch: its alias `what is` survives only as
+  `truth`/`fact`/`actuality`, since neither stripping nor phrasing captures a
+  term of art that is also the commonest span in English.
