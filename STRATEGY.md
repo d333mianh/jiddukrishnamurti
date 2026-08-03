@@ -63,11 +63,15 @@ across all 36 roots on 2026-08-03, and the measurement reordered the phase: the
 fix this entry used to specify turns out to be nearly a no-op, and the obvious
 next idea is a regression. The order below is the order the evidence supports.
 
-1. **A gold-set gate, first.** The 83 curated citations are the only ground
+1. ~~**A gold-set gate, first.** The 83 curated citations are the only ground
    truth this project has about what retrieval *should* return, and nothing
-   measures against them. Recall@300 per cited root at the CLI's real defaults,
-   as a test: it is a few dozen lines, it strengthens with every root cited, and
-   without it no query change can be distinguished from a regression.
+   measures against them.~~ ✅ 2026-08-03 — `scripts/retrieval_report.py` and
+   `tests/test_retrieval_recall.py`. All 83 are reachable at the CLI's own
+   defaults, and every miss is attributed to one of four causes (vocabulary,
+   rank, `--per-item`, `--min-words`) because each wants a different fix. The
+   gate was checked against the regression it exists to catch, not just observed
+   to pass: under the phrase-query variant it fails with 15 losses on
+   `observer-observed`, split 6 vocabulary / 7 rank / 2 per-item.
 2. **Then strip stopwords — for honest numbers, not better ranking.** 21 of the
    36 roots carry stopword terms, and the pools they inflate are enormous
    (`beauty` 30,774 candidates against 2,066 stripped; `authority` 30,776
@@ -682,7 +686,7 @@ month.
   curated passages and inflates `truth`'s pool to 10,323 on `"what is"` alone. So
   the phase now leads with a recall gate over the 83 curated citations — the only
   ground truth about what retrieval should return, and until now unmeasured. The
-  measurement itself is not in the repo: until step 1 lands it, these figures
+  measurement itself is not in the repo: until the gate lands it, these figures
   carry the same weakness as the ones they replace.
 - **2026-08-03** — **`P-durability` added ahead of everything.** The 82
   transcripts recovered on 2026-07-26 have no copy in git, in the backup archive
@@ -714,3 +718,11 @@ month.
   that copy rather than the live file is worth keeping, and `corpus/README.md`
   now says why. `P-durability` closes; the one gap left is that the archive is
   still on this machine.
+- **2026-08-03** — **retrieval has a gold-set gate; the phrase-query regression
+  is now caught automatically.** `retrieval_report.py` measures the 83 curated
+  citations against the live query builder — importing it rather than copying
+  it, so it cannot drift — and attributes each miss to vocabulary, rank,
+  `--per-item` or `--min-words`. All 83 are reachable today; the deepest keeper
+  is `fear`'s at rank 220 of 300, which is the real headroom number and is not
+  large. Verified by regression, not by passing: under phrase queries the gate
+  fails with 15 losses on `observer-observed`. First step of `P-retrieval`.

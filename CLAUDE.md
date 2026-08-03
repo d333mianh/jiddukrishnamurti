@@ -309,10 +309,18 @@ python3 scripts/build_concept_vault.py --check    # CI-style gate: fails on stal
                                                   # notes AND on dead wikilinks
 python3 scripts/import_concepts.py                # JSONL → corpus DB
 python3 scripts/retrieve_concept.py fear --format md   # BM25 candidates to judge
+python3 scripts/retrieval_report.py               # recall of the curated set
+python3 scripts/retrieval_report.py --check       # gate: before a query change
 python3 scripts/build_citations.py --sync         # resolve curated citations
 python3 scripts/build_citations.py --verify       # gate: citations still resolve
 python3 scripts/strategy_stats.py                 # refresh STRATEGY.md live numbers
 ```
+
+**Never change how `retrieve_concept.py` builds its query without running
+`retrieval_report.py --check` on both sides of the change.** The curated
+citations are the only gold set for retrieval, and changes that read as
+improvements are not: making multi-word aliases into FTS5 phrase queries drops
+15 of `observer-observed`'s 30 curated passages.
 
 `--check` resolves every `[[wikilink]]` in the whole `obsidian/` tree by
 basename (the vault root is `obsidian/`, not `obsidian/roots/`), tolerating the
@@ -366,6 +374,10 @@ re-ingest: it fails if a cited passage moved or its quoted text changed.
 - `scripts/build_concept_vault.py` — L3/L4 concept vault generator.
 - `scripts/retrieve_concept.py` — BM25 candidate retrieval for one root; the
   retrieval-first alternative to exhaustive passage classification.
+- `scripts/retrieval_report.py` — measures that retrieval against the curated
+  citations, attributing every miss to vocabulary, rank, `--per-item` or
+  `--min-words`; imports `retrieve_concept` rather than copying its query
+  builder, so it cannot drift from the code it measures.
 - `scripts/build_citations.py` — resolves `concepts/citations.jsonl` against the
   corpus; `--verify` is the gate that a published quote still says what it said.
 - `scripts/strategy_stats.py` — regenerates STRATEGY.md's "Where things stand"
@@ -381,6 +393,7 @@ re-ingest: it fails if a cited passage moved or its quoted text changed.
 .venv/bin/python -m unittest discover tests      # stdlib unittest; no linter, no CI
 python3 scripts/build_concept_vault.py --check   # vault staleness + dead links
 python3 scripts/build_citations.py --verify      # cited passages still resolve
+python3 scripts/retrieval_report.py --check      # curated passages still retrievable
 python3 scripts/strategy_stats.py --check        # STRATEGY.md numbers vs the DBs
 python3 scripts/segment_schema.py corpus/krishnamurti-corpus.db catalog/krishnamurti.db
 python3 scripts/corpus_stats.py [--csv catalog/exports/corpus-stats.csv]
