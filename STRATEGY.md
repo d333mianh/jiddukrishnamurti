@@ -57,11 +57,12 @@ regenerate the note. `fear` ✅, `attachment` ✅ and `observer-observed` ✅;
 **33 roots to go**. Each is a bounded session of reading, needs no model spend,
 and ships independently.
 
-**`P-retrieval` — fix what feeds every note.** Ahead of the remaining roots,
-because it makes each of them cheaper and none of it needs a model. Measured
-across all 36 roots on 2026-08-03, and the measurement reordered the phase: the
-fix this entry used to specify turns out to be nearly a no-op, and the obvious
-next idea is a regression. The order below is the order the evidence supports.
+**`P-retrieval` — fix what feeds every note. Three of four done 2026-08-03; only
+the report below is left.** Ahead of the remaining roots, because it makes each
+of them cheaper and none of it needs a model. Measured across all 36 roots
+first, and the measurement reordered the phase: the fix this entry used to
+specify turned out to be nearly a no-op, and the obvious next idea a regression.
+The order below is the order the evidence supported.
 
 1. ~~**A gold-set gate, first.** The 83 curated citations are the only ground
    truth this project has about what retrieval *should* return, and nothing
@@ -81,20 +82,28 @@ next idea is a regression. The order below is the order the evidence supports.
    closed-class function-word list, not a frequency cut — `right` matches 21% of
    passages and `mind` 10% and both discriminate — and any form the registry
    states on its own is protected, so `will-effort` keeps `will`.
-3. **Do not convert multi-word aliases into phrase queries.** Measured, and it
-   is a regression: phrase-only retrieval drops 15 of `observer-observed`'s 30
-   curated passages, and `"what is"` *raises* `truth`'s pool to 10,323 because
-   it is among the commonest two-word spans in English rather than only K's term
-   of art. If phrases go in at all, they go in beside the word terms or as an
-   explicit per-alias match mode in the registry — never as a transform inferred
-   from the prose.
-4. **Then the per-root report and an ordered queue for the 33** — candidate
-   supply and alias coverage, which is what this phase was originally for.
+3. ~~**Do not convert multi-word aliases into phrase queries.**~~ ✅ Settled by
+   measurement, and now a standing constraint rather than a task: phrase-only
+   retrieval drops 15 of `observer-observed`'s 30 curated passages, and
+   `"what is"` *raises* `truth`'s pool to 10,323 because it is among the
+   commonest two-word spans in English rather than only K's term of art. If
+   phrases go in at all they go in beside the word terms, or as an explicit
+   per-alias match mode in the registry — never as a transform inferred from the
+   prose. The recall gate now enforces this: it fails on the phrase variant.
+4. **Left: the per-root report and an ordered queue for the 33** — candidate
+   supply and alias coverage, which is what this phase was originally for. The
+   supply half is already measured (1,092 to 17,697, above); what it still needs
+   is the alias-coverage half and the resulting order. **This is the next piece
+   of work in the phase.**
 
 The second defect is untouched by all of that: a root can own K's idea under one
 grammatical form while missing another, which is how `observer-observed` nearly
 lost the whole controller/controlled theme. Alias coverage is a reading problem,
-and the gold set is what makes progress on it measurable.
+and the gold set is what makes progress on it measurable. It now has a named
+instance to work from — `truth`'s alias `what is` contributes nothing to its
+query, because the phrase is unusable and its words are function words. That is
+the case a per-alias match mode would exist to serve, and `truth` is the root to
+watch when it is curated.
 
 Optional, and deliberately behind `P-notes` — neither of these blocks a note.
 
