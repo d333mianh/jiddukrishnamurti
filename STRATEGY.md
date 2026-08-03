@@ -37,20 +37,18 @@ Phases carry slugs for the same reason questions do.
 **Done.** `P-segments` — schema, VTT parser, L2 for every manual item, FTS5,
 stats. `P-concepts` — registry seeded and closed at 36 roots.
 
-**`P-durability` — get the recovery off this machine.** The 82 transcripts
-recovered on 2026-07-26 existed in exactly one place: this machine's iCloud tree.
-Mostly closed on 2026-08-03 — the recovery commits are pushed, and a fresh
-archive (84.7 MB, 1,193 entries, `corpus-only items: 0`) holds the corpus DB and
-all 993 manual VTTs. The retracted "all 111 were ingested" claim is gone from
-`corpus/README.md` and `backup_corpus.py`, and the `--verify` count reads 83/83
-there and in `CLAUDE.md`.
+**`P-durability` — get the recovery off this machine. Done 2026-08-03.** The 82
+transcripts recovered on 2026-07-26 existed in exactly one place: this machine's
+iCloud tree. Now: the recovery commits are pushed; a fresh archive (84.7 MB,
+1,193 entries, `corpus-only items: 0`) holds the corpus DB and all 993 manual
+VTTs; and the tracked snapshot carries the current 988 transcripts, so a clone
+gets the corpus the notes were actually built from. The retracted "all 111 were
+ingested" claim is out of `corpus/README.md`, `backup_corpus.py` and the
+architecture section, and `--verify` reads 83/83.
 
-**What is left:** the tracked `corpus/krishnamurti-corpus.db.zst` still
-decompresses to the pre-recovery 906 transcripts against 988 live, so a fresh
-clone gets a corpus missing 13% of its K-passages. Refreshing it is the single
-irreversible step here — each refresh adds ~67 MB to git history permanently —
-and a 13% corpus growth is the kind of milestone `corpus/README.md` reserves
-them for. Also still true: the archive is off iCloud but not off the machine.
+One exposure is left and is not a task: the archive is off iCloud but still on
+this machine. Somewhere genuinely offsite is a decision, not a script —
+`backup_corpus.py --dest` already takes a path.
 
 **`P-notes` — cited notes. The critical path, and the only phase that produces
 the thing this project is for.** Per root: `retrieve_concept.py` → read the
@@ -316,8 +314,8 @@ Two facts no query knows:
 **Backup** — checksummed `.tar.zst` archives in `~/Backups/jiddu-krishnamurti/`
 (`scripts/backup_corpus.py`); the current one is **84.7 MB, dated 2026-08-03**
 and covers the corpus DB, all 993 manual VTTs, the catalog DB and the registry,
-with `corpus-only items: 0`. Off iCloud, still not off the machine. The stale
-tracked snapshot is what `P-durability` has left.
+with `corpus-only items: 0`. The tracked snapshot is current as of the same date.
+Off iCloud, still not off the machine — the one durability gap left.
 
 **Distribution** — the GitHub remote is **private**, which is what permits
 verbatim quotation in the tracked vault. Publishing anything is a separate call.
@@ -708,3 +706,11 @@ month.
   media filenames, and all 1,541 `future_path` values end in a real extension, so
   the dotted code in 169 of them is never mistaken for one. What makes this class
   recur is `with_suffix` on a *stem* or a compound extension, not on a filename.
+- **2026-08-03** — **the tracked snapshot is current again, and got smaller.**
+  988 transcripts / 154,916 passages / 80,809 FTS rows, matching the live DB
+  exactly, restoring to `pragma integrity_check` = ok. It compressed to **61 MB
+  against the previous 67 MB while carrying 13% more text**, because the sqlite3
+  backup API rewrites without the live file's free pages — so compressing from
+  that copy rather than the live file is worth keeping, and `corpus/README.md`
+  now says why. `P-durability` closes; the one gap left is that the archive is
+  still on this machine.

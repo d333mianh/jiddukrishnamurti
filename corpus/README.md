@@ -8,8 +8,9 @@ generated data that changes on every ingest. Recreate or update it with
 
 ## The tracked snapshot
 
-`krishnamurti-corpus.db.zst` **is** tracked (67 MB), against the usual rule that
-generated artifacts stay out of git. Two reasons:
+`krishnamurti-corpus.db.zst` **is** tracked (61 MB, holding 988 transcripts and
+154,916 passages as of 2026-08-03), against the usual rule that generated
+artifacts stay out of git. Two reasons:
 
 1. Without it a fresh clone cannot run the citation loop at all:
    `retrieve_concept.py` and `build_citations.py` both need the corpus, so the
@@ -37,8 +38,13 @@ python3 scripts/build_citations.py --verify                  # 83/83 = you are u
 
 ### Refresh, after ingesting
 
-Deliberately, on milestones — **not** after every run. Each refresh adds ~67 MB
+Deliberately, on milestones — **not** after every run. Each refresh adds ~61 MB
 to git history permanently.
+
+Compress from the backup-API copy, never from the live file: that copy is both
+consistent under a concurrent write *and* free of the live DB's unused pages.
+The 2026-08-03 refresh came out at 61 MB against the previous 67 MB while
+carrying 13% more text, which is the freed pages showing up.
 
 ```bash
 python3 - <<'PY'

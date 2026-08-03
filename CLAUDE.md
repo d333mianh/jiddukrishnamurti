@@ -48,7 +48,7 @@ workflow for `parse_vtt.py` / `build_catalog.py` changes.
   (`education_directory_2026.json`, `channel_recordings_2026.json`),
   `link_cache.json`, `exports/` (CSV/XLSX), `logs/` (gitignored).
 - **`corpus/`** — the L1/L2 DB. The live `krishnamurti-corpus.db` is gitignored;
-  a compressed snapshot (`krishnamurti-corpus.db.zst`, 67 MB) **is** tracked —
+  a compressed snapshot (`krishnamurti-corpus.db.zst`, 61 MB) **is** tracked —
   see "Restoring the corpus from a fresh clone" below.
 - **`concepts/`** — tracked L3 data: `concepts.jsonl` (36 roots + 3 deprecated
   tombstones) and `citations.jsonl` (the curated L4 quotations).
